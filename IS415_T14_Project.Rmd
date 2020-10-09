@@ -1,6 +1,6 @@
 ---
-title: "IS415_T14_Project"
-author: "Team 14!"
+title: "Team 14: East Kalimantan as the new J-Town"
+author: "Team 14, Ng Xun Jie, Erika Aldisa Gunawan, Sean Lee Jun Hui"
 date: "9/26/2020 (updated: `r Sys.Date()`)"
 output: 
   html_document:
@@ -13,16 +13,406 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-Hello World!
+# 1. Overview
 
-# Loading packages
-```{r, eval=TRUE, message=FALSE}
-packages = c('sp','rgdal', 'rgeos','sf', 'spdep', 'tmap', 'tidyverse','rvest','spatstat', 'raster', 'maptools','blogdown')
+Team 14 aims to do profiling & segmentation of the new proposed area of Indonesia's capital city in East Kalimantan province. 
+
+To do this, we will firstly load the necessary R packages to do our analysis. Next, we will load the PODES 2018 data (CSV) and East Kalimantan province shapefile, both received from Professor Kam Tin Seong.
+
+Afterwards, data wrangling to get renamed columns and extra variables is really important because the datasets are in Bahasa Indonesia so some translation by renaming columns will be done.
+
+Lastly, we will conduct **Spatially Constrained Clustering** analysis on the variables selected that are indicators of how well developed a city is. 
+
+
+# 2. Load/Install necessary R packages
+
+R packages needed:
+
+* sf - for handling simple feature objects
+
+* spdep - for spatial statistical analysis
+
+* rgdal - for handling spatial data
+
+* tmap - for choropleth mapping
+
+* tidyverse - for tidying data (tidyr, purrr, tibble, stringr, forcats, readr, ggplot2 & dplyr)
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+packages = c('sf','spdep','rgdal','tmap','tidyverse')
 for (p in packages){
   if(!require(p, character.only = T)){
     install.packages(p)
   }
-  library(p,character.only = T)
+  library(p, character.only = T)
 }
 ```
-Include details of packages downloaded
+
+
+# 3. Importing Data into R
+
+We import shapefile using **readOGR() function** of rgdal package.
+
+Then, we import csv file using **read_csv() function** of readr package (tidyverse).
+
+
+## 3.1 Importing geospatial data (shapefile)
+
+- Imported as sf data frame
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=TRUE}
+area <- st_read(dsn = "data/geospatial/StudyArea.shp", layer = "StudyArea")
+```
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+glimpse(area)
+```
+
+We can see that there are 12 variables whose column names are in Bahasa Indonesia.
+
+* PROVNO - unique ID of the province East Kalimantan
+
+* KABKOTNO - unique ID of regencies/cities
+
+* KECNO - unique ID of districts
+
+* DESANO - unique ID of villages
+
+* PROVINSI - name of **provinces** (East Kalimantan), the highest level of govt. administrative region
+
+* KABKOT - name of **regencies/cities** in East Kalimantan, the second level of govt. administrative region
+
+* KECAMATAN - name of **districts** in East Kalimantan, the third level of govt. administrative region
+
+* DESA - name of **village** in East Kalimantan, the lowest level of govt. administrative region
+
+* IDDESA - unique ID of villages that is the full region code (concatenation of PROVNO, KABKOTNO, KECNO, DESANO)
+
+* TAHUN - year
+
+* SUMBER - source of data, BPS stands for Badan Pusat Statistik, Statistics Indonesia 
+
+* geometry - the coordinates of the geometries polygons
+
+For this project, it's important to learn about the government administrative region of Indonesia. In Indonesia, nationally one country, divided into **34 provinces** which includes East Kalimantan. 
+
+* A **province (provinsi)** is divided into **cities/regencies**
+
+* **Regencies (kabupaten)** are usually larger than cities (kota) in size and have agricultural activities. In East Kalimantan province, there are 3 cities (Balikpapan, Samarinda, Bontang) and 7 regencies
+
+* Regencies and cities are further divided into **districts (kecamatan)**
+
+* The last level of government administrative region is **village (desa)** or **subdistrict (kelurahan)**
+
+* Village most often used for regencies & subdistrict most often used for cities, just like how regency is more rural than city
+
+## 3.2 Renaming columns of area shapefile
+
+We will rename the columns of "area" into english.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+area <- area %>%
+  rename(
+    PROVINCE_ID = PROVNO,
+    CITY_ID = KABKOTNO,
+    DISTRICT_ID = KECNO,
+    VILLAGE_ID = DESANO,
+    PROVINCE = PROVINSI,
+    CITY = KABKOT,
+    DISTRICT =KECAMATAN,
+    VILLAGE = DESA,
+    REGION_CODE = IDDESA,
+    YEAR = TAHUN,
+    SOURCE = SUMBER,
+    GEOMETRY = geometry
+  )
+```
+
+
+
+Let's observe if the area shapefile has any missing/NA values.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=TRUE}
+summary(area)
+any(is.na(area))
+```
+We can see that there are no NA values and all variables have the same number of observations. 
+
+
+## 3.3 Plot of the Study Area
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=TRUE}
+tm_shape(area)+
+  tm_basemap('OpenStreetMap')+
+  tm_polygons("CITY")+
+  tm_text("VILLAGE_ID", size = 0.1)+ 
+  tm_borders(lwd=0.5)+
+  tm_layout(legend.height = 0.50, 
+            legend.width = 0.44,
+            frame = FALSE) +
+  tm_compass(type="8star", size = 2) +
+  tm_scale_bar(width = 0.15)
+```
+
+Note: The study area does not cover the whole area of East Kalimantan province, only 2 regencies which are Kutai Kartanegara and Penajam Paser Utara & 2 biggest cities in East Kalimantan which are Balikpapan and Samarinda. This is shown below by finding the distinct regencies/cities variable.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+distinct(as.data.frame(area$CITY))
+```
+
+
+## 3.4 Importing aspatial data (PODES 2018 in CSV format)
+
+The PODES 2018 data is divided into 4 parts in CSV format so we will import all 4 CSV files and bind them to one dataframe.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes1 <- read_csv("data/aspatial/podes2018_part1.csv")
+head(podes1)
+```
+
+We can see that the variables of the PODES 2018 data are in codes (R101N, R102, R102N, etc.) which we have to convert based on the information found in the reference of this data. 
+
+However, we will firstly see the other parts of the PODES 2018 data and see if there's some tidying to do.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+glimpse(podes1)
+```
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes2 <- read_csv("data/aspatial/podes2018_part2.csv")
+#glimpse(podes2)
+```
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes3 <- read_csv("data/aspatial/podes2018_part3.csv")
+#glimpse(podes3)
+```
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes4 <- read_csv("data/aspatial/podes2018_part4.csv")
+#glimpse(podes4)
+```
+
+As we can see from the glimpse() function, all the different parts of PODES 2018 dataframe have different number of columns/variable. 
+
+PODES1 has 150 variables, PODES2 has 217 variables, PODES3 has 232 variables and PODES4 has 185 variables. However, we can see **the only overlapping variables are the first 9 variables** namely shape, R101, R101N, R102, R102N, R103, R103N, R104, R104N. 
+
+
+## 3.5 Combining 4 parts PODES 2018 data 
+
+Since, all the 4 parts have the same number of rows, we will just use inner_join() function of dplyr package to combine the 4 parts into 1 dataframe.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes5 <- inner_join(podes1, podes2, by = c("Shape", "R101", "R101N", "R102", "R102N", "R103", "R103N", "R104", "R104N"))
+podes6 <- inner_join(podes3, podes4, by = c("Shape", "R101", "R101N", "R102", "R102N", "R103", "R103N", "R104", "R104N"))
+podes <- inner_join(podes5, podes6, by = c("Shape", "R101", "R101N", "R102", "R102N", "R103", "R103N", "R104", "R104N"))
+head(podes)
+```
+
+We can see that the podes data frame have 757 variables now, and it's correct because if we bind everything it will have 784 variables and subtracted by 3 times of 9 same variable will be 784-27 = 757.
+
+## 3.6 Deriving column names of combined PODES 2018 dataframe (Data wrangling)
+
+### 3.6.1 PODES 2018 part 1 (general info of village, demographics & employment, housing & living environment)
+
+From the reference data, we can derive the meaning of each variables and we will be doing so in the order of the podes dataframe. Note that some variables need further tidying such as changing type of variable from double to factor. 
+
+- general info of village
+
+Changing variable "R301" - governance status to factor variable by using recode_factor() function of dplyr package.
+
+UTP means Transmigration Settlement Unit & STP means Entity of Transmigration Settlement. 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R301 = recode_factor(as.vector(podes$R301), `1` = "VILLAGE", `2` = "SUBDISTRICT", `3` = "UPT/SPT"))
+```
+
+
+Changing variable "R302A" - village/subdistrict council to factor variable. 1 means have and 2 means do not have. It will be changed to 1 as yes and 0 as no.
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R302A = recode_factor(as.vector(podes$R302A), `1` = 1, `2` = 0))
+```
+
+
+Changing variable "R303" - village/subdistrict map set by the governor(provincial level) or mayor (city level) to factor variable. 1 means have and 2 means do not have. It will be changed to 1 as yes and 0 as no.
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R303 = recode_factor(as.vector(podes$R303), `1` = 1, `2` = 0))
+```
+
+Changing variable "R304A" - presence of local units which are smaller level or units of administrative region, below village and subdistrict level. Changing this dbl type to factor type. 1 means have and 2 means do not have. It will be changed to 1 as yes and 0 as no.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R304A = recode_factor(as.vector(podes$R304A), `1` = 1, `2` = 0))
+```
+
+
+Changing variable "R305B" - topography of the village/subdistrict area to  factor variable. 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R305B = recode_factor(as.vector(podes$R305B), `1` = "SLOPE/PEAK", `2` = "VALLEY", `3` = "FLAT"))
+```
+
+Changing variable "R305C" - presence of residential areas in slope/peak to  factor variable. 1 means have and 2 means do not have. It will be changed to 1 as yes and 0 as no.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R305C = recode_factor(as.vector(podes$R305C), `1` = 1, `2` = 0))
+```
+
+
+
+Changing variable "R306A" - presence of village head office. 1 means have and 2 means do not have. It will be changed to 1 as yes and 0 as no.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R306A = recode_factor(as.vector(podes$R306A), `1` = 1, `2` = 0))
+```
+
+Changing variable "R306B" - status of village head office, whether they are an asset of the village or not. 1 means yes it's an asset and 2 means not an asset. It will be changed to "ASSET" and "NON-ASSET".
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R306B = recode_factor(as.vector(podes$R306B), `1` = "ASSET", `2` = "NON-ASSET"))
+```
+
+Changing variable "R306C" - condition of village head office, whether they are worthy to have run the office or not. 1 means yes it's deserving/worthy and 2 means not deserving/worthy. It will be changed to "WORTH" and "NOT WORTH".
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R306C = recode_factor(as.vector(podes$R306C), `1` = "WORTH" , `2` = "NOT WORTH"))
+```
+
+Changing variable "R306D" - location of village head office, whether it is located inside or outside the village/subdistrict. 1 means it's located inside the area and 2 means located outside the area. It will be changed to "INSIDE" and "OUTSIDE".
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R306D = recode_factor(as.vector(podes$R306D), `1` = "INSIDE" , `2` = "OUTSIDE"))
+```
+
+Changing variable "R307A" - where the governmental activities are executed mainly. 1 means activities are executed in village head office and 2 means activities are not executed in the head offices. It will be changed to 1 as yes and 0 as no.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R307A = recode_factor(as.vector(podes$R307A), `1` = 1 , `2` = 0))
+```
+
+
+Changing variable "R308A" - whether there are any villages/subdistricts that is directly adjacent to the sea. 1 means yes and 2 means no villages/subdistricts that is adjacent to the sea. It will be changed to 1 as yes and 0 as no.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R308A = recode_factor(as.vector(podes$R308A), `1` = 1 , `2` = 0))
+```
+
+Changing variable "R308B1A" - does the village/subdistrict adjacent to the sea have benefited in their fishing catches (includes all marine life). 1 means yes and 2 means no. It will be changed to 1 as yes and 0 as no.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R308B1A = recode_factor(as.vector(podes$R308B1A), `1` = 1 , `2` = 0))
+```
+
+Changing variable "R308B1B" - does the village/subdistrict adjacent to the sea have benefited in their fish farming/cultivation (includes all marine life). 3 means yes and 4 means no. It will be changed to 1 as yes and 0 as no.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R308B1B = recode_factor(as.vector(podes$R308B1B), `3` = 1 , `4` = 0))
+```
+
+Changing variable "R308B1C" - does the village/subdistrict adjacent to the sea have benefited in their salt evaporation pond. 5 means yes and 6 means no. It will be changed to 1 as yes and 0 as no.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R308B1C = recode_factor(as.vector(podes$R308B1C), `5` = 1 , `6` = 0))
+```
+
+Changing variable "R308B1D" - does the village/subdistrict adjacent to the sea have benefited in their marine tourism. 7 means yes and 8 means no. It will be changed to 1 as yes and 0 as no.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R308B1D = recode_factor(as.vector(podes$R308B1D), `7` = 1 , `8` = 0))
+```
+
+Changing variable "R308B1E" - does the village/subdistrict adjacent to the sea have benefited in improved public transportation. 1 means yes and 2 means no. It will be changed to 1 as yes and 0 as no.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R308B1E = recode_factor(as.vector(podes$R308B1E), `1` = 1 , `2` = 0))
+```
+
+Changing variable "R308B2" - presence of any types of mangrove trees. 1 means yes and 2 means no. It will be changed to 1 as yes and 0 as no.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R308B2 = recode_factor(as.vector(podes$R308B2), `1` = 1 , `2` = 0))
+```
+
+
+Changing variable "R308B3" - condition of mangrove trees. 1 means good, 2 means partly damaged and 3 means damaged. It will be changed to "GOOD", "BAD", "WORST".
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R308B3 = recode_factor(as.vector(podes$R308B3), `1` = "GOOD" , `2` = "BAD", `3` = "WORST"))
+```
+
+Changing variable "R309A" - village/subdistrict location in proximity to forested areas. 1 means it's located in forested areas, 2 means it's located at the edge or around the forested areas and 3 means it's located outside the area. It will be changed to "INSIDE", "AROUND", "OUTSIDE".
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R309A = recode_factor(as.vector(podes$R309A), `1` = "INSIDE" , `2` = "AROUND", `3` = "OUTSIDE"))
+```
+
+
+Changing variable "R309B" - forested areas' main function. 1 means conservation, 2 means protection and 3 means production. It will be changed to "CONSERVATION", "PROTECTION", "PRODUCTION".
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R309B = recode_factor(as.vector(podes$R309B), `1` = "CONSERVATION" , `2` = "PROTECTION", `3` = "PRODUCTION"))
+```
+
+Changing variable "R309C" - residents' dependency on the forested area. 1 means high dependency, 2 means medium/average dependency and 3 means low dependency. It will be changed to "HIGH", "MED", "LOW".
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R309C = recode_factor(as.vector(podes$R309C), `1` = "HIGH" , `2` = "MED", `3` = "LOW"))
+```
+
+
+- demographics & employment
+
+Changing variable "R402A" - if residents of villages/subdistricts are currently working as migrant workers abroad. 1 means have, 2 means do not have and 3 means do not know. It will be changed to "YES", "NO", "NOT SURE".
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R402A = recode_factor(as.vector(podes$R402A), `1` = "HI" , `2` = "NO", `3` = "NOT SURE"))
+```
+
+
+Changing variable "R402C" - presence of an agent who sends residents abroad to become migrant workers. These agents can be a person, a group or a company. 1 means yes and 2 means no. It will be changed to 1 for yes and 0 for no.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R402C = recode_factor(as.vector(podes$R402C), `1` = 1 , `2` = 0))
+head(podes)
+```
+
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+var_meaning1 = c("SHAPE", "PROVINCE_ID", "PROVINCE", "CITY_ID", "CITY", "DISTRICT_ID", "DISTRICT", "VILLAGE_ID", "VILLAGE", "VILLAGE/SUBDISTRICT", "PRESENCE_VILLAGE/SUBDISTRICT_COUNCIL", "COUNCIL_MEMBER_NO", "COUNCIL_ACTIVITY_2017", "VILLAGE/SUBDISTRICT_MAP", "PRESENCE_LOCAL_UNITS", "LOCAL_UNITS_LEVEL", "LOCAL_UNITS_NO", "VILLAGE/SUBDISTRICT_BY_AREA_IN_ISLAND", "VILLAGE/SUBDISTRICT_BY_TOPOGRAPHY", "PRESENCE_RESIDENTIALAREAS_IN_SLOPE/PEAK", "PRESENCE_VILLAGE_HEAD_OFFICE", "STATUS_HEAD_OFFICE", "CONDITION_HEAD_OFFICE", "LOCATION_HEAD_OFFICE", "ACTIVITY_EXECUTION_IN_HEAD_OFFICE", "VILLAGE_ADJACENT_TO_SEA", "SEA_BENEFIT_FISHING", "SEA_BENEFIT_FISH_FARMING", "SEA_BENEFIT_SALTPOND", "SEA_BENEFIT_MARINE_TOURISM", "SEA_BENEFIT_PUBLIC_TRANSPORTATION", "PRESENCE_MANGROVE_TREES", "CONDITION_MANGROVE_TREES", "VILLAGE_LOCATION_TO_FOREST", "FOREST_FUNCTION", "DEPENDENCY_ON_FOREST", "VILLAGERS_MIGRANT_WORKERS(TKI)", "PRESENCE_MIGRANT_WORKERS_AGENT")
+```
+
+
+# stopped at variable R402C, I'm ded
+
+We cannot rename the podes dataframe columns now because our vector list of variable meaning is not complete yet. So, we will do this after we have tidied all the variable data.
+
+### 3.6.2 PODES 2018 part 2 (...)
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+var_meaning2 = c("")
+```
+
+
+### 3.6.3 PODES 2018 part 3 (...)
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+var_meaning3 = c("")
+```
+
+### 3.6.4 PODES 2018 part 4 (...)
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+var_meaning4 = c("")
+```
+
+
+##### Tidy PODES 2018 data frame
+
+Combine the 4 part vector names 
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+#var_meaning <- var_meaning1 + var_meaning2 + var_meaning3 + #var_meaning4
+```
+
+Now, we will be renaming the columns using the vector we created above.
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+#colnames(podes) <- var_meaning
+```
