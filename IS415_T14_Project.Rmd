@@ -216,7 +216,8 @@ We can see that the podes data frame have 757 variables now, and it's correct be
 
 From the reference data, we can derive the meaning of each variables and we will be doing so in the order of the podes dataframe. Note that some variables need further tidying such as changing type of variable from double to factor. 
 
-- general info of village
+
+What we will be doing now is to either recode the variable or to change the variable values, and we will only be **changing the column name at the end to simplify the process**, we will be keeping a vector of all the variable name in podes1 dataframe and will be setting the column names of the new tidy podes1 data frame with that variable name vector.
 
 Changing variable "R301" - governance status to factor variable by using recode_factor() function of dplyr package.
 
@@ -372,18 +373,214 @@ Changing variable "R402C" - presence of an agent who sends residents abroad to b
 
 ```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
 podes <- podes %>% mutate(R402C = recode_factor(as.vector(podes$R402C), `1` = 1 , `2` = 0))
+```
+
+Changing variable "R403A" - source of main income for the majority of the population of the village/sub-district 
+From the reference,
+
+- 1 means agriculture
+
+- 2 means mining and excavation
+
+- 3 means manufacturing/processing of goods such as fabric/handicrafts
+
+- 4 means retail businesses/restaurants
+
+- 5 means transportation/storage/logistics
+
+- 6 means services (legal, moving, tax, electronic repair, salon)
+
+- 7 means Others/Miscellaneous
+
+It will be changed the character string of what the number represents.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R403A = recode_factor(as.vector(podes$R403A), `1` = "AGRICULTURE" , `2` = "MINING", `3` = "MANUFACTURING", `4` = "RETAIL/RESTAURANTS", `5` = "LOGISTICS", `6` = "SERVICES", `7` = "OTHERS"))
+head(podes)
+```
+
+Changing variable "R403B" - Type of commodities for majority of village/sub-district 
+
+From the reference,
+
+- 1 means rice
+
+- 2 means secondary staple crop (corn, beans, potatoes, cassava, root vegetables)
+
+- 3 means horticulture (fruits, vegetables, decorative flowers, plant medicine)
+
+- 4 means rubber
+
+- 5 means palm oil
+
+- 6 means coffee
+
+- 7 means cacao
+
+- 8 means coconut
+
+- 9 means pepper
+
+- 10 means clove
+
+- 11 means tobacco
+
+- 12 means sugarcane
+
+- 13 means livestock
+
+- 14 means caught fishes
+
+- 15 means farmed fishes
+
+- 16 means forest resources (such as bamboo, tak and mahogany)
+
+- 17 means forest products (such as honey, fruits and firewood)
+
+- 18 means wild animals (pigs, wild chickens and deer)
+
+- 19 means captive bred animals/plants (crocodile, orchid, arowana fish)
+
+- 20 means farming services (renting machineries or seeding)
+
+It will be changed the character string of what the number represents.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R403B = recode_factor(as.vector(podes$R403B), `1` = "RICE" , `2` = "SECONDARY STAPLE CROP", `3` = "HORTICULTURE", `4` = "RUBBER", `5` = "PALMOIL", `6` = "COFFEE", `7` = "CACAO", `8` = "COCONUT", `9` = "PEPPER", `10` = "CLOVE", `11` = "TOBACCO", `12` = "SUGARCANE", `13` = "LIVESTOCK", `14` = "CAUGHT FISH", `15` = "FARMED FISH", `16` = "FOREST RESOURCES", `17` = "FOREST PRODUCTS", `18` = "WILD ANIMALS", `19` = "CAPTIVE BRED ANIMALS", `20` = "FARMING SERVICES"))
+```
+
+
+Changing variable "R403C1" - type of available infrastructure from/to the local central production place in the village/sub-district
+
+From the reference,
+
+- 1 means asphalt/concrete
+
+- 2 means hardened rocks (gravel,rocks,etc.)
+
+- 3 means land
+
+- 4 means water
+
+- 5 means others
+
+It will be changed the character string of what the number represents.
+
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R403C1 = recode_factor(as.vector(podes$R403C1), `1` = "CONCRETE" , `2` = "ROCKS", `3` = "LAND", `4` = "WATER", `5` = "OTHERS"))
+```
+
+Changing variable "R403C2" - road from/to the local central production place to main road of village/sub-district can be accessed by 4-wheel vehicles
+
+- 1 means accessible all year around
+
+- 2 means accessible all year around except conditions such as heavy rain or currents
+
+- 3 means accessible during dry season only
+
+- 4 means not accessible all year around
+
+
+It will be changed the character string of what the number represents.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R403C2 = recode_factor(as.vector(podes$R403C2), `1` = "YES" , `2` = "NO DURING EXTREME WEATHER CONDITIONS",`3` = "DRY SEASON ONLY", `4` = "NO"))
+head(podes)
+```
+
+Changing variable "R404A" - presence of unique/main product of the village/sub-district. 1 means Yes and 2 means No, we will change yes to 1 and no to 0
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R404A = recode_factor(as.vector(podes$R404A), `1` = 1 , `2` = 0))
+```
+
+
+Changing variable "R404C" - how many unique products are being exported overseas, there's no specific measure for this. 1 means yes, to a large extent. 2 means yes, to a small extent and 3 means no. 
+
+We will change this into character string to better understand it.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R404C = recode_factor(as.vector(podes$R404C), `1` = "MANY" , `2` = "LITTLE", `3` = "NONE"))
 head(podes)
 ```
 
 
+- housing & living environment
+
+Changing variable "R502A" - presence of street lighting on the main road of the village/sub-district. 1 means majority has street lighting, 2 means small part and 3 means no lighting.
+
 ```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
-var_meaning1 = c("SHAPE", "PROVINCE_ID", "PROVINCE", "CITY_ID", "CITY", "DISTRICT_ID", "DISTRICT", "VILLAGE_ID", "VILLAGE", "VILLAGE/SUBDISTRICT", "PRESENCE_VILLAGE/SUBDISTRICT_COUNCIL", "COUNCIL_MEMBER_NO", "COUNCIL_ACTIVITY_2017", "VILLAGE/SUBDISTRICT_MAP", "PRESENCE_LOCAL_UNITS", "LOCAL_UNITS_LEVEL", "LOCAL_UNITS_NO", "VILLAGE/SUBDISTRICT_BY_AREA_IN_ISLAND", "VILLAGE/SUBDISTRICT_BY_TOPOGRAPHY", "PRESENCE_RESIDENTIALAREAS_IN_SLOPE/PEAK", "PRESENCE_VILLAGE_HEAD_OFFICE", "STATUS_HEAD_OFFICE", "CONDITION_HEAD_OFFICE", "LOCATION_HEAD_OFFICE", "ACTIVITY_EXECUTION_IN_HEAD_OFFICE", "VILLAGE_ADJACENT_TO_SEA", "SEA_BENEFIT_FISHING", "SEA_BENEFIT_FISH_FARMING", "SEA_BENEFIT_SALTPOND", "SEA_BENEFIT_MARINE_TOURISM", "SEA_BENEFIT_PUBLIC_TRANSPORTATION", "PRESENCE_MANGROVE_TREES", "CONDITION_MANGROVE_TREES", "VILLAGE_LOCATION_TO_FOREST", "FOREST_FUNCTION", "DEPENDENCY_ON_FOREST", "VILLAGERS_MIGRANT_WORKERS(TKI)", "PRESENCE_MIGRANT_WORKERS_AGENT")
+podes <- podes %>% mutate(R502A = recode_factor(as.vector(podes$R502A), `1` = "MAJORITY" , `2` = "MINORITY", `3` = "NONE"))
+```
+
+Changing variable "R502B" - type of street lighting on the main road of the village/sub-district. 1 means government provided electricity, 2 means non-public provided electricity and 3 means no electricity
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R502B = recode_factor(as.vector(podes$R502B), `1` = "GOVT" , `2` = "NON GOVT", `3` = "NO ELECTRICITY"))
 ```
 
 
-# stopped at variable R402C, I'm ded
+Changing variable "R503A" - type of fuel used for cooking by households
 
-We cannot rename the podes dataframe columns now because our vector list of variable meaning is not complete yet. So, we will do this after we have tidied all the variable data.
+503A1 variable - natural gas pipes
+
+503A2 varible - liquefied petroleum gas (LGP) 3 kg
+
+503A3 varible - liquefied petroleum gas (LGP) > 3kg
+ 
+503A4 varible - kerosene
+
+503A5 varible - firewood
+
+503A6 varible - others (charcoal, coal, etc.)
+
+From the reference, we will change yes to value of 1 and no to 0.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% 
+  mutate(R503A1 = recode_factor(as.vector(podes$R503A1), `1` = 1 , `2` = 0)) %>%
+  mutate(R503A2 = recode_factor(as.vector(podes$R503A2), `3` = 1 , `4` = 0)) %>%
+  mutate(R503A3 = recode_factor(as.vector(podes$R503A3), `5` = 1 , `6` = 0)) %>%
+  mutate(R503A4 = recode_factor(as.vector(podes$R503A4), `7` = 1 , `8` = 0)) %>%
+  mutate(R503A5 = recode_factor(as.vector(podes$R503A5), `1` = 1 , `2` = 0)) %>%
+  mutate(R503A6 = recode_factor(as.vector(podes$R503A6), `3` = 1 , `4` = 0)) 
+```
+
+
+Changing variable "R503B" - the type of fuel that is most often used (pick one from the previous variable that is 1 (Yes))
+ 
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% 
+  mutate(R503B = recode_factor(as.vector(podes$R503B), `1` = "GAS PIPES" , `2` = "LPG 3KG", `3` = "LPG >3KG", `4` = "KEROSENE", `5` = "FIREWOOD", `6` = "OTHERS"))
+```
+
+
+For variable "R503C", it's how the households obtain firewood if their most often used fuel is firewood. The choices are: 1 for bought, 2 for forest, 3 for outside forest, 4 for others.
+
+We can just delete this variable since it's not that significant to our research.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+
+```
+
+
+
+Changing variable "R504" - 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% 
+  mutate(R503C = recode_factor(as.vector(podes$R503C), `1` = "GAS PIPES" , `2` = "LPG 3KG", `3` = "LPG >3KG", `4` = "KEROSENE", `5` = "FIREWOOD", `6` = "OTHERS"))
+head(podes)
+```
+
+
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+var_meaning1 = c("SHAPE", "PROVINCE_ID", "PROVINCE", "CITY_ID", "CITY", "DISTRICT_ID", "DISTRICT", "VILLAGE_ID", "VILLAGE", "VILLAGE/SUBDISTRICT", "PRESENCE_VILLAGE/SUBDISTRICT_COUNCIL", "COUNCIL_MEMBER_NO", "COUNCIL_ACTIVITY_2017", "VILLAGE/SUBDISTRICT_MAP", "PRESENCE_LOCAL_UNITS", "LOCAL_UNITS_LEVEL", "LOCAL_UNITS_NO", "VILLAGE/SUBDISTRICT_BY_AREA_IN_ISLAND", "VILLAGE/SUBDISTRICT_BY_TOPOGRAPHY", "PRESENCE_RESIDENTIALAREAS_IN_SLOPE/PEAK", "PRESENCE_VILLAGE_HEAD_OFFICE", "STATUS_HEAD_OFFICE", "CONDITION_HEAD_OFFICE", "LOCATION_HEAD_OFFICE", "ACTIVITY_EXECUTION_IN_HEAD_OFFICE", "VILLAGE_ADJACENT_TO_SEA", "SEA_BENEFIT_FISHING", "SEA_BENEFIT_FISH_FARMING", "SEA_BENEFIT_SALTPOND", "SEA_BENEFIT_MARINE_TOURISM", "SEA_BENEFIT_PUBLIC_TRANSPORTATION", "PRESENCE_MANGROVE_TREES", "CONDITION_MANGROVE_TREES", "VILLAGE_LOCATION_TO_FOREST", "FOREST_FUNCTION", "DEPENDENCY_ON_FOREST", "VILLAGERS_MIGRANT_WORKERS(TKI)", "PRESENCE_MIGRANT_WORKERS_AGENT", "VILLAGE_MAIN_INCOME", "TYPE_OF_COMMODITIES", "INFRASTRUCTURE_FROM_PRODUCTION_PLACE_TO_VILLAGE", "ACCESSIBLE_ROAD_FROM_PRODUCTION_PLACE_TO_VILLAGE", "UNIQUE_PRODUCT_VILLAGE", "FOOD_UNIQUE_PRODUCT", "NON_FOOD_UNIQUE_PRODUCT", "UNIQUE_PRODUCTS_EXPORTED", "HOUSEHOLDS_PLN_ELECTRICITY", "HOUSEHOLDS_NONPLN_ELECTRICITY", "HOUSEHOLDS_NO_ELECTRICITY", "STREET_LIGHTING", "ELECTRICTY_PROVIDER", "FUEL_GAS_PIPES", "FUEL_LPG3KG", "FUEL_LPG>3KG", "FUEL_KEROSENE", "FUEL_FIREWOOD", "FUEL_OTHERS", "FUEL_USED_OFTEN", "")
+```
+
+
 
 ### 3.6.2 PODES 2018 part 2 (...)
 
