@@ -208,18 +208,18 @@ podes <- inner_join(podes5, podes6, by = c("Shape", "R101", "R101N", "R102", "R1
 head(podes)
 ```
 
-We can see that the podes data frame have 757 variables now, and it's correct because if we bind everything it will have 784 variables and subtracted by 3 times of 9 same variable will be 784-27 = 757.
+We can see that the *podes* data frame have 757 variables now, and it's correct because if we bind everything it will have 784 variables and subtracted by 3 times of 9 same variables will be (150 + 217 + 232 + 185) - (3*9) = 784-27 = 757.
 
 ## 3.6 Deriving column names of combined PODES 2018 dataframe (Data wrangling)
 
 ### 3.6.1 PODES 2018 part 1 (general info of village, demographics & employment, housing & living environment)
 
-From the reference data, we can derive the meaning of each variables and we will be doing so in the order of the podes dataframe. Note that some variables need further tidying such as changing type of variable from double to factor. 
+From the reference data, we can derive the meaning of each variables and we will be doing so in the order of the podes dataframe. Note that some variables need further tidying such as *changing type of variable from double to factor*. 
 
 
-What we will be doing now is to either recode the variable or to change the variable values, and we will only be **changing the column name at the end to simplify the process**, we will be keeping a vector of all the variable name in podes1 dataframe and will be setting the column names of the new tidy podes1 data frame with that variable name vector.
+What we will be doing now is to either *recode* the variable or to change the variable values, and we will only be **changing the column name at the end to simplify the process**, we will be keeping a vector of all the variable name in podes1 dataframe and will be setting the column names of the new tidy podes1 data frame with that variable name vector.
 
-Changing variable "R301" - governance status to factor variable by using recode_factor() function of dplyr package.
+Changing variable "R301" - governance status to factor variable by using *recode_factor()* function of **dplyr** package.
 
 UTP means Transmigration Settlement Unit & STP means Entity of Transmigration Settlement. 
 
@@ -600,6 +600,70 @@ var_meaning3 = c("")
 ```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
 var_meaning4 = c("")
 ```
+
+
+
+
+
+
+- 13 Security
+
+Changing variable "R1301A" - Massive Fighting Incident in the village/sub-district during the last year. 1 means Yes and 2 means No, we will change yes to 1 and no to 0
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1301A = recode_factor(as.vector(podes$R1301A), `1` = 1 , `2` = 0 ))
+```
+
+Changing variable "R1301B1K3" - If Massive Fighting Incident happened among the society and there are **casualty (Died)** . 1 means Yes and 2 means No, we will change yes to 1 and no to 0
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1301B1K3 = recode_factor(as.vector(podes$R1301B1K3), `1` = 1 , `2` = 0 ))
+```
+
+Changing variable "R1301B1K4" - If Massive Fighting Incident happened among the society and there are **casualty (Injured)** . 1 means Yes and 2 means No, we will change yes to 1 and no to 0
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1301B1K4 = recode_factor(as.vector(podes$R1301B1K4), `1` = 1 , `2` = 0 ))
+```
+
+Changing variable "R1301B2K3" - If Massive Fighting Incident happened among the society between villages/sub-districts and there are **casualty (Died)** . 1 means Yes and 2 means No, we will change yes to 1 and no to 0
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1301B2K3 = recode_factor(as.vector(podes$R1301B2K3), `1` = 1 , `2` = 0 ))
+```
+
+Changing variable "R1301B2K4" - If Massive Fighting Incident happened among the society between villages/sub-districts and there are **casualty (Injured)** . 1 means Yes and 2 means No, we will change yes to 1 and no to 0
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1301B2K4 = recode_factor(as.vector(podes$R1301B2K4), `1` = 1 , `2` = 0 ))
+```
+
+Changing variable "R1301B3K3" - If Massive Fighting Incident happened among the society with security forces and there are casualty (Died) . 1 means Yes and 2 means No, we will change yes to 1 and no to 0
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1301B3K3 = recode_factor(as.vector(podes$R1301B3K3), `1` = 1 , `2` = 0 ))
+```
+
+Changing variable "R1301B3K4" - If Massive Fighting Incident happened among the society with security forces and there are casualty (Injured) . 1 means Yes and 2 means No, we will change yes to 1 and no to 0
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1301B3K4 = recode_factor(as.vector(podes$R1301B3K4), `1` = 1 , `2` = 0 ))
+```
+##########
+Changing variable "R1301B3K3" - If Massive Fighting Incident happened among the society with security forces and there are casualty (Died) . 1 means Yes and 2 means No, we will change yes to 1 and no to 0
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1301B3K3 = recode_factor(as.vector(podes$R1301B3K3), `1` = 1 , `2` = 0 ))
+```
+
+Changing variable "R1301B3K4" - If Massive Fighting Incident happened among the society with security forces and there are casualty (Injured) . 1 means Yes and 2 means No, we will change yes to 1 and no to 0
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1301B3K4 = recode_factor(as.vector(podes$R1301B3K4), `1` = 1 , `2` = 0 ))
+```
+
+
+
 
 
 ##### Tidy PODES 2018 data frame
