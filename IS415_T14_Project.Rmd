@@ -9,7 +9,7 @@ output:
     toc_float: true
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
@@ -903,9 +903,609 @@ var_meaning2 = c("")
 
 
 ### 3.6.3 PODES 2018 part 3 (...)
+<br> In PODES 2018 Part 3, it covers mostly demographic, economic, transport and as well as telecommunications data. The latter 3 are of more interest to us for this study as it can act as a proxy for how developed a DESA is. This would be important to city planners as it lets them know how much development needs to take place in order to build the village into a new capital city. 
+
+Changing variable "R801" - this encodes for whether a religion is present in a desa. The data has been encoded using different numbers; e.g. for Islam, 1 means present while 2 means absent; but for catolicism, 5 means present and 6 means absent. Change all these variables to 1 for presence and 0 for absence to ensure easier interpretability. 
+```{r}
+podes <- podes %>% 
+  mutate(R80101 = recode_factor(as.vector(podes$R80101), `1` = 1, `2` = 0)) %>%
+  mutate(R80102 = recode_factor(as.vector(podes$R80102), `3` = 1, `4` = 0)) %>%
+  mutate(R80103 = recode_factor(as.vector(podes$R80103), `5` = 1, `6` = 0)) %>%
+  mutate(R80104 = recode_factor(as.vector(podes$R80104), `7` = 1, `8` = 0)) %>%
+  mutate(R80105 = recode_factor(as.vector(podes$R80105), `1` = 1, `2` = 0)) %>%
+  mutate(R80106 = recode_factor(as.vector(podes$R80106), `3` = 1, `4` = 0)) %>%
+  mutate(R80107 = recode_factor(as.vector(podes$R80107), `5` = 1, `6` = 0))
+```
+
+Changing variable "R802" - this encodes for the dominant religion present in a desa. The numbers refer to the categories in "R801".
+
+```{r}
+podes <- podes %>% 
+  mutate(R80102 = recode_factor(as.vector(podes$R80102), `1` = 'Islam', `2` = 'Christianity', `3` = 'Catholicism'))
+```
+
+Variable "R803" - this encodes for the number of religious buildings in a desa. No need to change anything since it is a continuous variable.
+
+
+Variable "R804A1" - this encodes for whether a desa is multi ethnic. 1 means yes, 2 means no. Change it to 1 and 0 respectively.
+
+```{r}
+podes <- podes %>% 
+  mutate(R804A1 = recode_factor(as.vector(podes$R804A1), `1` = 1, `2` = 0)) 
+```
+
+Variable "R804A2A",  "R804A2B","R804A2C" - these give the biggest, 2nd  largest and 3rd largest ethnic group. This is encoded by PML code. Since we are not sure what the PML codes mean - we will drop this column later on. 
+
+Variable "R804B1" - this encodes for whether a desa is multi lingual. 1 means yes, 2 means no. Change it to 1 and 0 respectively.
+
+```{r}
+podes <- podes %>% 
+  mutate(R804B1 = recode_factor(as.vector(podes$R804B1), `1` = 1, `2` = 0)) 
+```
+
+Variable "R804B2" - this give the most spoken language in a desa. This is encoded by PML code. Since we are not sure what the PML codes mean - we will drop this column later on. 
+
+Variables "R805A" to "R805I" give the number of disabled people in a village broken down by disability. "R806" gives the number of physically restrained people. As it is continuous, no need to recode anything.
+
+Variable "R807" - this encodes for whether a desa has cultural heritage sites. 1 means yes,it is actively managed, 2 means yes, it is rarely managed, 3 means yes, but it is not managed, 4 means there are no such sites. 
+
+```{r}
+podes <- podes %>% 
+  mutate(R807 = recode_factor(as.vector(podes$R807), `1` = 'Yes, managed', `2` = 'Yes, rarely managed', `3` = 'Yes, not managed', `4` = 'No')) 
+```
+
+Variable "R808" - this encodes for whether a desa has communal spaces. 1 means yes,it is actively managed, 2 means yes, but it is not managed, 3 means there are no such sites. 
+
+```{r}
+podes <- podes %>% 
+  mutate(R808 = recode_factor(as.vector(podes$R808), `1` = 'Yes, managed', `2` =  'Yes, not managed', `3` = 'No')) 
+```
+
+Variable "R809A" and "R809B" gives whether a desa has engaged in communal activities (e.g. volunteering), and wheter they have helped other villages in need in the past year. 1 means most were involved, 2 means some were involved, 3 means no such activities. 
+
+```{r}
+podes <- podes %>% 
+  mutate(R809A = recode_factor(as.vector(podes$R809A), `1` = 'Yes, most involved', `2` =  'Yes, some involved', `3` = 'No')) %>% 
+  mutate(R809B = recode_factor(as.vector(podes$R809B), `1` = 'Yes, most involved', `2` =  'Yes, some involved', `3` = 'No'))
+```
+
+Variable "R8101K2" to "R8107K2" gives names of local wisdoms. As the columns have some missing data, and are unable to be coded into distinct groups, we will be dropping these columns later on.
+
+Variable "R811A" to "R811F" gives the number of social institutions in the Desa. No need to recode anything since it is a continuous variable.
+
+Variable "R901AK2" to "R901LK3" encode for whether sports facilities and activity groups are present in a region. If a variable ends with 2, it means it is for whether the facilities are present, while if the variable name ends with 3, it means it is for whether activity groups are present. For the former variable, 1 means 'Yes, In good condition', 2 means ' Yes,but moderately damanged' , 3 means ' Yes, but badly damanged' and 4 means absent. For the latter, 1 means have, 2 means don't have - need to recode this to 1 and 0. 
+
+```{r}
+podes <- podes %>% 
+  mutate(R901AK2 = recode_factor(as.vector(podes$R901AK2), `1` = 'Yes, good condition', `2` =  'Yes, moderate condition',`3` = 'Yes, poor condition', `4` = 'No')) %>% 
+  mutate(R901BK2 = recode_factor(as.vector(podes$R901BK2), `1` = 'Yes, good condition', `2` =  'Yes, moderate condition',`3` = 'Yes, poor condition', `4` = 'No')) %>% 
+  mutate(R901CK2 = recode_factor(as.vector(podes$R901CK2), `1` = 'Yes, good condition', `2` =  'Yes, moderate condition',`3` = 'Yes, poor condition', `4` = 'No')) %>% 
+  mutate(R901DK2 = recode_factor(as.vector(podes$R901DK2), `1` = 'Yes, good condition', `2` =  'Yes, moderate condition',`3` = 'Yes, poor condition', `4` = 'No')) %>% 
+  mutate(R901EK2 = recode_factor(as.vector(podes$R901EK2), `1` = 'Yes, good condition', `2` =  'Yes, moderate condition',`3` = 'Yes, poor condition', `4` = 'No')) %>% 
+  mutate(R901FK2 = recode_factor(as.vector(podes$R901FK2), `1` = 'Yes, good condition', `2` =  'Yes, moderate condition',`3` = 'Yes, poor condition', `4` = 'No')) %>% 
+  mutate(R901GK2 = recode_factor(as.vector(podes$R901GK2), `1` = 'Yes, good condition', `2` =  'Yes, moderate condition',`3` = 'Yes, poor condition', `4` = 'No')) %>% 
+  mutate(R901HK2 = recode_factor(as.vector(podes$R901HK2), `1` = 'Yes, good condition', `2` =  'Yes, moderate condition',`3` = 'Yes, poor condition', `4` = 'No')) %>% 
+  mutate(R901IK2 = recode_factor(as.vector(podes$R901IK2), `1` = 'Yes, good condition', `2` =  'Yes, moderate condition',`3` = 'Yes, poor condition', `4` = 'No')) %>% 
+  mutate(R901JK2 = recode_factor(as.vector(podes$R901JK2), `1` = 'Yes, good condition', `2` =  'Yes, moderate condition',`3` = 'Yes, poor condition', `4` = 'No')) %>% 
+  mutate(R901KK2 = recode_factor(as.vector(podes$R901KK2), `1` = 'Yes, good condition', `2` =  'Yes, moderate condition',`3` = 'Yes, poor condition', `4` = 'No')) %>% 
+  mutate(R901LK2 = recode_factor(as.vector(podes$R901LK2), `1` = 'Yes, good condition', `2` =  'Yes, moderate condition',`3` = 'Yes, poor condition', `4` = 'No')) 
+```
+
+```{r}
+podes <- podes %>% 
+  mutate(R901AK3 = recode_factor(as.vector(podes$R901AK3), `1` = 1, `2` = 0)) %>% 
+  mutate(R901BK3 = recode_factor(as.vector(podes$R901BK3), `1` = 1, `2` = 0)) %>% 
+  mutate(R901CK3 = recode_factor(as.vector(podes$R901CK3), `1` = 1, `2` = 0)) %>% 
+  mutate(R901DK3 = recode_factor(as.vector(podes$R901DK3), `1` = 1, `2` = 0)) %>% 
+  mutate(R901EK3 = recode_factor(as.vector(podes$R901EK3), `1` = 1, `2` = 0)) %>% 
+  mutate(R901FK3 = recode_factor(as.vector(podes$R901FK3), `1` = 1, `2` = 0)) %>% 
+  mutate(R901GK3 = recode_factor(as.vector(podes$R901GK3), `1` = 1, `2` = 0)) %>% 
+  mutate(R901HK3 = recode_factor(as.vector(podes$R901HK3), `1` = 1, `2` = 0)) %>% 
+  mutate(R901IK3 = recode_factor(as.vector(podes$R901IK3), `1` = 1, `2` = 0)) %>% 
+  mutate(R901JK3 = recode_factor(as.vector(podes$R901JK3), `1` = 1, `2` = 0)) %>% 
+  mutate(R901KK3 = recode_factor(as.vector(podes$R901KK3), `1` = 1, `2` = 0))  %>% 
+  mutate(R901LK3 = recode_factor(as.vector(podes$R901LK3), `1` = 1, `2` = 0))
+```
+
+Variable R902A Gives us whether a pub is present in the desa.  1 means have, 2 means don't have - need to recode this to 1 and 0. The follow up question (R902B) refers to the distance of the nearest bar, which is a continuous variable. No need to recode anything. 
+
+```{r}
+podes <- podes %>% 
+  mutate(R902A = recode_factor(as.vector(podes$R902A), `1` = 1, `2` = 0)) 
+```
+
+Variable R1001A gives us the means of transport available in the desa. 1 means land, 2 means water, 3 means land and water, while 4 means air. They are mutually exclusive categories.
+
+```{r}
+podes <- podes %>% 
+  mutate(R1001A = recode_factor(as.vector(podes$R1001A), `1` = 'Land', `2` = 'Water', `3` = 'Land and Water' , `4` = 'Air')) 
+```
+
+The next section is for those that answered either option 1 or 3 only. "R1001B1" refers to road material, while "R1001B2" refers to whether the roads can be used throughout the year by 4 wheeled vehicles. 
+
+```{r}
+podes <- podes %>% 
+  mutate(R1001B1 = recode_factor(as.vector(podes$R1001B1), `1` = 'Asphalt/Concrete', `2` = 'Gravel/Stone', `3` = 'Soil' , `4` = 'Others')) %>% 
+  mutate(R1001B2 = recode_factor(as.vector(podes$R1001B2), `1` = 'Always', `2` = 'Always, except for certain times', `3` = 'Dry season only' , `4` = 'Cannot be used'))
+```
+
+"R1001C1" refers to whether public transport exists. "R1001C2" refers to whether it operates everyday, and "R1001C3" refers to its operational times. 
+
+```{r}
+podes <- podes %>% 
+  mutate(R1001C1 = recode_factor(as.vector(podes$R1001C1), `1` = 'Yes, fixed route', `2` = 'Yes, but no fixed route', `3` = 'No')) %>% 
+  mutate(R1001C2 = recode_factor(as.vector(podes$R1001C2), `1` = 1, `2` = 0)) %>%
+  mutate(R1001C3 = recode_factor(as.vector(podes$R1001C3), `1` = 'Both Morning & Night', `2` = 'Morning only'))
+```
+
+The next section R1002 gives us information about travelling from the head office to various locations. The first alphabet tells us the destination - AK is to the district office, BK is to the mayor's office, CK is to the next nearest district office, while DK is to the enxt nearest mayor's office. The last number gives us the metric for this transportation route. '2' is for the transportation method most commonly used, '3' and '4' is for the explicit transport method, 5 gives the distance, M gives the hours, E gives the minutes, and 7 gives the cost. Variables 5,M, E and 7 will not be encoded since they are continuous. 
+
+```{r}
+podes <- podes %>% 
+  mutate(R1002AK2 = recode_factor(as.vector(podes$R1002AK2), `1` = 'Public Transport', `2` = 'Private Vehicle', `4` = 'Walking/Bicycle')) %>% 
+  mutate(R1002BK2 = recode_factor(as.vector(podes$R1002BK2), `1` = 'Public Transport', `2` = 'Private Vehicle', `4` = 'Walking/Bicycle')) %>% 
+  mutate(R1002CK2 = recode_factor(as.vector(podes$R1002CK2), `1` = 'Public Transport', `2` = 'Private Vehicle', `4` = 'Walking/Bicycle')) %>% 
+  mutate(R1002DK2 = recode_factor(as.vector(podes$R1002DK2), `1` = 'Public Transport', `2` = 'Private Vehicle', `4` = 'Walking/Bicycle')) %>% 
+  mutate(R1002AK3 = recode_factor(as.vector(podes$R1002AK3), `1` = 'Motorcycle', `2` = 'Vehicle with 3 or more wheels', `4` = 'Boat', `8` = 'Airplane', `16` = 'Others'))  %>% 
+  mutate(R1002BK3 = recode_factor(as.vector(podes$R1002BK3), `1` = 'Motorcycle', `2` = 'Vehicle with 3 or more wheels', `4` = 'Boat', `8` = 'Airplane', `16` = 'Others')) %>% 
+  mutate(R1002CK3 = recode_factor(as.vector(podes$R1002CK3), `1` = 'Motorcycle', `2` = 'Vehicle with 3 or more wheels', `4` = 'Boat', `8` = 'Airplane', `16` = 'Others')) %>% 
+  mutate(R1002DK3 = recode_factor(as.vector(podes$R1002DK3), `1` = 'Motorcycle', `2` = 'Vehicle with 3 or more wheels', `4` = 'Boat', `8` = 'Airplane', `16` = 'Others')) %>% 
+  mutate(R1002AK4 = recode_factor(as.vector(podes$R1002AK4), `1` = 'Motorcycle', `2` = 'Vehicle with 3 or more wheels', `3` = 'Boat', `4` = 'Airplane', `5` = 'Others')) %>% 
+  mutate(R1002BK4 = recode_factor(as.vector(podes$R1002BK4), `1` = 'Motorcycle', `2` = 'Vehicle with 3 or more wheels', `3` = 'Boat', `4` = 'Airplane', `5` = 'Others')) %>% 
+  mutate(R1002CK4 = recode_factor(as.vector(podes$R1002CK4), `1` = 'Motorcycle', `2` = 'Vehicle with 3 or more wheels', `3` = 'Boat', `4` = 'Airplane', `5` = 'Others')) %>% 
+  mutate(R1002DK4 = recode_factor(as.vector(podes$R1002DK4), `1` = 'Motorcycle', `2` = 'Vehicle with 3 or more wheels', `3` = 'Boat', `4` = 'Airplane', `5` = 'Others'))
+
+```
+
+"R1003A" refers to a continuous variable, the number of families that subscribe to a landline. "R1003B" refers to whether there are people that use cellphones
+
+```{r}
+podes <- podes %>% 
+  mutate(R1003B = recode_factor(as.vector(podes$R1003B), `1` = 'Most residents', `2` = 'Some residents', `3` = 'None'))
+```
+
+"R1004" gives us whether internet cafes are present in a desa. Recode to 1 and 0 for easy identification.
+
+```{r}
+podes <- podes %>% 
+  mutate(R1004 = recode_factor(as.vector(podes$R1004), `1` = 1, `2` = 0))
+```
+
+"R1005A" and "R1005B" are continuous variables. "R1005C" tells us about the cellphone signals in the desa. "R1005D" gives us the internet signal for most cellphones in the desa.
+
+```{r}
+podes <- podes %>% 
+  mutate(R1005C = recode_factor(as.vector(podes$R1005C), `1` = 'Very Strong Signal', `2` = 'Strong signal', `3` = 'Weak signal', `4` = 'No signal')) %>% 
+  mutate(R1005D = recode_factor(as.vector(podes$R1005D), `1` = '4G/LTE', `2` = '3G/H/H+/EVDO', `3` = '2.5G/E/GPRS', `4` = 'No internet signal'))
+```
+
+"R1006A" tells us about the working conditions of computers present in the desa office. "R1006B" tells us whether there are other internet facilities present. 
+
+```{r}
+podes <- podes %>% 
+  mutate(R1006A = recode_factor(as.vector(podes$R1006A), `1` = 'Used', `2` = 'Rarely used', `3` = 'Not used', `4` = 'Dont have')) %>% 
+  mutate(R1006B = recode_factor(as.vector(podes$R1006B), `1` = 'Functioning', `2` = 'Rarely Functioning', `3` = 'Not functioning', `4` = 'Dont have'))
+```
+
+"R1007A" tells us whether post offices are present. "R1007B" tells us whether mobile post offices are present. "R1007A" tells us whether private couriers are present.
+
+```{r}
+podes <- podes %>% 
+  mutate(R1007A = recode_factor(as.vector(podes$R1007A), `1` = 'Operational', `2` = 'Rarely Operational', `3` = 'Not Operational', `4` = 'Dont have')) %>% 
+  mutate(R1007B = recode_factor(as.vector(podes$R1007B), `1` = 1, `2` = 0))
+  mutate(R1007C = recode_factor(as.vector(podes$R1007C), `1` = 'Operational', `2` = 'Rarely Operational', `3` = 'Not Operational', `4` = 'Dont have'))
+```
+
+"R1008XXX" tells us about whether people in a PODES can get access to different media programs. The first 2 X gives us the media program, while the last number in the variable tells us what variable we are talking about. If it is '2', it tells us whether the program can be recieved in the desa. If it is '3', it tells us whether it can be watched on the local cable TV.
+
+```{r}
+podes <- podes %>% 
+  mutate(R1008AK2 = recode_factor(as.vector(podes$R1008AK2), `1` = 1, `2` = 0)) %>% 
+  mutate(R1008BK2 = recode_factor(as.vector(podes$R1008BK2), `1` = 1, `2` = 0)) %>% 
+  mutate(R1008CK2 = recode_factor(as.vector(podes$R1008CK2), `1` = 1, `2` = 0)) %>% 
+  mutate(R1008DK2 = recode_factor(as.vector(podes$R1008DK2), `1` = 1, `2` = 0)) %>% 
+  mutate(R1008EK2 = recode_factor(as.vector(podes$R1008EK2), `1` = 1, `2` = 0)) %>% 
+  mutate(R1008FK2 = recode_factor(as.vector(podes$R1008FK2), `1` = 1, `2` = 0)) %>% 
+  mutate(R1008GK2 = recode_factor(as.vector(podes$R1008GK2), `1` = 1, `2` = 0)) %>% 
+  mutate(R1008AK3 = recode_factor(as.vector(podes$R1008AK3), `1` = 1, `2` = 0)) %>% 
+  mutate(R1008BK3 = recode_factor(as.vector(podes$R1008BK3), `1` = 1, `2` = 0)) %>% 
+  mutate(R1008CK3 = recode_factor(as.vector(podes$R1008CK3), `1` = 1, `2` = 0)) %>% 
+  mutate(R1008DK3 = recode_factor(as.vector(podes$R1008DK3), `1` = 1, `2` = 0)) 
+
+```
+
+"R1201" and "R1202" gives us the count of number of indstries in different segments. "R1203A" and "R1203B" gives us whether there are kerosene and LPG sellers respectively. Recode this to 1 and 0 for easier interpretation.
+
+```{r}
+podes <- podes %>% 
+  mutate(R1203A = recode_factor(as.vector(podes$R1203A), `1` = 1, `2` = 0)) %>% 
+  mutate(R1203B = recode_factor(as.vector(podes$R1203B), `1` = 1, `2` = 0))
+```
+
+"R1204" and "R1205A" gives us the number of cooperatives in the desa. "R1205B" refers to whether agricultural shops are present in the desa. Recode this to 1 and 0 for easier interpretation.
+
+```{r}
+podes <- podes %>% 
+  mutate(R1205B1 = recode_factor(as.vector(podes$R1205B1), `1` = 1, `2` = 0)) %>% 
+  mutate(R1205B2 = recode_factor(as.vector(podes$R1205B2), `3` = 1, `4` = 0)) %>% 
+  mutate(R1205B3 = recode_factor(as.vector(podes$R1205B3), `5` = 1, `6` = 0))
+```
+
+"R1206" gives us information about whether there are buildings such as supermarkets, marts, hotels, etc present in the area. We will only recode the last column of every variable (columns that end with "4", which refers to how accessible the facilities are) as the rest are continuous in nature.
+
+```{r}
+podes <- podes %>% 
+  mutate(R1206AK4 = recode_factor(as.vector(podes$R1206AK4), `1` = 'Very easy', `2` = 'Easy', `3` = 'Difficult', `4` = 'Very difficult')) %>% 
+  mutate(R1206BK4 = recode_factor(as.vector(podes$R1206BK4), `1` = 'Very easy', `2` = 'Easy', `3` = 'Difficult', `4` = 'Very difficult')) %>% 
+  mutate(R1206CK4 = recode_factor(as.vector(podes$R1206CK4), `1` = 'Very easy', `2` = 'Easy', `3` = 'Difficult', `4` = 'Very difficult')) %>% 
+  mutate(R1206DK4 = recode_factor(as.vector(podes$R1206DK4), `1` = 'Very easy', `2` = 'Easy', `3` = 'Difficult', `4` = 'Very difficult')) %>% 
+  mutate(R1206EK4 = recode_factor(as.vector(podes$R1206EK4), `1` = 'Very easy', `2` = 'Easy', `3` = 'Difficult', `4` = 'Very difficult')) %>% 
+  mutate(R1206F1K4 = recode_factor(as.vector(podes$R1206F1K4), `1` = 'Very easy', `2` = 'Easy', `3` = 'Difficult', `4` = 'Very difficult')) %>% 
+  mutate(R1206F2K4 = recode_factor(as.vector(podes$R1206F2K4), `1` = 'Very easy', `2` = 'Easy', `3` = 'Difficult', `4` = 'Very difficult')) %>% 
+  mutate(R1206GK4 = recode_factor(as.vector(podes$R1206GK4), `1` = 'Very easy', `2` = 'Easy', `3` = 'Difficult', `4` = 'Very difficult')) %>% 
+  mutate(R1206HK4 = recode_factor(as.vector(podes$R1206HK4), `1` = 'Very easy', `2` = 'Easy', `3` = 'Difficult', `4` = 'Very difficult')) %>% 
+  mutate(R1206IK4 = recode_factor(as.vector(podes$R1206IK4), `1` = 'Very easy', `2` = 'Easy', `3` = 'Difficult', `4` = 'Very difficult')) %>% 
+  mutate(R1206JK4 = recode_factor(as.vector(podes$R1206JK4), `1` = 'Very easy', `2` = 'Easy', `3` = 'Difficult', `4` = 'Very difficult'))
+```
+
+"R1207" gives us whether credit lending institutions are present. Recode this to 1 and 0 for easy reference.
+
+```{r}
+podes <- podes %>% 
+  mutate(R1207A = recode_factor(as.vector(podes$R1207A), `1` = 1, `2` = 0)) %>% 
+  mutate(R1207B = recode_factor(as.vector(podes$R1207B), `3` = 1, `4` = 0)) %>% 
+  mutate(R1207C = recode_factor(as.vector(podes$R1207C), `5` = 1, `6` = 0)) %>% 
+  mutate(R1207D = recode_factor(as.vector(podes$R1207D), `7` = 1, `8` = 0))
+```
+
+"R1208" gives us information about whether there are financial institutions etc present in the area. We will only recode the last column of every variable (columns that end with "4", which refers to how accessible the facilities are) as the rest are continuous in nature.
+
+```{r}
+podes <- podes %>% 
+  mutate(R1208AK4 = recode_factor(as.vector(podes$R1208AK4), `1` = 'Very easy', `2` = 'Easy', `3` = 'Difficult', `4` = 'Very difficult')) %>% 
+  mutate(R1208BK4 = recode_factor(as.vector(podes$R1208BK4), `1` = 'Very easy', `2` = 'Easy', `3` = 'Difficult', `4` = 'Very difficult')) %>% 
+  mutate(R1208CK4 = recode_factor(as.vector(podes$R1208CK4), `1` = 'Very easy', `2` = 'Easy', `3` = 'Difficult', `4` = 'Very difficult')) 
+```
+
+"R1208" gives us information about whether there are financial facilities and infrastructure etc present in the area. We will only recode the last column of every variable (columns that end with "4", which refers to how accessible the facilities are) as the rest are continuous in nature.
+
+```{r}
+podes <- podes %>% 
+  mutate(R1208AK4 = recode_factor(as.vector(podes$R1208AK4), `1` = 'Very easy', `2` = 'Easy', `3` = 'Difficult', `4` = 'Very difficult')) %>% 
+  mutate(R1208BK4 = recode_factor(as.vector(podes$R1208BK4), `1` = 'Very easy', `2` = 'Easy', `3` = 'Difficult', `4` = 'Very difficult')) %>% 
+  mutate(R1208CK4 = recode_factor(as.vector(podes$R1208CK4), `1` = 'Very easy', `2` = 'Easy', `3` = 'Difficult', `4` = 'Very difficult')) %>% 
+  mutate(R1208DK4 = recode_factor(as.vector(podes$R1208DK4), `1` = 'Very easy', `2` = 'Easy', `3` = 'Difficult', `4` = 'Very difficult')) %>% 
+  mutate(R1208EK4 = recode_factor(as.vector(podes$R1208EK4), `1` = 'Very easy', `2` = 'Easy', `3` = 'Difficult', `4` = 'Very difficult')) %>% 
+  mutate(R1208FK4 = recode_factor(as.vector(podes$R1208FK4), `1` = 'Very easy', `2` = 'Easy', `3` = 'Difficult', `4` = 'Very difficult'))  %>% 
+  mutate(R1208GK4 = recode_factor(as.vector(podes$R1208GK4), `1` = 'Very easy', `2` = 'Easy', `3` = 'Difficult', `4` = 'Very difficult')) 
+
+```
 
 ```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
-var_meaning3 = c("")
+var_meaning3 = c('HAS_ISLAM',
+                   'HAS_CHRISTIAN',
+                   'HAS_CATHOLIC',
+                   'HAS_BUDDHIST',
+                   'HAS_HINDU',
+                   'HAS_CONFUCIANISM',
+                   'HAS_SECTS',
+                   'DOMINANT_RELIGION',
+                   'NUM_MOSQUES',
+                   'NUM_SURAU',
+                   'NUM_CHRISTIAN_CHURCHES',
+                   'NUM_CATHOLIC_CHURCHES',
+                   'NUM_CHAPELS',
+                   'NUM_TEMPLE',
+                   'NUM_MONASTERY',
+                   'NUM_TEMPLES(NONBUDDHIST)',
+                   'OTHERS',
+                   'IS_MULTI_ETHNIC',
+                   'LARGEST_ETHNIC_GROUP',
+                   'SECOND_LARGEST_ETHNIC_GROUP',
+                   'THIRD_LARGEST_ETHNIC_GROUP',
+                   'IS_MULTILINGUAL',
+                   'DOMINANT_LANGUAGE',
+                   'NUM_BLIND',
+                   'NUM_DEAF',
+                   'NUM_SPEECH_IMPAIRED',
+                   'NUM_DEAF_MUTE',
+                   'NUM_PARALYSED',
+                   'NUM_MENTALLY_DISABLED',
+                   'NUM_EMOTIONAL_DISORDER',
+                   'NUM_EX_LEPROSY',
+                   'NUM_MULTIPLE_DISABILITIES',
+                   'NUM_RESTRAINED', #
+                   'HAS_CULTURAL_RESERVE_SITES',
+                   'HAS_COMMUNAL_SPACES',
+                   'HAS_COMMUNAL_ACTIVITIES',
+                   'HAS_COMMUNAL_ACTIVITIES_HELPING_OTHER_VILLAGERS',
+                   'dummy1',
+                   'dummy2',
+                   'dummy3',
+                   'dummy4',
+                   'dummy5',
+                   'dummy6',
+                   'dummy7',
+                   'NUM_WOMEN_EDUCATION_ORGS', 
+                   'NUM_YOUTH_ORGS', #
+                   'NUM_TRADITIONAL_ORGS', #
+                   'NUM_FARMING_ORGS', #
+                   'NUM_WATER_MANAGEMENT_ORGS', #
+                   'NUM_COMMUNITY_ORGS', # 
+                   'HAS_SOCCER_FACILITIES',#
+                   'HAS_SOCCER_ACTIVITY_GROUP',
+                   'HAS_VOLLEYBALL_FACILITIES',
+                   'HAS_VOLLEYBALL_ACTIVITY_GROUP',
+                   'HAS_BADMINTON_FACILITIES',
+                   'HAS_BADMINTON_ACTIVITY_GROUP',
+                   'HAS_BASKETBALL_FACILITIES',
+                   'HAS_BASKETBALL_ACTIVITY_GROUP',
+                   'HAS_TENNIS_FACILITIES',
+                   'HAS_TENNIS_ACTIVITY_GROUP',
+                   'HAS_TABLETENNIS_FACILITIES',
+                   'HAS_TABLETENNIS_ACTIVITY_GROUP',
+                   'HAS_FUTSAL_FACILITIES',
+                   'HAS_FUTSAL_ACTIVITY_GROUP',
+                   'HAS_SWIMMING_FACILITIES',
+                   'HAS_SWIMMING_ACTIVITY_GROUP',
+                   'HAS_MARTIALARTS_FACILITIES',
+                   'HAS_MARTIALARTS_ACTIVITY_GROUP',
+                   'HAS_BILLARD_FACILITIES',
+                   'HAS_BILLARD_ACTIVITY_GROUP',
+                   'HAS_FITNESS_FACILITIES',
+                   'HAS_FITNESS_ACTIVITY_GROUP',
+                   'HAS_OTHER_FACILITIES',
+                   'HAS_OTHER_ACTIVITY_GROUP',
+                   'HAS_PUBS',
+                   'NEAREST_PUB_DISTANCE', 
+                   'TRANSPORTATION_METHODS', #
+                   'ROAD_MATERIAL',
+                   'CAN_USE_BY_4_WHEEL_VEHICLE', #
+                   'HAS_PUBLIC_TRANSPORT', #
+                   'PUBLIC_TRANSPORT_OPERATES_EVERYDAY', #
+                   'PUBLIC_TRANSPORT_OPERATION_TIME', #
+                   'HEADOFFICE_DISTRICTOFFICE_TRANSPORT',
+                   'HEADOFFICE_DISTRICTOFFICE_TYPE',
+                   'HEADOFFICE_DISTRICTOFFICE_TYPE_GENERAL',
+                   'HEADOFFICE_DISTRICTOFFICE_TRAVEL_DISTANCE',
+                   'HEADOFFICE_DISTRICTOFFICE_TRAVEL_TIME_HOUR',
+                   'HEADOFFICE_DISTRICTOFFICE_TRAVEL_TIME_MINUTE',
+                   'HEADOFFICE_DISTRICTOFFICE_TRAVEL_COST',
+                   'HEADOFFICE_MAYOROFFICE_TRANSPORT',
+                   'HEADOFFICE_MAYOROFFICE_TYPE',
+                   'HEADOFFICE_MAYOROFFICE_TYPE_GENERAL',
+                   'HEADOFFICE_MAYOROFFICE_TRAVEL_DISTANCE',
+                   'HEADOFFICE_MAYOROFFICE_TRAVEL_TIME_HOUR',
+                   'HEADOFFICE_MAYOROFFICE_TRAVEL_TIME_MINUTE',
+                   'HEADOFFICE_MAYOROFFICE_TRAVEL_COST',  
+                   'HEADOFFICE_NEXTCLOSE_DISTRICTOFFICE_TRANSPORT',
+                   'HEADOFFICE_NEXTCLOSE_DISTRICTOFFICE_TYPE',
+                   'HEADOFFICE_NEXTCLOSE_DISTRICTOFFICE_TYPE_GENERAL',
+                   'HEADOFFICE_NEXTCLOSE_DISTRICTOFFICE_TRAVEL_DISTANCE',
+                   'HEADOFFICE_NEXTCLOSE_DISTRICTOFFICE_TRAVEL_TIME_HOUR',
+                   'HEADOFFICE_NEXTCLOSE_DISTRICTOFFICE_TRAVEL_TIME_MINUTE',
+                   'HEADOFFICE_NEXTCLOSE_DISTRICTOFFICE_TRAVEL_COST', 
+                   'HEADOFFICE_NEXTCLOSE_MAYOROFFICE_TRANSPORT',
+                   'HEADOFFICE_NEXTCLOSE_MAYOROFFICE_TYPE',
+                   'HEADOFFICE_NEXTCLOSE_MAYOROFFICE_TYPE_GENERAL',
+                   'HEADOFFICE_NEXTCLOSE_MAYOROFFICE_TRAVEL_DISTANCE',
+                   'HEADOFFICE_NEXTCLOSE_MAYOROFFICE_TRAVEL_TIME_HOUR',
+                   'HEADOFFICE_NEXTCLOSE_MAYOROFFICE_TRAVEL_TIME_MINUTE',
+                   'HEADOFFICE_NEXTCLOSE_MAYOROFFICE_TRAVEL_COST',  
+                   'NUM_FAMILIES_WITH_LANDLINES', #
+                   'HAS_CELLPHONES', #
+                   'HAS_INTERNET_CAFES',
+                   'NUM_BASE_TRANCIEVER_STATIONS', #
+                   'NUM_MOBILE_PHONE_SERVICE_OPERATORS',#
+                   'STRENGTH_OF_TELEPHONE_SIGNALS', #
+                   'TYPE_OF_INTERNET_SIGNAL', #
+                   'HAS_COMPUTER_IN_VILLAGE_OFFICE', 
+                   'HAS_INTERNET_FACILITIES_IN_VILLAGE_OFFICE',
+                   'HAS_POST_OFFICE', #
+                   'HAS_MOBILE_POSTOFFICE', #
+                   'HAS_PRIVATE_DELIVERY_COURIER', #
+                   'CAN_RECIEVE_TVRI', 
+                   'ON_CABLE_TV_TVRI', 
+                   'CAN_RECIEVE_REGIONAL_TVRI',
+                   'ON_CABLE_TV_REGIONAL_TVRI',                   
+                   'CAN_RECIEVE_PRIVATE_TV',
+                   'ON_CABLE_TV_PRIVATE_TV',
+                   'CAN_RECIEVE_OVERSEAS_TV',
+                   'ON_CABLE_TV_OVERSEAS_TV',
+                   'CAN_RECIEVE_RRI',
+                   'CAN_RECIEVE_REGIONAL_RRI',
+                   'CAN_RECIEVE_COMMUNITY_RADIO',
+                   'NUM_UNITS_LEATHER_INDUDSTRY', 
+                   'NUM_UNITS_WOOD_INDUDSTRY',
+                   'NUM_UNITS_METAL_INDUDSTRY',
+                   'NUM_UNITS_FABRIC_INDUDSTRY',
+                   'NUM_UNITS_POTTERY_INDUDSTRY',
+                   'NUM_UNITS_BAMBOORATTAN_INDUDSTRY',
+                   'NUM_UNITS_FOOD_INDUDSTRY',
+                   'NUM_UNITS_OTHERS_INDUDSTRY',
+                   'NUM_INDUSTRIAL_CENTERS',
+                   'NUM_SMALL_INDUSTRIES_FACTORIES',
+                   'NUM_INDUSTRIAL_VILLAGES',
+                   'HAS_KEROSENE_SELLERS',
+                   'HAS_LPG_SELLERS',
+                   'HAS_VILLAGE_COOPERATIVE',
+                   'HAS_AGRICULTURE_VILLAGE_COOPERATIVE',
+                   'HAS_CREDITGIVING_VILLAGE_COOPERATIVE',
+                   'HAS_OTHER_VILLAGE_COOPERATIVE',
+                   'NUM_SMALL_HANDICRAFT_COOPERATIVE_NONKUD',
+                   'NUM_CREDIT_COOPERATIVE_NONKUD',
+                   'NUM_OTHER_COOPERATIVE_NONKUD',
+                   'HAS_AGRICULTURE_SHOPS_KUD_OWNED',
+                   'HAS_AGRICULTURE_SHOPS_BUM_OWNED',
+                   'HAS_AGRICULTURE_SHOPS_OTHER_OWNED', 
+                   'NUM_SHOPHOUSE',
+                   'DISTANCE_TO_SHOPHOUSE',
+                   'IS_EASY_TO_ACCESS_SHOPHOUSE',
+                   'NUM_PERMA_MARKET_WITH_BUILDINGS',
+                   'DISTANCE_TO_PERMA_MARKET_WITH_BUILDINGS',
+                   'IS_EASY_TO_ACCESS_PERMA_MARKET_WITH_BUILDINGS',
+                   'NUM_SEMIPERMA_MARKET_WITH_BUILDINGS',
+                   'DISTANCE_TO_SEMIPERMA_MARKET_WITH_BUILDINGS',
+                   'IS_EASY_TO_ACCESS_SEMIPERMA_MARKET_WITH_BUILDINGS',
+                   'NUM_MARKET_NOBUILDINGS',
+                   'DISTANCE_TO_MARKET_NOBUILDINGS',
+                   'IS_EASY_TO_ACCESS_MARKET_NOBUILDINGS',  
+                   'NUM_SUPERMARKET',
+                   'DISTANCE_TO_SUPERMARKET',
+                   'IS_EASY_TO_ACCESS_SUPERMARKET',
+                   'NUM_MINIMARTS_NECESSITIES',
+                   'DISTANCE_TO_MINIMART_NECESSITIES',
+                   'IS_EASY_TO_ACCESS_MINIMART_NECESSITIES',   
+                   'NUM_MINIMARTS_GROCERIES',
+                   'DISTANCE_TO_MINIMART_GROCERIES',
+                   'IS_EASY_TO_ACCESS_MINIMART_GROCERIES',         
+                   'NUM_RESTAURANTS',
+                   'DISTANCE_TO_RESTAURANTS',
+                   'IS_EASY_TO_ACCESS_RESTAURANTS',  
+                   'NUM_FOODSTALLS',
+                   'DISTANCE_TO_FOODSTALLS',
+                   'IS_EASY_TO_ACCESS_FOODSTALLS',  
+                   'NUM_HOTELS',
+                   'DISTANCE_TO_HOTELS',
+                   'IS_EASY_TO_ACCESS_HOTELS',                    
+                   'NUM_LODGING_PLACES',
+                   'DISTANCE_TO_LODGING_PLACES',
+                   'IS_EASY_TO_ACCESS_LODGING_PLACES', 
+                   'TOOK_PEOPLE_BUSINESS_CREDIT', 
+                   'TOOK_ENERGY_FOOD_CREDIT', 
+                   'TOOK_SMALL_BUSINESS_CREDIT', 
+                   'TOOK_JOINT_BUSINESS_GROUP', 
+                   'NUM_GOVT_BANKS',
+                   'DISTANCE_TO_GOVT_BANKS',
+                   'IS_EASY_TO_ACCESS_GOVT_BANKS',
+                   'NUM_COMMERCIAL_BANKS',
+                   'DISTANCE_TO_COMMERCIAL_BANKS',
+                   'IS_EASY_TO_ACCESS_COMMERCIAL_BANKS',   
+                   'NUM_RURAL_BANKS',
+                   'DISTANCE_TO_RURAL_BANKS',
+                   'IS_EASY_TO_ACCESS_RURAL_BANKS',  
+                   'HAS_BMT',
+                   'DISTANCE_TO_BMT',
+                   'IS_EASY_TO_ACCESS_BMT',
+                   'HAS_PAWNSHOPS',
+                   'DISTANCE_TO_PAWNSHOPS',
+                   'IS_EASY_TO_ACCESS_PAWNSHOPS',
+                   'HAS_ATM',
+                   'DISTANCE_TO_ATM',
+                   'IS_EASY_TO_ACCESS_ATM',
+                   'HAS_CAR_SHOP',
+                   'DISTANCE_TO_CAR_SHOP',
+                   'IS_EASY_TO_ACCESS_CAR_SHOP',
+                   'HAS_BEAUTY_SALON',
+                   'DISTANCE_TO_BEAUTY_SALON',
+                   'IS_EASY_TO_ACCESS_BEAUTY_SALON',
+                   'HAS_TRAVEL_AGENCY',
+                   'DISTANCE_TO_TRAVEL_AGENCY',
+                   'IS_EASY_TO_ACCESS_TRAVEL_AGENCY', 
+                   'HAS_BANK_AGENT',
+                   'DISTANCE_TO_BANK_AGENT',
+                   'IS_EASY_TO_ACCESS_BANK_AGENT'
+)
+                   
+```
+
+```{r}
+selected_podes3 <- c(
+                   'IS_MULTI_ETHNIC',
+                   'IS_MULTILINGUAL',
+                   'HAS_CULTURAL_RESERVE_SITES',
+                   'HAS_COMMUNAL_SPACES',
+                   'HAS_COMMUNAL_ACTIVITIES',
+                   'HAS_COMMUNAL_ACTIVITIES_HELPING_OTHER_VILLAGERS',
+                   'NUM_WOMEN_EDUCATION_ORGS',
+                   'NUM_YOUTH_ORGS', #
+                   'NUM_TRADITIONAL_ORGS', #
+                   'NUM_FARMING_ORGS', #
+                   'NUM_WATER_MANAGEMENT_ORGS', #
+                   'NUM_COMMUNITY_ORGS', # 
+                   'TRANSPORTATION_METHODS', #
+                   'ROAD_MATERIAL',
+                   'CAN_USE_BY_4_WHEEL_VEHICLE', #
+                   'HAS_PUBLIC_TRANSPORT', #
+                   'PUBLIC_TRANSPORT_OPERATES_EVERYDAY', #
+                   'PUBLIC_TRANSPORT_OPERATION_TIME', #
+                   'NUM_FAMILIES_WITH_LANDLINES', #
+                   'HAS_CELLPHONES', #
+                   'HAS_INTERNET_CAFES',
+                   'NUM_BASE_TRANCIEVER_STATIONS', #
+                   'NUM_MOBILE_PHONE_SERVICE_OPERATORS',#
+                   'STRENGTH_OF_TELEPHONE_SIGNALS', #
+                   'TYPE_OF_INTERNET_SIGNAL', #
+                   'HAS_COMPUTER_IN_VILLAGE_OFFICE', 
+                   'HAS_INTERNET_FACILITIES_IN_VILLAGE_OFFICE',
+                   'HAS_POST_OFFICE', #
+                   'HAS_MOBILE_POSTOFFICE', #
+                   'HAS_PRIVATE_DELIVERY_COURIER', #
+                   'NUM_UNITS_LEATHER_INDUDSTRY', 
+                   'NUM_UNITS_WOOD_INDUDSTRY',
+                   'NUM_UNITS_METAL_INDUDSTRY',
+                   'NUM_UNITS_FABRIC_INDUDSTRY',
+                   'NUM_UNITS_POTTERY_INDUDSTRY',
+                   'NUM_UNITS_BAMBOORATTAN_INDUDSTRY',
+                   'NUM_UNITS_FOOD_INDUDSTRY',
+                   'NUM_UNITS_OTHERS_INDUDSTRY',
+                   'NUM_INDUSTRIAL_CENTERS',
+                   'NUM_SMALL_INDUSTRIES_FACTORIES',
+                   'NUM_INDUSTRIAL_VILLAGES',
+                   'HAS_KEROSENE_SELLERS',
+                   'HAS_LPG_SELLERS',
+                   'HAS_VILLAGE_COOPERATIVE',
+                   'HAS_AGRICULTURE_VILLAGE_COOPERATIVE',
+                   'HAS_CREDITGIVING_VILLAGE_COOPERATIVE',
+                   'HAS_OTHER_VILLAGE_COOPERATIVE',
+                   'NUM_SMALL_HANDICRAFT_COOPERATIVE_NONKUD',
+                   'NUM_CREDIT_COOPERATIVE_NONKUD',
+                   'NUM_OTHER_COOPERATIVE_NONKUD',
+                   'HAS_AGRICULTURE_SHOPS_KUD_OWNED',
+                   'HAS_AGRICULTURE_SHOPS_BUM_OWNED',
+                   'HAS_AGRICULTURE_SHOPS_OTHER_OWNED', 
+                   'NUM_SHOPHOUSE',
+                   'IS_EASY_TO_ACCESS_SHOPHOUSE',
+                   'NUM_PERMA_MARKET_WITH_BUILDINGS',
+                   'IS_EASY_TO_ACCESS_PERMA_MARKET_WITH_BUILDINGS',
+                   'NUM_SEMIPERMA_MARKET_WITH_BUILDINGS',
+                   'IS_EASY_TO_ACCESS_SEMIPERMA_MARKET_WITH_BUILDINGS',
+                   'NUM_MARKET_NOBUILDINGS',
+                   'IS_EASY_TO_ACCESS_MARKET_NOBUILDINGS',  
+                   'NUM_SUPERMARKET',
+                   'IS_EASY_TO_ACCESS_SUPERMARKET',
+                   'NUM_MINIMARTS_NECESSITIES',
+                   'IS_EASY_TO_ACCESS_MINIMART_NECESSITIES',   
+                   'NUM_MINIMARTS_GROCERIES',
+                   'IS_EASY_TO_ACCESS_MINIMART_GROCERIES',            
+                   'NUM_RESTAURANTS',
+                   'IS_EASY_TO_ACCESS_RESTAURANTS',  
+                   'NUM_FOODSTALLS',
+                   'IS_EASY_TO_ACCESS_FOODSTALLS',  
+                   'NUM_HOTELS',
+                   'IS_EASY_TO_ACCESS_HOTELS',                    
+                   'NUM_LODGING_PLACES',
+                   'IS_EASY_TO_ACCESS_LODGING_PLACES', 
+                   'TOOK_PEOPLE_BUSINESS_CREDIT', 
+                   'TOOK_ENERGY_FOOD_CREDIT', 
+                   'TOOK_SMALL_BUSINESS_CREDIT', 
+                   'TOOK_JOINT_BUSINESS_GROUP', 
+                   'NUM_GOVT_BANKS',
+                   'IS_EASY_TO_ACCESS_GOVT_BANKS',
+                   'NUM_COMMERCIAL_BANKS',
+                   'IS_EASY_TO_ACCESS_COMMERCIAL_BANKS',   
+                   'NUM_RURAL_BANKS',
+                   'IS_EASY_TO_ACCESS_RURAL_BANKS',  
+                   'HAS_BMT',
+                   'IS_EASY_TO_ACCESS_BMT',
+                   'HAS_ATM',
+                   'IS_EASY_TO_ACCESS_ATM',
+                   'HAS_CAR_SHOP',
+                   'IS_EASY_TO_ACCESS_CAR_SHOP', 
+                   'HAS_BANK_AGENT',
+                   'DISTANCE_TO_BANK_AGENT',
+                   'IS_EASY_TO_ACCESS_BANK_AGENT'
+)
 ```
 
 ### 3.6.4 PODES 2018 part 4 (...)
