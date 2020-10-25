@@ -1219,7 +1219,14 @@ var_meaning3 = c('HAS_ISLAM',
                    'HAS_COMMUNAL_SPACES',
                    'HAS_COMMUNAL_ACTIVITIES',
                    'HAS_COMMUNAL_ACTIVITIES_HELPING_OTHER_VILLAGERS',
-                   'NUM_WOMEN_EDUCATION_ORGS', #skip 810 because all names            
+                   'dummy1',
+                   'dummy2',
+                   'dummy3',
+                   'dummy4',
+                   'dummy5',
+                   'dummy6',
+                   'dummy7',
+                   'NUM_WOMEN_EDUCATION_ORGS', 
                    'NUM_YOUTH_ORGS', #
                    'NUM_TRADITIONAL_ORGS', #
                    'NUM_FARMING_ORGS', #
@@ -1306,11 +1313,8 @@ var_meaning3 = c('HAS_ISLAM',
                    'CAN_RECIEVE_OVERSEAS_TV',
                    'ON_CABLE_TV_OVERSEAS_TV',
                    'CAN_RECIEVE_RRI',
-                   'ON_CABLE_TV_RRI',
                    'CAN_RECIEVE_REGIONAL_RRI',
-                   'ON_CABLE_TV_REGIONAL_RRI',  
                    'CAN_RECIEVE_COMMUNITY_RADIO',
-                   'ON_CABLE_TV_COMMUNITY_RADIO',
                    'NUM_UNITS_LEATHER_INDUDSTRY', 
                    'NUM_UNITS_WOOD_INDUDSTRY',
                    'NUM_UNITS_METAL_INDUDSTRY',
@@ -1342,7 +1346,7 @@ var_meaning3 = c('HAS_ISLAM',
                    'IS_EASY_TO_ACCESS_PERMA_MARKET_WITH_BUILDINGS',
                    'NUM_SEMIPERMA_MARKET_WITH_BUILDINGS',
                    'DISTANCE_TO_SEMIPERMA_MARKET_WITH_BUILDINGS',
-                   'IS_EASY_TO_ACCESS_SEMIPERMA_MARKET_WITH_BUILDINGS', 
+                   'IS_EASY_TO_ACCESS_SEMIPERMA_MARKET_WITH_BUILDINGS',
                    'NUM_MARKET_NOBUILDINGS',
                    'DISTANCE_TO_MARKET_NOBUILDINGS',
                    'IS_EASY_TO_ACCESS_MARKET_NOBUILDINGS',  
@@ -1354,7 +1358,7 @@ var_meaning3 = c('HAS_ISLAM',
                    'IS_EASY_TO_ACCESS_MINIMART_NECESSITIES',   
                    'NUM_MINIMARTS_GROCERIES',
                    'DISTANCE_TO_MINIMART_GROCERIES',
-                   'IS_EASY_TO_ACCESS_MINIMART_GROCERIES',                                 
+                   'IS_EASY_TO_ACCESS_MINIMART_GROCERIES',         
                    'NUM_RESTAURANTS',
                    'DISTANCE_TO_RESTAURANTS',
                    'IS_EASY_TO_ACCESS_RESTAURANTS',  
@@ -1403,6 +1407,105 @@ var_meaning3 = c('HAS_ISLAM',
                    'IS_EASY_TO_ACCESS_BANK_AGENT'
 )
                    
+```
+
+```{r}
+selected_podes3 <- c(
+                   'IS_MULTI_ETHNIC',
+                   'IS_MULTILINGUAL',
+                   'HAS_CULTURAL_RESERVE_SITES',
+                   'HAS_COMMUNAL_SPACES',
+                   'HAS_COMMUNAL_ACTIVITIES',
+                   'HAS_COMMUNAL_ACTIVITIES_HELPING_OTHER_VILLAGERS',
+                   'NUM_WOMEN_EDUCATION_ORGS',
+                   'NUM_YOUTH_ORGS', #
+                   'NUM_TRADITIONAL_ORGS', #
+                   'NUM_FARMING_ORGS', #
+                   'NUM_WATER_MANAGEMENT_ORGS', #
+                   'NUM_COMMUNITY_ORGS', # 
+                   'TRANSPORTATION_METHODS', #
+                   'ROAD_MATERIAL',
+                   'CAN_USE_BY_4_WHEEL_VEHICLE', #
+                   'HAS_PUBLIC_TRANSPORT', #
+                   'PUBLIC_TRANSPORT_OPERATES_EVERYDAY', #
+                   'PUBLIC_TRANSPORT_OPERATION_TIME', #
+                   'NUM_FAMILIES_WITH_LANDLINES', #
+                   'HAS_CELLPHONES', #
+                   'HAS_INTERNET_CAFES',
+                   'NUM_BASE_TRANCIEVER_STATIONS', #
+                   'NUM_MOBILE_PHONE_SERVICE_OPERATORS',#
+                   'STRENGTH_OF_TELEPHONE_SIGNALS', #
+                   'TYPE_OF_INTERNET_SIGNAL', #
+                   'HAS_COMPUTER_IN_VILLAGE_OFFICE', 
+                   'HAS_INTERNET_FACILITIES_IN_VILLAGE_OFFICE',
+                   'HAS_POST_OFFICE', #
+                   'HAS_MOBILE_POSTOFFICE', #
+                   'HAS_PRIVATE_DELIVERY_COURIER', #
+                   'NUM_UNITS_LEATHER_INDUDSTRY', 
+                   'NUM_UNITS_WOOD_INDUDSTRY',
+                   'NUM_UNITS_METAL_INDUDSTRY',
+                   'NUM_UNITS_FABRIC_INDUDSTRY',
+                   'NUM_UNITS_POTTERY_INDUDSTRY',
+                   'NUM_UNITS_BAMBOORATTAN_INDUDSTRY',
+                   'NUM_UNITS_FOOD_INDUDSTRY',
+                   'NUM_UNITS_OTHERS_INDUDSTRY',
+                   'NUM_INDUSTRIAL_CENTERS',
+                   'NUM_SMALL_INDUSTRIES_FACTORIES',
+                   'NUM_INDUSTRIAL_VILLAGES',
+                   'HAS_KEROSENE_SELLERS',
+                   'HAS_LPG_SELLERS',
+                   'HAS_VILLAGE_COOPERATIVE',
+                   'HAS_AGRICULTURE_VILLAGE_COOPERATIVE',
+                   'HAS_CREDITGIVING_VILLAGE_COOPERATIVE',
+                   'HAS_OTHER_VILLAGE_COOPERATIVE',
+                   'NUM_SMALL_HANDICRAFT_COOPERATIVE_NONKUD',
+                   'NUM_CREDIT_COOPERATIVE_NONKUD',
+                   'NUM_OTHER_COOPERATIVE_NONKUD',
+                   'HAS_AGRICULTURE_SHOPS_KUD_OWNED',
+                   'HAS_AGRICULTURE_SHOPS_BUM_OWNED',
+                   'HAS_AGRICULTURE_SHOPS_OTHER_OWNED', 
+                   'NUM_SHOPHOUSE',
+                   'IS_EASY_TO_ACCESS_SHOPHOUSE',
+                   'NUM_PERMA_MARKET_WITH_BUILDINGS',
+                   'IS_EASY_TO_ACCESS_PERMA_MARKET_WITH_BUILDINGS',
+                   'NUM_SEMIPERMA_MARKET_WITH_BUILDINGS',
+                   'IS_EASY_TO_ACCESS_SEMIPERMA_MARKET_WITH_BUILDINGS',
+                   'NUM_MARKET_NOBUILDINGS',
+                   'IS_EASY_TO_ACCESS_MARKET_NOBUILDINGS',  
+                   'NUM_SUPERMARKET',
+                   'IS_EASY_TO_ACCESS_SUPERMARKET',
+                   'NUM_MINIMARTS_NECESSITIES',
+                   'IS_EASY_TO_ACCESS_MINIMART_NECESSITIES',   
+                   'NUM_MINIMARTS_GROCERIES',
+                   'IS_EASY_TO_ACCESS_MINIMART_GROCERIES',            
+                   'NUM_RESTAURANTS',
+                   'IS_EASY_TO_ACCESS_RESTAURANTS',  
+                   'NUM_FOODSTALLS',
+                   'IS_EASY_TO_ACCESS_FOODSTALLS',  
+                   'NUM_HOTELS',
+                   'IS_EASY_TO_ACCESS_HOTELS',                    
+                   'NUM_LODGING_PLACES',
+                   'IS_EASY_TO_ACCESS_LODGING_PLACES', 
+                   'TOOK_PEOPLE_BUSINESS_CREDIT', 
+                   'TOOK_ENERGY_FOOD_CREDIT', 
+                   'TOOK_SMALL_BUSINESS_CREDIT', 
+                   'TOOK_JOINT_BUSINESS_GROUP', 
+                   'NUM_GOVT_BANKS',
+                   'IS_EASY_TO_ACCESS_GOVT_BANKS',
+                   'NUM_COMMERCIAL_BANKS',
+                   'IS_EASY_TO_ACCESS_COMMERCIAL_BANKS',   
+                   'NUM_RURAL_BANKS',
+                   'IS_EASY_TO_ACCESS_RURAL_BANKS',  
+                   'HAS_BMT',
+                   'IS_EASY_TO_ACCESS_BMT',
+                   'HAS_ATM',
+                   'IS_EASY_TO_ACCESS_ATM',
+                   'HAS_CAR_SHOP',
+                   'IS_EASY_TO_ACCESS_CAR_SHOP', 
+                   'HAS_BANK_AGENT',
+                   'DISTANCE_TO_BANK_AGENT',
+                   'IS_EASY_TO_ACCESS_BANK_AGENT'
+)
 ```
 
 ### 3.6.4 PODES 2018 part 4 (...)
