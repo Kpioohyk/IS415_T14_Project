@@ -1110,10 +1110,74 @@ podes <- podes %>%
   mutate(R1008AK3 = recode_factor(as.vector(podes$R1008AK3), `1` = 1, `2` = 0)) %>% 
   mutate(R1008BK3 = recode_factor(as.vector(podes$R1008BK3), `1` = 1, `2` = 0)) %>% 
   mutate(R1008CK3 = recode_factor(as.vector(podes$R1008CK3), `1` = 1, `2` = 0)) %>% 
-  mutate(R1008DK3 = recode_factor(as.vector(podes$R1008DK3), `1` = 1, `2` = 0)) %>% 
-  mutate(R1008EK3 = recode_factor(as.vector(podes$R1008EK3), `1` = 1, `2` = 0)) %>% 
-  mutate(R1008FK3 = recode_factor(as.vector(podes$R1008FK3), `1` = 1, `2` = 0)) %>% 
-  mutate(R1008GK3 = recode_factor(as.vector(podes$R1008GK3), `1` = 1, `2` = 0))
+  mutate(R1008DK3 = recode_factor(as.vector(podes$R1008DK3), `1` = 1, `2` = 0)) 
+
+```
+
+"R1201" and "R1202" gives us the count of number of indstries in different segments. "R1203A" and "R1203B" gives us whether there are kerosene and LPG sellers respectively. Recode this to 1 and 0 for easier interpretation.
+
+```{r}
+podes <- podes %>% 
+  mutate(R1203A = recode_factor(as.vector(podes$R1203A), `1` = 1, `2` = 0)) %>% 
+  mutate(R1203B = recode_factor(as.vector(podes$R1203B), `1` = 1, `2` = 0))
+```
+
+"R1204" and "R1205A" gives us the number of cooperatives in the desa. "R1205B" refers to whether agricultural shops are present in the desa. Recode this to 1 and 0 for easier interpretation.
+
+```{r}
+podes <- podes %>% 
+  mutate(R1205B1 = recode_factor(as.vector(podes$R1205B1), `1` = 1, `2` = 0)) %>% 
+  mutate(R1205B2 = recode_factor(as.vector(podes$R1205B2), `3` = 1, `4` = 0)) %>% 
+  mutate(R1205B3 = recode_factor(as.vector(podes$R1205B3), `5` = 1, `6` = 0))
+```
+
+"R1206" gives us information about whether there are buildings such as supermarkets, marts, hotels, etc present in the area. We will only recode the last column of every variable (columns that end with "4", which refers to how accessible the facilities are) as the rest are continuous in nature.
+
+```{r}
+podes <- podes %>% 
+  mutate(R1206AK4 = recode_factor(as.vector(podes$R1206AK4), `1` = 'Very easy', `2` = 'Easy', `3` = 'Difficult', `4` = 'Very difficult')) %>% 
+  mutate(R1206BK4 = recode_factor(as.vector(podes$R1206BK4), `1` = 'Very easy', `2` = 'Easy', `3` = 'Difficult', `4` = 'Very difficult')) %>% 
+  mutate(R1206CK4 = recode_factor(as.vector(podes$R1206CK4), `1` = 'Very easy', `2` = 'Easy', `3` = 'Difficult', `4` = 'Very difficult')) %>% 
+  mutate(R1206DK4 = recode_factor(as.vector(podes$R1206DK4), `1` = 'Very easy', `2` = 'Easy', `3` = 'Difficult', `4` = 'Very difficult')) %>% 
+  mutate(R1206EK4 = recode_factor(as.vector(podes$R1206EK4), `1` = 'Very easy', `2` = 'Easy', `3` = 'Difficult', `4` = 'Very difficult')) %>% 
+  mutate(R1206F1K4 = recode_factor(as.vector(podes$R1206F1K4), `1` = 'Very easy', `2` = 'Easy', `3` = 'Difficult', `4` = 'Very difficult')) %>% 
+  mutate(R1206F2K4 = recode_factor(as.vector(podes$R1206F2K4), `1` = 'Very easy', `2` = 'Easy', `3` = 'Difficult', `4` = 'Very difficult')) %>% 
+  mutate(R1206GK4 = recode_factor(as.vector(podes$R1206GK4), `1` = 'Very easy', `2` = 'Easy', `3` = 'Difficult', `4` = 'Very difficult')) %>% 
+  mutate(R1206HK4 = recode_factor(as.vector(podes$R1206HK4), `1` = 'Very easy', `2` = 'Easy', `3` = 'Difficult', `4` = 'Very difficult')) %>% 
+  mutate(R1206IK4 = recode_factor(as.vector(podes$R1206IK4), `1` = 'Very easy', `2` = 'Easy', `3` = 'Difficult', `4` = 'Very difficult')) %>% 
+  mutate(R1206JK4 = recode_factor(as.vector(podes$R1206JK4), `1` = 'Very easy', `2` = 'Easy', `3` = 'Difficult', `4` = 'Very difficult'))
+```
+
+"R1207" gives us whether credit lending institutions are present. Recode this to 1 and 0 for easy reference.
+
+```{r}
+podes <- podes %>% 
+  mutate(R1207A = recode_factor(as.vector(podes$R1207A), `1` = 1, `2` = 0)) %>% 
+  mutate(R1207B = recode_factor(as.vector(podes$R1207B), `3` = 1, `4` = 0)) %>% 
+  mutate(R1207C = recode_factor(as.vector(podes$R1207C), `5` = 1, `6` = 0)) %>% 
+  mutate(R1207D = recode_factor(as.vector(podes$R1207D), `7` = 1, `8` = 0))
+```
+
+"R1208" gives us information about whether there are financial institutions etc present in the area. We will only recode the last column of every variable (columns that end with "4", which refers to how accessible the facilities are) as the rest are continuous in nature.
+
+```{r}
+podes <- podes %>% 
+  mutate(R1208AK4 = recode_factor(as.vector(podes$R1208AK4), `1` = 'Very easy', `2` = 'Easy', `3` = 'Difficult', `4` = 'Very difficult')) %>% 
+  mutate(R1208BK4 = recode_factor(as.vector(podes$R1208BK4), `1` = 'Very easy', `2` = 'Easy', `3` = 'Difficult', `4` = 'Very difficult')) %>% 
+  mutate(R1208CK4 = recode_factor(as.vector(podes$R1208CK4), `1` = 'Very easy', `2` = 'Easy', `3` = 'Difficult', `4` = 'Very difficult')) 
+```
+
+"R1208" gives us information about whether there are financial facilities and infrastructure etc present in the area. We will only recode the last column of every variable (columns that end with "4", which refers to how accessible the facilities are) as the rest are continuous in nature.
+
+```{r}
+podes <- podes %>% 
+  mutate(R1208AK4 = recode_factor(as.vector(podes$R1208AK4), `1` = 'Very easy', `2` = 'Easy', `3` = 'Difficult', `4` = 'Very difficult')) %>% 
+  mutate(R1208BK4 = recode_factor(as.vector(podes$R1208BK4), `1` = 'Very easy', `2` = 'Easy', `3` = 'Difficult', `4` = 'Very difficult')) %>% 
+  mutate(R1208CK4 = recode_factor(as.vector(podes$R1208CK4), `1` = 'Very easy', `2` = 'Easy', `3` = 'Difficult', `4` = 'Very difficult')) %>% 
+  mutate(R1208DK4 = recode_factor(as.vector(podes$R1208DK4), `1` = 'Very easy', `2` = 'Easy', `3` = 'Difficult', `4` = 'Very difficult')) %>% 
+  mutate(R1208EK4 = recode_factor(as.vector(podes$R1208EK4), `1` = 'Very easy', `2` = 'Easy', `3` = 'Difficult', `4` = 'Very difficult')) %>% 
+  mutate(R1208FK4 = recode_factor(as.vector(podes$R1208FK4), `1` = 'Very easy', `2` = 'Easy', `3` = 'Difficult', `4` = 'Very difficult'))  %>% 
+  mutate(R1208GK4 = recode_factor(as.vector(podes$R1208GK4), `1` = 'Very easy', `2` = 'Easy', `3` = 'Difficult', `4` = 'Very difficult')) 
 
 ```
 
