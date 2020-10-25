@@ -61,7 +61,7 @@ new_col_names <- c('HAS_ISLAM',
                    'NUM_EMOTIONAL_DISORDER',
                    'NUM_EX_LEPROSY',
                    'NUM_MULTIPLE_DISABILITIES',
-                   'NUM_SUICIDES',
+                   'NUM_SUICIDES', #
                    'HAS_CULTURAL_RESERVE_SITES',
                    'HAS_COMMUNAL_SPACES',
                    'HAS_COMMUNAL_ACTIVITIES',
@@ -85,12 +85,12 @@ new_col_names <- c('HAS_ISLAM',
                    'HAS_FITNESS_FACILITIES',
                    'HAS_OTHER_FACILITIES',
                    'HAS_PUBS',
-                   'NEAREST_PUB_DISTANCE', #
+                   'NEAREST_PUB_DISTANCE', 
                    'TRANSPORTATION_METHODS', #
                    'ROAD_MATERIAL',
-                   'CAN_USE_BY_4_WHEEL_VEHICLE',
-                   'HAS_PUBLIC_TRANSPORT',
-                   'PUBLIC_TRANSPORT_OPERATES_EVERYDAY',
+                   'CAN_USE_BY_4_WHEEL_VEHICLE', #
+                   'HAS_PUBLIC_TRANSPORT', #
+                   'PUBLIC_TRANSPORT_OPERATES_EVERYDAY', #
                    'PUBLIC_TRANSPORT_OPERATION_TIME', #
                    'HEADOFFICE_DISTRICTOFFICE_TRANSPORT',
                    'HEADOFFICE_DISTRICTOFFICE_TYPE',
@@ -121,19 +121,19 @@ new_col_names <- c('HAS_ISLAM',
                    'HEADOFFICE_NEXTCLOSE_MAYOROFFICE_TRAVEL_TIME_MINUTE',
                    'HEADOFFICE_NEXTCLOSE_MAYOROFFICE_TRAVEL_COST',  
                    'NUM_FAMILIES_WITH_LANDLINES', #
-                   'HAS_CELLPHONES',
+                   'HAS_CELLPHONES', #
                    'HAS_INTERNET_CAFES',
-                   'NUM_BASE_TRANCIEVER_STATIONS',
-                   'NUM_MOBILE_PHONE_SERVICE_OPERATORS',
-                   'STRENGTH_OF_TELEPHONE_SIGNALS',
-                   'TYPE_OF_INTERNET_SIGNAL',
-                   'HAS_COMPUTER_IN_VILLAGE_OFFICE',
+                   'NUM_BASE_TRANCIEVER_STATIONS', #
+                   'NUM_MOBILE_PHONE_SERVICE_OPERATORS',#
+                   'STRENGTH_OF_TELEPHONE_SIGNALS', #
+                   'TYPE_OF_INTERNET_SIGNAL', #
+                   'HAS_COMPUTER_IN_VILLAGE_OFFICE', 
                    'HAS_INTERNET_FACILITIES_IN_VILLAGE_OFFICE',
-                   'HAS_POST_OFFICE',
-                   'HAS_MOBILE_POSTOFFICE',
-                   'HAS_PRIVATE_DELIVERY_COURIER',
-                   'CAN_RECIEVE_TVRI',
-                   'ON_CABLE_TV_TVRI',
+                   'HAS_POST_OFFICE', #
+                   'HAS_MOBILE_POSTOFFICE', #
+                   'HAS_PRIVATE_DELIVERY_COURIER', #
+                   'CAN_RECIEVE_TVRI', 
+                   'ON_CABLE_TV_TVRI', 
                    'CAN_RECIEVE_REGIONAL_TVRI',
                    'ON_CABLE_TV_REGIONAL_TVRI',                   
                    'CAN_RECIEVE_PRIVATE_TV',
@@ -146,7 +146,7 @@ new_col_names <- c('HAS_ISLAM',
                    'ON_CABLE_TV_REGIONAL_RRI',  
                    'CAN_RECIEVE_COMMUNITY_RADIO',
                    'ON_CABLE_TV_COMMUNITY_RADIO',
-                   'NUM_UNITS_LEATHER_INDUDSTRY',
+                   'NUM_UNITS_LEATHER_INDUDSTRY', --
                    'NUM_UNITS_WOOD_INDUDSTRY',
                    'NUM_UNITS_METAL_INDUDSTRY',
                    'NUM_UNITS_FABRIC_INDUDSTRY',
@@ -156,10 +156,10 @@ new_col_names <- c('HAS_ISLAM',
                    'NUM_UNITS_OTHERS_INDUDSTRY',
                    'NUM_INDUSTRIAL_CENTERS',
                    'NUM_SMALL_INDUSTRIES_FACTORIES',
-                   'NUM_INDUSTRIAL_VILLAGES',
+                   'NUM_INDUSTRIAL_VILLAGES', --
                    'HAS_KEROSENE_SELLERS',
                    'HAS_LPG_SELLERS',
-                   'HAS_VILLAGE_COOPERATIVE',
+                   'HAS_VILLAGE_COOPERATIVE', --
                    'HAS_AGRICULTURE_VILLAGE_COOPERATIVE',
                    'HAS_CREDITGIVING_VILLAGE_COOPERATIVE',
                    'HAS_OTHER_VILLAGE_COOPERATIVE',
@@ -168,7 +168,7 @@ new_col_names <- c('HAS_ISLAM',
                    'NUM_OTHER_COOPERATIVE_NONKUD',
                    'HAS_AGRICULTURE_SHOPS_KUD_OWNED',
                    'HAS_AGRICULTURE_SHOPS_BUM_OWNED',
-                   'HAS_AGRICULTURE_SHOPS_OTHER_OWNED',
+                   'HAS_AGRICULTURE_SHOPS_OTHER_OWNED', --
                    'NUM_SHOPHOUSE',
                    'DISTANCE_TO_SHOPHOUSE',
                    'IS_EASY_TO_ACCESS_SHOPHOUSE',
@@ -202,10 +202,10 @@ new_col_names <- c('HAS_ISLAM',
                    'NUM_LODGING_PLACES',
                    'DISTANCE_TO_LODGING_PLACES',
                    'IS_EASY_TO_ACCESS_LODGING_PLACES', 
-                   'TOOK_PEOPLE_BUSINESS_CREDIT',
-                   'TOOK_ENERGY_FOOD_CREDIT',
-                   'TOOK_SMALL_BUSINESS_CREDIT',
-                   'TOOK_JOINT_BUSINESS_GROUP',
+                   'TOOK_PEOPLE_BUSINESS_CREDIT', --
+                   'TOOK_ENERGY_FOOD_CREDIT', --
+                   'TOOK_SMALL_BUSINESS_CREDIT', --
+                   'TOOK_JOINT_BUSINESS_GROUP', --
                    'NUM_GOVT_BANKS',
                    'DISTANCE_TO_GOVT_BANKS',
                    'IS_EASY_TO_ACCESS_GOVT_BANKS',
