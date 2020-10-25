@@ -9,7 +9,7 @@ output:
     toc_float: true
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
@@ -903,9 +903,291 @@ var_meaning2 = c("")
 
 
 ### 3.6.3 PODES 2018 part 3 (...)
+<br> In PODES 2018 Part 3, it covers mostly demographic, economic, transport and as well as telecommunications data. The latter 3 are of more interest to us for this study as it can act as a proxy for how developed a DESA is. This would be important to city planners as it lets them know how much development needs to take place in order to build the village into a new capital city. 
 
+Changing variable "R801" - this encodes for whether a religion is present in a desa. The data has been encoded using different numbers; e.g. for Islam, 1 means present while 2 means absent; but for catolicism, 5 means present and 6 means absent. Change all these variables to 1 for presence and 0 for absence to ensure easier interpretability. 
+```{r}
+podes <- podes %>% 
+  mutate(R80101 = recode_factor(as.vector(podes$R80101), `1` = 1, `2` = 0)) %>%
+  mutate(R80102 = recode_factor(as.vector(podes$R80102), `3` = 1, `4` = 0)) %>%
+  mutate(R80103 = recode_factor(as.vector(podes$R80103), `5` = 1, `6` = 0)) %>%
+  mutate(R80104 = recode_factor(as.vector(podes$R80104), `7` = 1, `8` = 0)) %>%
+  mutate(R80105 = recode_factor(as.vector(podes$R80105), `1` = 1, `2` = 0)) %>%
+  mutate(R80106 = recode_factor(as.vector(podes$R80106), `3` = 1, `4` = 0)) %>%
+  mutate(R80107 = recode_factor(as.vector(podes$R80107), `5` = 1, `6` = 0))
+```
+
+Changing variable "R802" - this encodes for the dominant religion present in a desa. The numbers refer to the categories in "R801".
+
+```{r}
+podes <- podes %>% 
+  mutate(R80102 = recode_factor(as.vector(podes$R80102), `1` = 'Islam', `2` = 'Christianity', `3` = 'Catholicism'))
+```
+
+Variable "R803" - this encodes for the number of religious buildings in a desa. No need to change anything since it is a continuous variable.
+
+
+Variable "R804A1" - this encodes for whether a desa is multi ethnic. 1 means yes, 2 means no. Change it to 1 and 0 respectively.
+
+```{r}
+podes <- podes %>% 
+  mutate(R804A1 = recode_factor(as.vector(podes$R804A1), `1` = 1, `2` = 0)) 
+```
+
+Variable "R804A2A",  "R804A2B","R804A2C" - these give the biggest, 2nd  largest and 3rd largest ethnic group. This is encoded by PML code. Since we are not sure what the PML codes mean - we will drop this column later on. 
+
+Variable "R804B1" - this encodes for whether a desa is multi lingual. 1 means yes, 2 means no. Change it to 1 and 0 respectively.
+
+```{r}
+podes <- podes %>% 
+  mutate(R804B1 = recode_factor(as.vector(podes$R804B1), `1` = 1, `2` = 0)) 
+```
+
+Variable "R804B2" - this give the most spoken language in a desa. This is encoded by PML code. Since we are not sure what the PML codes mean - we will drop this column later on. 
+
+Variables "R805A" to "R805I" give the number of disabled people in a village broken down by disability. "R806" gives the number of physically restrained people. As it is continuous, no need to recode anything.
+
+Variable "R807" - this encodes for whether a desa has cultural heritage sites. 1 means yes,it is actively managed, 2 means yes, it is rarely managed, 3 means yes, but it is not managed, 4 means there are no such sites. 
+
+```{r}
+podes <- podes %>% 
+  mutate(R807 = recode_factor(as.vector(podes$R807), `1` = 'Yes, managed', `2` = 'Yes, rarely managed', `3` = 'Yes, not managed', `4` = 'No')) 
+```
+
+Variable "R808" - this encodes for whether a desa has communal spaces. 1 means yes,it is actively managed, 2 means yes, but it is not managed, 3 means there are no such sites. 
+
+```{r}
+podes <- podes %>% 
+  mutate(R808 = recode_factor(as.vector(podes$R808), `1` = 'Yes, managed', `2` =  'Yes, not managed', `3` = 'No')) 
+```
+
+Variable "R809A" and "R809B" gives whether a desa has engaged in communal activities (e.g. volunteering), and wheter they have helped other villages in need in the past year. 1 means most were involved, 2 means some were involved, 3 means no such activities. 
+
+```{r}
+podes <- podes %>% 
+  mutate(R809A = recode_factor(as.vector(podes$R809A), `1` = 'Yes, most involved', `2` =  'Yes, some involved', `3` = 'No')) %>% 
+  mutate(R809B = recode_factor(as.vector(podes$R809B), `1` = 'Yes, most involved', `2` =  'Yes, some involved', `3` = 'No'))
+```
+
+Variable "R8101K2" to "R8107K2" gives names of local wisdoms. As the columns have some missing data, and are unable to be coded into distinct groups, we will be dropping these columns later on.
+
+Variable "R811A" to "R811F" gives the number of social institutions in the Desa. No need to recode anything since it is a continuous variable.
+
+
+```{r}
+podes <- podes %>% 
+  mutate(R804B1 = recode_factor(as.vector(podes$R804B1), `1` = 1, `2` = 0)) 
+```
 ```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
-var_meaning3 = c("")
+var_meaning3 = c('HAS_ISLAM',
+                   'HAS_CHRISTIAN',
+                   'HAS_CATHOLIC',
+                   'HAS_BUDDHIST',
+                   'HAS_HINDU',
+                   'HAS_CONFUCIANISM',
+                   'HAS_SECTS',
+                   'DOMINANT_RELIGION',
+                   'NUM_MOSQUES',
+                   'NUM_SURAU',
+                   'NUM_CHRISTIAN_CHURCHES',
+                   'NUM_CATHOLIC_CHURCHES',
+                   'NUM_CHAPELS',
+                   'NUM_TEMPLE',
+                   'NUM_MONASTERY',
+                   'NUM_TEMPLES(NONBUDDHIST)',
+                   'OTHERS',
+                   'IS_MULTI_ETHNIC',
+                   'LARGEST_ETHNIC_GROUP',
+                   'SECOND_LARGEST_ETHNIC_GROUP',
+                   'THIRD_LARGEST_ETHNIC_GROUP',
+                   'IS_MULTILINGUAL',
+                   'DOMINANT_LANGUAGE',
+                   'NUM_BLIND',
+                   'NUM_DEAF',
+                   'NUM_SPEECH_IMPAIRED',
+                   'NUM_DEAF_MUTE',
+                   'NUM_PARALYSED',
+                   'NUM_MENTALLY_DISABLED',
+                   'NUM_EMOTIONAL_DISORDER',
+                   'NUM_EX_LEPROSY',
+                   'NUM_MULTIPLE_DISABILITIES',
+                   'NUM_RESTRAINED', #
+                   'HAS_CULTURAL_RESERVE_SITES',
+                   'HAS_COMMUNAL_SPACES',
+                   'HAS_COMMUNAL_ACTIVITIES',
+                   'HAS_COMMUNAL_ACTIVITIES_HELPING_OTHER_VILLAGERS',
+                   'NUM_WOMEN_EDUCATION_ORGS', #skip 810 because all names            
+                   'NUM_YOUTH_ORGS', #
+                   'NUM_TRADITIONAL_ORGS', #
+                   'NUM_FARMING_ORGS', #
+                   'NUM_WATER_MANAGEMENT_ORGS', #
+                   'NUM_COMMUNITY_ORGS', # 
+                   'HAS_SOCCER_FACILITIES',#
+                   'HAS_VOLLEYBALL_FACILITIES',
+                   'HAS_BADMINTON_FACILITIES',
+                   'HAS_BASKETBALL_FACILITIES',
+                   'HAS_TENNIS_FACILITIES',
+                   'HAS_TABLETENNIS_FACILITIES',
+                   'HAS_FUTSAL_FACILITIES',
+                   'HAS_SWIMMING_FACILITIES',
+                   'HAS_MARTIALARTS_FACILITIES',
+                   'HAS_BILLARD_FACILITIES',
+                   'HAS_FITNESS_FACILITIES',
+                   'HAS_OTHER_FACILITIES',
+                   'HAS_PUBS',
+                   'NEAREST_PUB_DISTANCE', 
+                   'TRANSPORTATION_METHODS', #
+                   'ROAD_MATERIAL',
+                   'CAN_USE_BY_4_WHEEL_VEHICLE', #
+                   'HAS_PUBLIC_TRANSPORT', #
+                   'PUBLIC_TRANSPORT_OPERATES_EVERYDAY', #
+                   'PUBLIC_TRANSPORT_OPERATION_TIME', #
+                   'HEADOFFICE_DISTRICTOFFICE_TRANSPORT',
+                   'HEADOFFICE_DISTRICTOFFICE_TYPE',
+                   'HEADOFFICE_DISTRICTOFFICE_TYPE_GENERAL',
+                   'HEADOFFICE_DISTRICTOFFICE_TRAVEL_DISTANCE',
+                   'HEADOFFICE_DISTRICTOFFICE_TRAVEL_TIME_HOUR',
+                   'HEADOFFICE_DISTRICTOFFICE_TRAVEL_TIME_MINUTE',
+                   'HEADOFFICE_DISTRICTOFFICE_TRAVEL_COST',
+                   'HEADOFFICE_MAYOROFFICE_TRANSPORT',
+                   'HEADOFFICE_MAYOROFFICE_TYPE',
+                   'HEADOFFICE_MAYOROFFICE_TYPE_GENERAL',
+                   'HEADOFFICE_MAYOROFFICE_TRAVEL_DISTANCE',
+                   'HEADOFFICE_MAYOROFFICE_TRAVEL_TIME_HOUR',
+                   'HEADOFFICE_MAYOROFFICE_TRAVEL_TIME_MINUTE',
+                   'HEADOFFICE_MAYOROFFICE_TRAVEL_COST',  
+                   'HEADOFFICE_NEXTCLOSE_DISTRICTOFFICE_TRANSPORT',
+                   'HEADOFFICE_NEXTCLOSE_DISTRICTOFFICE_TYPE',
+                   'HEADOFFICE_NEXTCLOSE_DISTRICTOFFICE_TYPE_GENERAL',
+                   'HEADOFFICE_NEXTCLOSE_DISTRICTOFFICE_TRAVEL_DISTANCE',
+                   'HEADOFFICE_NEXTCLOSE_DISTRICTOFFICE_TRAVEL_TIME_HOUR',
+                   'HEADOFFICE_NEXTCLOSE_DISTRICTOFFICE_TRAVEL_TIME_MINUTE',
+                   'HEADOFFICE_NEXTCLOSE_DISTRICTOFFICE_TRAVEL_COST', 
+                   'HEADOFFICE_NEXTCLOSE_MAYOROFFICE_TRANSPORT',
+                   'HEADOFFICE_NEXTCLOSE_MAYOROFFICE_TYPE',
+                   'HEADOFFICE_NEXTCLOSE_MAYOROFFICE_TYPE_GENERAL',
+                   'HEADOFFICE_NEXTCLOSE_MAYOROFFICE_TRAVEL_DISTANCE',
+                   'HEADOFFICE_NEXTCLOSE_MAYOROFFICE_TRAVEL_TIME_HOUR',
+                   'HEADOFFICE_NEXTCLOSE_MAYOROFFICE_TRAVEL_TIME_MINUTE',
+                   'HEADOFFICE_NEXTCLOSE_MAYOROFFICE_TRAVEL_COST',  
+                   'NUM_FAMILIES_WITH_LANDLINES', #
+                   'HAS_CELLPHONES', #
+                   'HAS_INTERNET_CAFES',
+                   'NUM_BASE_TRANCIEVER_STATIONS', #
+                   'NUM_MOBILE_PHONE_SERVICE_OPERATORS',#
+                   'STRENGTH_OF_TELEPHONE_SIGNALS', #
+                   'TYPE_OF_INTERNET_SIGNAL', #
+                   'HAS_COMPUTER_IN_VILLAGE_OFFICE', 
+                   'HAS_INTERNET_FACILITIES_IN_VILLAGE_OFFICE',
+                   'HAS_POST_OFFICE', #
+                   'HAS_MOBILE_POSTOFFICE', #
+                   'HAS_PRIVATE_DELIVERY_COURIER', #
+                   'CAN_RECIEVE_TVRI', 
+                   'ON_CABLE_TV_TVRI', 
+                   'CAN_RECIEVE_REGIONAL_TVRI',
+                   'ON_CABLE_TV_REGIONAL_TVRI',                   
+                   'CAN_RECIEVE_PRIVATE_TV',
+                   'ON_CABLE_TV_PRIVATE_TV',
+                   'CAN_RECIEVE_OVERSEAS_TV',
+                   'ON_CABLE_TV_OVERSEAS_TV',
+                   'CAN_RECIEVE_RRI',
+                   'ON_CABLE_TV_RRI',
+                   'CAN_RECIEVE_REGIONAL_RRI',
+                   'ON_CABLE_TV_REGIONAL_RRI',  
+                   'CAN_RECIEVE_COMMUNITY_RADIO',
+                   'ON_CABLE_TV_COMMUNITY_RADIO',
+                   'NUM_UNITS_LEATHER_INDUDSTRY', 
+                   'NUM_UNITS_WOOD_INDUDSTRY',
+                   'NUM_UNITS_METAL_INDUDSTRY',
+                   'NUM_UNITS_FABRIC_INDUDSTRY',
+                   'NUM_UNITS_POTTERY_INDUDSTRY',
+                   'NUM_UNITS_BAMBOORATTAN_INDUDSTRY',
+                   'NUM_UNITS_FOOD_INDUDSTRY',
+                   'NUM_UNITS_OTHERS_INDUDSTRY',
+                   'NUM_INDUSTRIAL_CENTERS',
+                   'NUM_SMALL_INDUSTRIES_FACTORIES',
+                   'NUM_INDUSTRIAL_VILLAGES',
+                   'HAS_KEROSENE_SELLERS',
+                   'HAS_LPG_SELLERS',
+                   'HAS_VILLAGE_COOPERATIVE',
+                   'HAS_AGRICULTURE_VILLAGE_COOPERATIVE',
+                   'HAS_CREDITGIVING_VILLAGE_COOPERATIVE',
+                   'HAS_OTHER_VILLAGE_COOPERATIVE',
+                   'NUM_SMALL_HANDICRAFT_COOPERATIVE_NONKUD',
+                   'NUM_CREDIT_COOPERATIVE_NONKUD',
+                   'NUM_OTHER_COOPERATIVE_NONKUD',
+                   'HAS_AGRICULTURE_SHOPS_KUD_OWNED',
+                   'HAS_AGRICULTURE_SHOPS_BUM_OWNED',
+                   'HAS_AGRICULTURE_SHOPS_OTHER_OWNED', 
+                   'NUM_SHOPHOUSE',
+                   'DISTANCE_TO_SHOPHOUSE',
+                   'IS_EASY_TO_ACCESS_SHOPHOUSE',
+                   'NUM_PERMA_MARKET_WITH_BUILDINGS',
+                   'DISTANCE_TO_PERMA_MARKET_WITH_BUILDINGS',
+                   'IS_EASY_TO_ACCESS_PERMA_MARKET_WITH_BUILDINGS',
+                   'NUM_SEMIPERMA_MARKET_WITH_BUILDINGS',
+                   'DISTANCE_TO_SEMIPERMA_MARKET_WITH_BUILDINGS',
+                   'IS_EASY_TO_ACCESS_SEMIPERMA_MARKET_WITH_BUILDINGS', 
+                   'NUM_MARKET_NOBUILDINGS',
+                   'DISTANCE_TO_MARKET_NOBUILDINGS',
+                   'IS_EASY_TO_ACCESS_MARKET_NOBUILDINGS',  
+                   'NUM_SUPERMARKET',
+                   'DISTANCE_TO_SUPERMARKET',
+                   'IS_EASY_TO_ACCESS_SUPERMARKET',
+                   'NUM_MINIMARTS_NECESSITIES',
+                   'DISTANCE_TO_MINIMART_NECESSITIES',
+                   'IS_EASY_TO_ACCESS_MINIMART_NECESSITIES',   
+                   'NUM_MINIMARTS_GROCERIES',
+                   'DISTANCE_TO_MINIMART_GROCERIES',
+                   'IS_EASY_TO_ACCESS_MINIMART_GROCERIES',                                 
+                   'NUM_RESTAURANTS',
+                   'DISTANCE_TO_RESTAURANTS',
+                   'IS_EASY_TO_ACCESS_RESTAURANTS',  
+                   'NUM_FOODSTALLS',
+                   'DISTANCE_TO_FOODSTALLS',
+                   'IS_EASY_TO_ACCESS_FOODSTALLS',  
+                   'NUM_HOTELS',
+                   'DISTANCE_TO_HOTELS',
+                   'IS_EASY_TO_ACCESS_HOTELS',                    
+                   'NUM_LODGING_PLACES',
+                   'DISTANCE_TO_LODGING_PLACES',
+                   'IS_EASY_TO_ACCESS_LODGING_PLACES', 
+                   'TOOK_PEOPLE_BUSINESS_CREDIT', 
+                   'TOOK_ENERGY_FOOD_CREDIT', 
+                   'TOOK_SMALL_BUSINESS_CREDIT', 
+                   'TOOK_JOINT_BUSINESS_GROUP', 
+                   'NUM_GOVT_BANKS',
+                   'DISTANCE_TO_GOVT_BANKS',
+                   'IS_EASY_TO_ACCESS_GOVT_BANKS',
+                   'NUM_COMMERCIAL_BANKS',
+                   'DISTANCE_TO_COMMERCIAL_BANKS',
+                   'IS_EASY_TO_ACCESS_COMMERCIAL_BANKS',   
+                   'NUM_RURAL_BANKS',
+                   'DISTANCE_TO_RURAL_BANKS',
+                   'IS_EASY_TO_ACCESS_RURAL_BANKS',  
+                   'HAS_BMT',
+                   'DISTANCE_TO_BMT',
+                   'IS_EASY_TO_ACCESS_BMT',
+                   'HAS_PAWNSHOPS',
+                   'DISTANCE_TO_PAWNSHOPS',
+                   'IS_EASY_TO_ACCESS_PAWNSHOPS',
+                   'HAS_ATM',
+                   'DISTANCE_TO_ATM',
+                   'IS_EASY_TO_ACCESS_ATM',
+                   'HAS_CAR_SHOP',
+                   'DISTANCE_TO_CAR_SHOP',
+                   'IS_EASY_TO_ACCESS_CAR_SHOP',
+                   'HAS_BEAUTY_SALON',
+                   'DISTANCE_TO_BEAUTY_SALON',
+                   'IS_EASY_TO_ACCESS_BEAUTY_SALON',
+                   'HAS_TRAVEL_AGENCY',
+                   'DISTANCE_TO_TRAVEL_AGENCY',
+                   'IS_EASY_TO_ACCESS_TRAVEL_AGENCY', 
+                   'HAS_BANK_AGENT',
+                   'DISTANCE_TO_BANK_AGENT',
+                   'IS_EASY_TO_ACCESS_BANK_AGENT'
+)
+                   
 ```
 
 ### 3.6.4 PODES 2018 part 4 (...)
