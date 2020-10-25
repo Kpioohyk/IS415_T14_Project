@@ -973,11 +973,48 @@ Variable "R8101K2" to "R8107K2" gives names of local wisdoms. As the columns hav
 
 Variable "R811A" to "R811F" gives the number of social institutions in the Desa. No need to recode anything since it is a continuous variable.
 
+Variable "R901AK2" to "R901LK3" encode for whether sports facilities and activity groups are present in a region. If a variable ends with 2, it means it is for whether the facilities are present, while if the variable name ends with 3, it means it is for whether activity groups are present. For the former variable, 1 means 'Yes, In good condition', 2 means ' Yes,but moderately damanged' , 3 means ' Yes, but badly damanged' and 4 means absent. For the latter, 1 means have, 2 means don't have - need to recode this to 1 and 0. 
 
 ```{r}
 podes <- podes %>% 
-  mutate(R804B1 = recode_factor(as.vector(podes$R804B1), `1` = 1, `2` = 0)) 
+  mutate(R901AK2 = recode_factor(as.vector(podes$R901AK2), `1` = 'Yes, good condition', `2` =  'Yes, moderate condition',`3` = 'Yes, poor condition', `4` = 'No')) %>% 
+  mutate(R901BK2 = recode_factor(as.vector(podes$R901BK2), `1` = 'Yes, good condition', `2` =  'Yes, moderate condition',`3` = 'Yes, poor condition', `4` = 'No')) %>% 
+  mutate(R901CK2 = recode_factor(as.vector(podes$R901CK2), `1` = 'Yes, good condition', `2` =  'Yes, moderate condition',`3` = 'Yes, poor condition', `4` = 'No')) %>% 
+  mutate(R901DK2 = recode_factor(as.vector(podes$R901DK2), `1` = 'Yes, good condition', `2` =  'Yes, moderate condition',`3` = 'Yes, poor condition', `4` = 'No')) %>% 
+  mutate(R901EK2 = recode_factor(as.vector(podes$R901EK2), `1` = 'Yes, good condition', `2` =  'Yes, moderate condition',`3` = 'Yes, poor condition', `4` = 'No')) %>% 
+  mutate(R901FK2 = recode_factor(as.vector(podes$R901FK2), `1` = 'Yes, good condition', `2` =  'Yes, moderate condition',`3` = 'Yes, poor condition', `4` = 'No')) %>% 
+  mutate(R901GK2 = recode_factor(as.vector(podes$R901GK2), `1` = 'Yes, good condition', `2` =  'Yes, moderate condition',`3` = 'Yes, poor condition', `4` = 'No')) %>% 
+  mutate(R901HK2 = recode_factor(as.vector(podes$R901HK2), `1` = 'Yes, good condition', `2` =  'Yes, moderate condition',`3` = 'Yes, poor condition', `4` = 'No')) %>% 
+  mutate(R901IK2 = recode_factor(as.vector(podes$R901IK2), `1` = 'Yes, good condition', `2` =  'Yes, moderate condition',`3` = 'Yes, poor condition', `4` = 'No')) %>% 
+  mutate(R901JK2 = recode_factor(as.vector(podes$R901JK2), `1` = 'Yes, good condition', `2` =  'Yes, moderate condition',`3` = 'Yes, poor condition', `4` = 'No')) %>% 
+  mutate(R901KK2 = recode_factor(as.vector(podes$R901KK2), `1` = 'Yes, good condition', `2` =  'Yes, moderate condition',`3` = 'Yes, poor condition', `4` = 'No')) %>% 
+  mutate(R901LK2 = recode_factor(as.vector(podes$R901LK2), `1` = 'Yes, good condition', `2` =  'Yes, moderate condition',`3` = 'Yes, poor condition', `4` = 'No')) 
 ```
+
+```{r}
+podes <- podes %>% 
+  mutate(R901AK3 = recode_factor(as.vector(podes$R901AK3), `1` = 1, `2` = 0)) %>% 
+  mutate(R901BK3 = recode_factor(as.vector(podes$R901BK3), `1` = 1, `2` = 0)) %>% 
+  mutate(R901CK3 = recode_factor(as.vector(podes$R901CK3), `1` = 1, `2` = 0)) %>% 
+  mutate(R901DK3 = recode_factor(as.vector(podes$R901DK3), `1` = 1, `2` = 0)) %>% 
+  mutate(R901EK3 = recode_factor(as.vector(podes$R901EK3), `1` = 1, `2` = 0)) %>% 
+  mutate(R901FK3 = recode_factor(as.vector(podes$R901FK3), `1` = 1, `2` = 0)) %>% 
+  mutate(R901GK3 = recode_factor(as.vector(podes$R901GK3), `1` = 1, `2` = 0)) %>% 
+  mutate(R901HK3 = recode_factor(as.vector(podes$R901HK3), `1` = 1, `2` = 0)) %>% 
+  mutate(R901IK3 = recode_factor(as.vector(podes$R901IK3), `1` = 1, `2` = 0)) %>% 
+  mutate(R901JK3 = recode_factor(as.vector(podes$R901JK3), `1` = 1, `2` = 0)) %>% 
+  mutate(R901KK3 = recode_factor(as.vector(podes$R901KK3), `1` = 1, `2` = 0))  %>% 
+  mutate(R901LK3 = recode_factor(as.vector(podes$R901LK3), `1` = 1, `2` = 0))
+```
+
+Variable R902A Gives us whether a pub is present in the desa.  1 means have, 2 means don't have - need to recode this to 1 and 0. The follow up question (R902B) refers to the distance of the nearest bar, which is a continuous variable. No need to recode anything. 
+
+```{r}
+podes <- podes %>% 
+  mutate(R902A = recode_factor(as.vector(podes$R902A), `1` = 1, `2` = 0)) 
+```
+
+
 ```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
 var_meaning3 = c('HAS_ISLAM',
                    'HAS_CHRISTIAN',
@@ -1023,17 +1060,29 @@ var_meaning3 = c('HAS_ISLAM',
                    'NUM_WATER_MANAGEMENT_ORGS', #
                    'NUM_COMMUNITY_ORGS', # 
                    'HAS_SOCCER_FACILITIES',#
+                   'HAS_SOCCER_ACTIVITY_GROUP',
                    'HAS_VOLLEYBALL_FACILITIES',
+                   'HAS_VOLLEYBALL_ACTIVITY_GROUP',
                    'HAS_BADMINTON_FACILITIES',
+                   'HAS_BADMINTON_ACTIVITY_GROUP',
                    'HAS_BASKETBALL_FACILITIES',
+                   'HAS_BASKETBALL_ACTIVITY_GROUP',
                    'HAS_TENNIS_FACILITIES',
+                   'HAS_TENNIS_ACTIVITY_GROUP',
                    'HAS_TABLETENNIS_FACILITIES',
+                   'HAS_TABLETENNIS_ACTIVITY_GROUP',
                    'HAS_FUTSAL_FACILITIES',
+                   'HAS_FUTSAL_ACTIVITY_GROUP',
                    'HAS_SWIMMING_FACILITIES',
+                   'HAS_SWIMMING_ACTIVITY_GROUP',
                    'HAS_MARTIALARTS_FACILITIES',
+                   'HAS_MARTIALARTS_ACTIVITY_GROUP',
                    'HAS_BILLARD_FACILITIES',
+                   'HAS_BILLARD_ACTIVITY_GROUP',
                    'HAS_FITNESS_FACILITIES',
+                   'HAS_FITNESS_ACTIVITY_GROUP',
                    'HAS_OTHER_FACILITIES',
+                   'HAS_OTHER_ACTIVITY_GROUP',
                    'HAS_PUBS',
                    'NEAREST_PUB_DISTANCE', 
                    'TRANSPORTATION_METHODS', #
