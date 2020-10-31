@@ -1012,11 +1012,60 @@ head(podes1)</code></pre>
 ## #   RIVER_TRANSPORTATION &lt;fct&gt;, IRGN_TRANSPORTATION &lt;fct&gt;, ...</code></pre>
 <p>Now, let's select only <strong>the relevant variables</strong> that we will be using for our analysis.</p>
 <pre class="r"><code>podes1_final &lt;- podes1 %&gt;%
-  select(&quot;SHAPE&quot;, &quot;PROVINCE_ID&quot;, &quot;PROVINCE&quot;, &quot;CITY_ID&quot;, &quot;CITY&quot;, &quot;DISTRICT_ID&quot;, &quot;DISTRICT&quot;, &quot;VILLAGE_ID&quot;, &quot;VILLAGE&quot;, &quot;VILLAGE/SUBDISTRICT&quot;, &quot;PRESENCE_VILLAGE/SUBDISTRICT_COUNCIL&quot;, &quot;COUNCIL_MEMBER_NUM&quot;, &quot;PRESENCE_VILLAGE_HEAD_OFFICE&quot;, &quot;STATUS_HEAD_OFFICE&quot;, &quot;CONDITION_HEAD_OFFICE&quot;, &quot;VILLAGE/SUBDISTRICT_BY_AREA_IN_ISLAND&quot;, &quot;VILLAGE/SUBDISTRICT_BY_TOPOGRAPHY&quot;, &quot;VILLAGE_ADJACENT_TO_SEA&quot;, &quot;SEA_BENEFIT_FISHING&quot;, &quot;SEA_BENEFIT_FISH_FARMING&quot;, &quot;SEA_BENEFIT_SALTPOND&quot;, &quot;SEA_BENEFIT_MARINE_TOURISM&quot;, &quot;SEA_BENEFIT_PUBLIC_TRANSPORTATION&quot;, &quot;PRESENCE_MANGROVE_TREES&quot;, &quot;CONDITION_MANGROVE_TREES&quot;, &quot;VILLAGE_LOCATION_TO_FOREST&quot;, &quot;FOREST_FUNCTION&quot;, &quot;DEPENDENCY_ON_FOREST&quot;, &quot;VILLAGE_MAIN_INCOME&quot;, &quot;STREET_LIGHTING&quot;, &quot;ELECTRICTY_PROVIDER&quot;, &quot;FUEL_USED_OFTEN&quot;, &quot;TRASH_DUMP_USED_OFTEN&quot;, &quot;TOILET_FACILITIES&quot;, &quot;TOILET_DISPOSAL_SITE&quot;, &quot;PRESENCE_POWER_LINES&quot;, &quot;PRESENCE_RIVER&quot;, &quot;PRESENCE_IRRIGATIONCHANNEL&quot;, &quot;PRESENCE_RESERVOIR&quot;, &quot;PRESENCE_BASIN&quot;, &quot;PRESENCE_SLUMS&quot;, &quot;NUM_OF_SLUMS&quot;, &quot;WATER_POLUTTION_INCIDENT&quot;, &quot;SOUCE_WATER_POLLUTION&quot;, &quot;LAND_POLLUTION_INCIDENT&quot;, &quot;SOURCE_LAND_POLLUTION&quot;, &quot;AIR_POLLUTION_INCIDENT&quot;, &quot;SOURCE_AIR_POLLUTION&quot;, &quot;SLASH_AND_BURN&quot;)
+  select(&quot;SHAPE&quot;, 
+         &quot;PROVINCE_ID&quot;, 
+         &quot;PROVINCE&quot;, 
+         &quot;CITY_ID&quot;, 
+         &quot;CITY&quot;, 
+         &quot;DISTRICT_ID&quot;, 
+         &quot;DISTRICT&quot;, 
+         &quot;VILLAGE_ID&quot;, 
+         &quot;VILLAGE&quot;, 
+         &quot;VILLAGE/SUBDISTRICT&quot;, 
+         &quot;PRESENCE_VILLAGE/SUBDISTRICT_COUNCIL&quot;, 
+         # &quot;COUNCIL_MEMBER_NUM&quot;, 
+         # &quot;PRESENCE_VILLAGE_HEAD_OFFICE&quot;, 
+         # &quot;STATUS_HEAD_OFFICE&quot;, 
+         # &quot;CONDITION_HEAD_OFFICE&quot;, 
+         &quot;VILLAGE/SUBDISTRICT_BY_AREA_IN_ISLAND&quot;,
+         # &quot;VILLAGE/SUBDISTRICT_BY_TOPOGRAPHY&quot;, 
+         &quot;VILLAGE_ADJACENT_TO_SEA&quot;, 
+         &quot;SEA_BENEFIT_FISHING&quot;, 
+         &quot;SEA_BENEFIT_FISH_FARMING&quot;, 
+         &quot;SEA_BENEFIT_SALTPOND&quot;, 
+         &quot;SEA_BENEFIT_MARINE_TOURISM&quot;, 
+         &quot;SEA_BENEFIT_PUBLIC_TRANSPORTATION&quot;, 
+         &quot;PRESENCE_MANGROVE_TREES&quot;, 
+         # &quot;CONDITION_MANGROVE_TREES&quot;, 
+         &quot;VILLAGE_LOCATION_TO_FOREST&quot;, 
+         &quot;FOREST_FUNCTION&quot;, 
+         &quot;DEPENDENCY_ON_FOREST&quot;, 
+         &quot;VILLAGE_MAIN_INCOME&quot;, 
+         &quot;STREET_LIGHTING&quot;, 
+         &quot;ELECTRICTY_PROVIDER&quot;, 
+         &quot;FUEL_USED_OFTEN&quot;, 
+         &quot;TRASH_DUMP_USED_OFTEN&quot;, 
+         &quot;TOILET_FACILITIES&quot;, 
+         &quot;TOILET_DISPOSAL_SITE&quot;,
+         &quot;PRESENCE_POWER_LINES&quot;, 
+         &quot;PRESENCE_RIVER&quot;, 
+         &quot;PRESENCE_IRRIGATIONCHANNEL&quot;, 
+         &quot;PRESENCE_RESERVOIR&quot;, 
+         &quot;PRESENCE_BASIN&quot;, 
+         &quot;PRESENCE_SLUMS&quot;, 
+         &quot;NUM_OF_SLUMS&quot;, 
+         # &quot;WATER_POLUTTION_INCIDENT&quot;, 
+         # &quot;SOUCE_WATER_POLLUTION&quot;, 
+         # &quot;LAND_POLLUTION_INCIDENT&quot;, 
+         # &quot;SOURCE_LAND_POLLUTION&quot;, 
+         # &quot;AIR_POLLUTION_INCIDENT&quot;, 
+         # &quot;SOURCE_AIR_POLLUTION&quot;, 
+         &quot;SLASH_AND_BURN&quot;
+         )
 
 podes1_final %&gt;%
   arrange(desc(`VILLAGE/SUBDISTRICT_BY_AREA_IN_ISLAND`))</code></pre>
-<pre><code>## # A tibble: 384 x 49
+<pre><code>## # A tibble: 384 x 37
 ##    SHAPE PROVINCE_ID PROVINCE CITY_ID CITY  DISTRICT_ID DISTRICT VILLAGE_ID
 ##    &lt;dbl&gt;       &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;       &lt;chr&gt;    &lt;chr&gt;     
 ##  1 62159          64 KALIMAN~ 03      KUTA~ 020         MUARA J~ 007       
@@ -1029,16 +1078,13 @@ podes1_final %&gt;%
 ##  8 62750          64 KALIMAN~ 71      BALI~ 050         BALIKPA~ 001       
 ##  9 62751          64 KALIMAN~ 71      BALI~ 050         BALIKPA~ 002       
 ## 10 62752          64 KALIMAN~ 71      BALI~ 050         BALIKPA~ 003       
-## # ... with 374 more rows, and 41 more variables: VILLAGE &lt;chr&gt;,
+## # ... with 374 more rows, and 29 more variables: VILLAGE &lt;chr&gt;,
 ## #   `VILLAGE/SUBDISTRICT` &lt;fct&gt;, `PRESENCE_VILLAGE/SUBDISTRICT_COUNCIL` &lt;fct&gt;,
-## #   COUNCIL_MEMBER_NUM &lt;dbl&gt;, PRESENCE_VILLAGE_HEAD_OFFICE &lt;fct&gt;,
-## #   STATUS_HEAD_OFFICE &lt;fct&gt;, CONDITION_HEAD_OFFICE &lt;fct&gt;,
 ## #   `VILLAGE/SUBDISTRICT_BY_AREA_IN_ISLAND` &lt;dbl&gt;,
-## #   `VILLAGE/SUBDISTRICT_BY_TOPOGRAPHY` &lt;fct&gt;, VILLAGE_ADJACENT_TO_SEA &lt;fct&gt;,
-## #   SEA_BENEFIT_FISHING &lt;fct&gt;, SEA_BENEFIT_FISH_FARMING &lt;fct&gt;,
-## #   SEA_BENEFIT_SALTPOND &lt;fct&gt;, SEA_BENEFIT_MARINE_TOURISM &lt;fct&gt;,
-## #   SEA_BENEFIT_PUBLIC_TRANSPORTATION &lt;fct&gt;, PRESENCE_MANGROVE_TREES &lt;fct&gt;,
-## #   CONDITION_MANGROVE_TREES &lt;fct&gt;, VILLAGE_LOCATION_TO_FOREST &lt;fct&gt;,
+## #   VILLAGE_ADJACENT_TO_SEA &lt;fct&gt;, SEA_BENEFIT_FISHING &lt;fct&gt;,
+## #   SEA_BENEFIT_FISH_FARMING &lt;fct&gt;, SEA_BENEFIT_SALTPOND &lt;fct&gt;,
+## #   SEA_BENEFIT_MARINE_TOURISM &lt;fct&gt;, SEA_BENEFIT_PUBLIC_TRANSPORTATION &lt;fct&gt;,
+## #   PRESENCE_MANGROVE_TREES &lt;fct&gt;, VILLAGE_LOCATION_TO_FOREST &lt;fct&gt;,
 ## #   FOREST_FUNCTION &lt;fct&gt;, DEPENDENCY_ON_FOREST &lt;fct&gt;,
 ## #   VILLAGE_MAIN_INCOME &lt;fct&gt;, STREET_LIGHTING &lt;fct&gt;,
 ## #   ELECTRICTY_PROVIDER &lt;fct&gt;, FUEL_USED_OFTEN &lt;fct&gt;,
@@ -1046,10 +1092,7 @@ podes1_final %&gt;%
 ## #   TOILET_DISPOSAL_SITE &lt;fct&gt;, PRESENCE_POWER_LINES &lt;fct&gt;,
 ## #   PRESENCE_RIVER &lt;fct&gt;, PRESENCE_IRRIGATIONCHANNEL &lt;fct&gt;,
 ## #   PRESENCE_RESERVOIR &lt;fct&gt;, PRESENCE_BASIN &lt;fct&gt;, PRESENCE_SLUMS &lt;fct&gt;,
-## #   NUM_OF_SLUMS &lt;dbl&gt;, WATER_POLUTTION_INCIDENT &lt;fct&gt;,
-## #   SOUCE_WATER_POLLUTION &lt;fct&gt;, LAND_POLLUTION_INCIDENT &lt;fct&gt;,
-## #   SOURCE_LAND_POLLUTION &lt;fct&gt;, AIR_POLLUTION_INCIDENT &lt;fct&gt;,
-## #   SOURCE_AIR_POLLUTION &lt;fct&gt;, SLASH_AND_BURN &lt;fct&gt;</code></pre>
+## #   NUM_OF_SLUMS &lt;dbl&gt;, SLASH_AND_BURN &lt;fct&gt;</code></pre>
 <pre class="r"><code>summary(podes1_final)</code></pre>
 <pre><code>##      SHAPE        PROVINCE_ID   PROVINCE           CITY_ID         
 ##  Min.   :62130   Min.   :64   Length:384         Length:384        
@@ -1075,54 +1118,38 @@ podes1_final %&gt;%
 ##                                                                              
 ##                                                                              
 ##                                                                              
-##  COUNCIL_MEMBER_NUM PRESENCE_VILLAGE_HEAD_OFFICE STATUS_HEAD_OFFICE
-##  Min.   : 2.00      1:383                        ASSET    :220     
-##  1st Qu.: 5.00      0:  1                        NON-ASSET:163     
-##  Median : 9.00                                   NA's     :  1     
-##  Mean   :11.36                                                     
-##  3rd Qu.:13.00                                                     
-##  Max.   :58.00                                                     
-##  NA's   :14                                                        
-##  CONDITION_HEAD_OFFICE VILLAGE/SUBDISTRICT_BY_AREA_IN_ISLAND
-##  WORTH    :356         Min.   : 1.000                       
-##  NOT WORTH: 27         1st Qu.: 1.000                       
-##  NA's     :  1         Median : 1.000                       
-##                        Mean   : 1.065                       
-##                        3rd Qu.: 1.000                       
-##                        Max.   :11.000                       
-##                                                             
-##  VILLAGE/SUBDISTRICT_BY_TOPOGRAPHY VILLAGE_ADJACENT_TO_SEA SEA_BENEFIT_FISHING
-##  SLOPE/PEAK:  8                    1: 62                   1   : 59           
-##  VALLEY    :  4                    0:322                   0   :  3           
-##  FLAT      :372                                            NA's:322           
-##                                                                               
-##                                                                               
-##                                                                               
-##                                                                               
-##  SEA_BENEFIT_FISH_FARMING SEA_BENEFIT_SALTPOND SEA_BENEFIT_MARINE_TOURISM
-##  1   : 35                 0   : 62             1   : 17                  
-##  0   : 27                 NA's:322             0   : 45                  
-##  NA's:322                                      NA's:322                  
-##                                                                          
-##                                                                          
-##                                                                          
-##                                                                          
-##  SEA_BENEFIT_PUBLIC_TRANSPORTATION PRESENCE_MANGROVE_TREES
-##  1   : 16                          1   : 48               
-##  0   : 46                          0   : 14               
-##  NA's:322                          NA's:322               
-##                                                           
-##                                                           
-##                                                           
-##                                                           
-##  CONDITION_MANGROVE_TREES VILLAGE_LOCATION_TO_FOREST     FOREST_FUNCTION
-##  GOOD: 42                 INSIDE : 13                CONSERVATION: 11   
-##  BAD :  6                 AROUND : 69                PROTECTION  : 30   
-##  NA's:336                 OUTSIDE:302                PRODUCTION  : 41   
-##                                                      NA's        :302   
-##                                                                         
-##                                                                         
-##                                                                         
+##  VILLAGE/SUBDISTRICT_BY_AREA_IN_ISLAND VILLAGE_ADJACENT_TO_SEA
+##  Min.   : 1.000                        1: 62                  
+##  1st Qu.: 1.000                        0:322                  
+##  Median : 1.000                                               
+##  Mean   : 1.065                                               
+##  3rd Qu.: 1.000                                               
+##  Max.   :11.000                                               
+##                                                               
+##  SEA_BENEFIT_FISHING SEA_BENEFIT_FISH_FARMING SEA_BENEFIT_SALTPOND
+##  1   : 59            1   : 35                 0   : 62            
+##  0   :  3            0   : 27                 NA's:322            
+##  NA's:322            NA's:322                                     
+##                                                                   
+##                                                                   
+##                                                                   
+##                                                                   
+##  SEA_BENEFIT_MARINE_TOURISM SEA_BENEFIT_PUBLIC_TRANSPORTATION
+##  1   : 17                   1   : 16                         
+##  0   : 45                   0   : 46                         
+##  NA's:322                   NA's:322                         
+##                                                              
+##                                                              
+##                                                              
+##                                                              
+##  PRESENCE_MANGROVE_TREES VILLAGE_LOCATION_TO_FOREST     FOREST_FUNCTION
+##  1   : 48                INSIDE : 13                CONSERVATION: 11   
+##  0   : 14                AROUND : 69                PROTECTION  : 30   
+##  NA's:322                OUTSIDE:302                PRODUCTION  : 41   
+##                                                     NA's        :302   
+##                                                                        
+##                                                                        
+##                                                                        
 ##  DEPENDENCY_ON_FOREST         VILLAGE_MAIN_INCOME STREET_LIGHTING
 ##  HIGH: 10             AGRICULTURE       :254      MAJORITY:162   
 ##  MED : 43             MINING            : 19      MINORITY:127   
@@ -1163,22 +1190,6 @@ podes1_final %&gt;%
 ##                                                   3rd Qu.: 5.250  
 ##                                                   Max.   :39.000  
 ##                                                   NA's   :324     
-##  WATER_POLUTTION_INCIDENT SOUCE_WATER_POLLUTION LAND_POLLUTION_INCIDENT
-##  1:131                    HOUSEHOLD : 40        1: 24                  
-##  0:253                    INDUSTRIAL: 89        0:360                  
-##                           OTHERS    :  2                               
-##                           NA's      :253                               
-##                                                                        
-##                                                                        
-##                                                                        
-##  SOURCE_LAND_POLLUTION AIR_POLLUTION_INCIDENT SOURCE_AIR_POLLUTION
-##  INDUSTRIAL: 23        1: 48                  HOUSEHOLD :  3      
-##  OTHERS    :  1        0:336                  INDUSTRIAL: 37      
-##  NA's      :360                               OTHERS    :  8      
-##                                               NA's      :336      
-##                                                                   
-##                                                                   
-##                                                                   
 ##  SLASH_AND_BURN
 ##  1:142         
 ##  0:242         
@@ -1668,27 +1679,137 @@ podes1_final %&gt;%
 ## #   ...</code></pre>
 <p>Now, let's select only <strong>the relevant variables</strong> that we will be using for our analysis.</p>
 <pre class="r"><code>podes2_final &lt;- podes2 %&gt;%
-  select(&quot;SHAPE&quot;, &quot;PROVINCE_ID&quot;, &quot;PROVINCE&quot;, &quot;CITY_ID&quot;, &quot;CITY&quot;, &quot;DISTRICT_ID&quot;, &quot;DISTRICT&quot;, &quot;VILLAGE_ID&quot;, &quot;VILLAGE&quot;, 
-&quot;PRESENCE_MUDSLIDES&quot;, &quot;2017_MUDSLIDES&quot;, &quot;2017_MUDSLIDES_CASUALTIES&quot;, &quot;PRESENCE_FLOOD&quot;, &quot;2017_FLOOD&quot;, &quot;2017_FLOOD_CASUALTIES&quot;, &quot;PRESENCE_FLASHFLOOD&quot;, &quot;2017_FLASHFLOOD&quot;, &quot;2017_FLASHFLOOD_CASUALTIES&quot;, &quot;PRESENCE_EARTHQUAKE&quot;, &quot;2017_EARTHQUAKE&quot;, &quot;2017_EARTHQUAKE_CASUALTIES&quot;, &quot;PRESENCE_TSUNAMI&quot;, &quot;2017_TSUNAMI&quot;, &quot;2017_TSUNAMI_CASUALTIES&quot;, 
-&quot;PRESENCE_TIDALWAVES&quot;, &quot;2017_TIDALWAVES&quot;, &quot;2017_TIDALWAVES_CASUALTIES&quot;, &quot;PRESENCE_TORNADO&quot;, &quot;2017_TORNADO&quot;, &quot;2017_TORNADO_CASUALTIES&quot;, &quot;PRESENCE_VOLCANIC_ERUPTIONS&quot;, &quot;2017_VOLCANIC_ERUPTIONS&quot;, &quot;2017_VOLCANIC_ERUPTIONS_CASUALTIES&quot;, &quot;PRESENCE_FORESTFIRE&quot;, &quot;2017_FORESTFIRE&quot;, &quot;2017_FORESTFIRE_CASUALTIES&quot;, &quot;PRESENCE_DROUGHT&quot;, &quot;2017_DROUGHT&quot;, &quot;2017_DROUGHT_CASUALTIES&quot;, &quot;WARNING_SYSTEM_NATURAL_DISASTER&quot;, &quot;WARNING_SYSTEM_TSUNAMI&quot;, &quot;SAFETY_EQUIPMENT&quot;, &quot;SIGNS_EVACUATION_ROUTES&quot;, &quot;CONSTRUCTION_MAINTENANCE_WATERBODY&quot;, &quot;HOSPITAL_NUM&quot;, &quot;DISTANCE_TO_NEAREST_HOSPITAL&quot;, &quot;CONVENIENCE_TO_HOSPITAL&quot;, &quot;MATERNITY_HOSPITAL_NUM&quot;, &quot;DISTANCE_TO_NEAREST_MATERNITY_HOSPITAL&quot;, &quot;CONVENIENCE_TO_MATERNITY_HOSPITAL&quot;, &quot;PUBLIC_HEALTH_CLINIC_INPATIENT_CARE_NUM&quot;, 
-&quot;DISTANCE_TO_NEAREST_CLINIC_INPATIENT_CARE&quot;, &quot;CONVENIENCE_TO_CLINIC_INPATIENT_CARE&quot;, &quot;PUBLIC_HEALTH_CLINIC_OUTPATIENT_CARE_NUM&quot;, &quot;DISTANCE_TO_NEAREST_CLINIC_OUTPATIENT_CARE&quot;, &quot;CONVENIENCE_TO_CLINIC_OUTPATIENT_CARE&quot;, &quot;POLYCLINIC_NUM&quot;, 
-&quot;DISTANCE_TO_NEAREST_POLYCLINIC&quot;, &quot;CONVENIENCE_TO_POLYCLINIC&quot;, &quot;GP_NUM&quot;, 
-&quot;DISTANCE_TO_NEAREST_GP&quot;, &quot;CONVENIENCE_TO_GP&quot;, &quot;MIDWIFE_PRACTICE_NUM&quot;, 
-&quot;DISTANCE_TO_NEAREST_MIDWIFE_PRACTICE&quot;, &quot;CONVENIENCE_TO_MIDWIFE_PRACTICE&quot;, &quot;VILLAGE_HEALTH_POST_NUM&quot;, &quot;DISTANCE_TO_NEAREST_HEALTH_POST&quot;, &quot;CONVENIENCE_TO_HEALTH_POST&quot;, &quot;VILLAGE_MATERNITY_HUT_NUM&quot;, 
-&quot;DISTANCE_TO_NEAREST_MATERNITY_HUT&quot;, &quot;CONVENIENCE_TO_MATERNITY_HUT&quot;, &quot;PHARMACY_NUM&quot;, 
-&quot;DISTANCE_TO_NEAREST_PHARMACY&quot;, &quot;CONVENIENCE_TO_PHARMACY&quot;, &quot;DRUGSTORE_NUM&quot;, 
-&quot;DISTANCE_TO_NEAREST_DRUGSTORE&quot;, &quot;CONVENIENCE_TO_DRUGSTORE&quot;, &quot;DENTIST_NUM&quot;, &quot;DIARRHEA_OUTBREAK&quot;, &quot;DIARRHEA_COUNT&quot;, &quot;DIARRHEA_DEATH_COUNT&quot;, &quot;DENGUE_OUTBREAK&quot;, &quot;DENGUE_COUNT&quot;, &quot;DENGUE_DEATH_COUNT&quot;, 
-&quot;MEASLES_OUTBREAK&quot;, &quot;MEASLES_COUNT&quot;, &quot;MEASLES_DEATH_COUNT&quot;, &quot;MALARIA_OUTBREAK&quot;, &quot;MALARIA_COUNT&quot;, &quot;MALARIA_DEATH_COUNT&quot;, 
-&quot;SARS_OUTBREAK&quot;, &quot;SARS_COUNT&quot;, &quot;SARS_DEATH_COUNT&quot;, &quot;HEPATITIS_OUTBREAK&quot;, &quot;HEPATITIS_COUNT&quot;, &quot;HEPATITIS_DEATH_COUNT&quot;, 
-&quot;DIPHTHERIA_OUTBREAK&quot;, &quot;DIPHTHERIA_COUNT&quot;, &quot;DIPHTHERIA_DEATH_COUNT&quot;, &quot;MALNUTRITION_POP_2017&quot;, &quot;UNIVERSAL_HEALTHCARE_PROGRAMME_POP_2017&quot;, 
-&quot;STATEMENT_OF_POVERTY&quot;, &quot;EARLYCHILDHOOD_PUBLIC_INSTITUTION_NUM&quot;, &quot;EARLYCHILDHOOD_PRIVATE_INSTITUTION_NUM&quot;, 
-&quot;DISTANCE_TO_NEAREST_CHILDHOOCCENTRE&quot;, &quot;CONVENIENCE_TO_CHILDHOODCENTRE&quot;, &quot;KINDERGARTEN_PUBLIC_INSTITUTION_NUM&quot;, &quot;KINDERGARTEN_PRIVATE_INSTITUTION_NUM&quot;, 
-&quot;DISTANCE_TO_NEAREST_KINDERGARTEN&quot;, &quot;CONVENIENCE_TO_KINDERGARTEN&quot;, &quot;PRIMARY_PUBLIC_INSTITUTION_NUM&quot;, &quot;PRIMARY_PRIVATE_INSTITUTION_NUM&quot;, 
-&quot;DISTANCE_TO_NEAREST_PRIMARYSCHOOL&quot;, &quot;CONVENIENCE_TO_PRIMARYSCHOOL&quot;, &quot;MIDDLE_PUBLIC_INSTITUTION_NUM&quot;, &quot;MIDDLE_PRIVATE_INSTITUTION_NUM&quot;, 
-&quot;DISTANCE_TO_NEAREST_MIDDLESCHOOL&quot;, &quot;CONVENIENCE_TO_MIDDLESCHOOL&quot;, &quot;HIGH_PUBLIC_INSTITUTION_NUM&quot;, &quot;HIGH_PRIVATE_INSTITUTION_NUM&quot;, 
-&quot;DISTANCE_TO_NEAREST_HIGHSCHOOL&quot;, &quot;CONVENIENCE_TO_HIGHSCHOOL&quot;, &quot;POLYTECHNIC_PUBLIC_INSTITUTION_NUM&quot;, &quot;POLYTECHNIC_PRIVATE_INSTITUTION_NUM&quot;, 
-&quot;DISTANCE_TO_NEAREST_POLYTECHNIC&quot;, &quot;CONVENIENCE_TO_POLYTECHNIC&quot;, &quot;COLLEGE_PUBLIC_INSTITUTION_NUM&quot;, &quot;COLLEGE_PRIVATE_INSTITUTION_NUM&quot;, 
-&quot;DISTANCE_TO_NEAREST_COLLEGE&quot;, &quot;CONVENIENCE_TO_COLLEGE&quot;,  &quot;ISLAMIC_SCHOOL_PRIVATE_INSTITUTION_NUM&quot;)</code></pre>
+  select(&quot;SHAPE&quot;, 
+         &quot;PROVINCE_ID&quot;, 
+         &quot;PROVINCE&quot;, 
+         &quot;CITY_ID&quot;, 
+         &quot;CITY&quot;, 
+         &quot;DISTRICT_ID&quot;,
+         &quot;DISTRICT&quot;,
+         &quot;VILLAGE_ID&quot;, 
+         &quot;VILLAGE&quot;, 
+         &quot;PRESENCE_MUDSLIDES&quot;,
+         # &quot;2017_MUDSLIDES&quot;, 
+         # &quot;2017_MUDSLIDES_CASUALTIES&quot;,
+         &quot;PRESENCE_FLOOD&quot;,
+         # &quot;2017_FLOOD&quot;, 
+         # &quot;2017_FLOOD_CASUALTIES&quot;,
+         &quot;PRESENCE_FLASHFLOOD&quot;, 
+         # &quot;2017_FLASHFLOOD&quot;, 
+         # &quot;2017_FLASHFLOOD_CASUALTIES&quot;,
+         &quot;PRESENCE_EARTHQUAKE&quot;, 
+         # &quot;2017_EARTHQUAKE&quot;,
+         # &quot;2017_EARTHQUAKE_CASUALTIES&quot;, 
+         &quot;PRESENCE_TSUNAMI&quot;,
+         # &quot;2017_TSUNAMI&quot;,
+         # &quot;2017_TSUNAMI_CASUALTIES&quot;, 
+         &quot;PRESENCE_TIDALWAVES&quot;, 
+         # &quot;2017_TIDALWAVES&quot;, 
+         # &quot;2017_TIDALWAVES_CASUALTIES&quot;, 
+         &quot;PRESENCE_TORNADO&quot;, 
+         # &quot;2017_TORNADO&quot;, 
+         # &quot;2017_TORNADO_CASUALTIES&quot;,
+         &quot;PRESENCE_VOLCANIC_ERUPTIONS&quot;, 
+         # &quot;2017_VOLCANIC_ERUPTIONS&quot;, 
+         # &quot;2017_VOLCANIC_ERUPTIONS_CASUALTIES&quot;,
+         &quot;PRESENCE_FORESTFIRE&quot;, 
+         # &quot;2017_FORESTFIRE&quot;, 
+         # &quot;2017_FORESTFIRE_CASUALTIES&quot;, 
+         &quot;PRESENCE_DROUGHT&quot;, 
+         # &quot;2017_DROUGHT&quot;,
+         # &quot;2017_DROUGHT_CASUALTIES&quot;, 
+         &quot;WARNING_SYSTEM_NATURAL_DISASTER&quot;, 
+         &quot;WARNING_SYSTEM_TSUNAMI&quot;, 
+         # &quot;SAFETY_EQUIPMENT&quot;,
+         # &quot;SIGNS_EVACUATION_ROUTES&quot;,
+         # &quot;CONSTRUCTION_MAINTENANCE_WATERBODY&quot;,
+         &quot;HOSPITAL_NUM&quot;, 
+         # &quot;DISTANCE_TO_NEAREST_HOSPITAL&quot;, # Remove distance since correlated to convenience 
+         &quot;CONVENIENCE_TO_HOSPITAL&quot;, 
+         &quot;MATERNITY_HOSPITAL_NUM&quot;,
+         # &quot;DISTANCE_TO_NEAREST_MATERNITY_HOSPITAL&quot;, 
+         &quot;CONVENIENCE_TO_MATERNITY_HOSPITAL&quot;, 
+         &quot;PUBLIC_HEALTH_CLINIC_INPATIENT_CARE_NUM&quot;, 
+         # &quot;DISTANCE_TO_NEAREST_CLINIC_INPATIENT_CARE&quot;, 
+         &quot;CONVENIENCE_TO_CLINIC_INPATIENT_CARE&quot;,
+         &quot;PUBLIC_HEALTH_CLINIC_OUTPATIENT_CARE_NUM&quot;,
+         # &quot;DISTANCE_TO_NEAREST_CLINIC_OUTPATIENT_CARE&quot;,
+         &quot;CONVENIENCE_TO_CLINIC_OUTPATIENT_CARE&quot;,
+         &quot;POLYCLINIC_NUM&quot;, 
+         # &quot;DISTANCE_TO_NEAREST_POLYCLINIC&quot;,
+         &quot;CONVENIENCE_TO_POLYCLINIC&quot;, 
+         &quot;GP_NUM&quot;, 
+         # &quot;DISTANCE_TO_NEAREST_GP&quot;, 
+         &quot;CONVENIENCE_TO_GP&quot;, 
+         &quot;MIDWIFE_PRACTICE_NUM&quot;, 
+         # &quot;DISTANCE_TO_NEAREST_MIDWIFE_PRACTICE&quot;, 
+         &quot;CONVENIENCE_TO_MIDWIFE_PRACTICE&quot;, 
+         &quot;VILLAGE_HEALTH_POST_NUM&quot;, 
+         # &quot;DISTANCE_TO_NEAREST_HEALTH_POST&quot;, 
+         &quot;CONVENIENCE_TO_HEALTH_POST&quot;,
+         &quot;VILLAGE_MATERNITY_HUT_NUM&quot;, 
+         # &quot;DISTANCE_TO_NEAREST_MATERNITY_HUT&quot;, 
+         &quot;CONVENIENCE_TO_MATERNITY_HUT&quot;,
+         &quot;PHARMACY_NUM&quot;, 
+         # &quot;DISTANCE_TO_NEAREST_PHARMACY&quot;, 
+         &quot;CONVENIENCE_TO_PHARMACY&quot;, 
+         &quot;DRUGSTORE_NUM&quot;, 
+         # &quot;DISTANCE_TO_NEAREST_DRUGSTORE&quot;, 
+         &quot;CONVENIENCE_TO_DRUGSTORE&quot;, 
+         &quot;DENTIST_NUM&quot;, 
+         &quot;DIARRHEA_OUTBREAK&quot;,
+         # &quot;DIARRHEA_COUNT&quot;,
+         # &quot;DIARRHEA_DEATH_COUNT&quot;,
+         &quot;DENGUE_OUTBREAK&quot;, 
+         # &quot;DENGUE_COUNT&quot;,
+         # &quot;DENGUE_DEATH_COUNT&quot;, 
+         &quot;MEASLES_OUTBREAK&quot;, 
+         # &quot;MEASLES_COUNT&quot;, 
+         # &quot;MEASLES_DEATH_COUNT&quot;, 
+         &quot;MALARIA_OUTBREAK&quot;,
+         # &quot;MALARIA_COUNT&quot;, 
+         # &quot;MALARIA_DEATH_COUNT&quot;, 
+         &quot;SARS_OUTBREAK&quot;, 
+         # &quot;SARS_COUNT&quot;, 
+         # &quot;SARS_DEATH_COUNT&quot;,
+         &quot;HEPATITIS_OUTBREAK&quot;, 
+         # &quot;HEPATITIS_COUNT&quot;,
+         # &quot;HEPATITIS_DEATH_COUNT&quot;, 
+         &quot;DIPHTHERIA_OUTBREAK&quot;,
+         # &quot;DIPHTHERIA_COUNT&quot;, 
+         # &quot;DIPHTHERIA_DEATH_COUNT&quot;,
+         &quot;MALNUTRITION_POP_2017&quot;, 
+         &quot;UNIVERSAL_HEALTHCARE_PROGRAMME_POP_2017&quot;, 
+         &quot;STATEMENT_OF_POVERTY&quot;,
+         &quot;EARLYCHILDHOOD_PUBLIC_INSTITUTION_NUM&quot;, 
+         &quot;EARLYCHILDHOOD_PRIVATE_INSTITUTION_NUM&quot;, 
+         # &quot;DISTANCE_TO_NEAREST_CHILDHOOCCENTRE&quot;, 
+         &quot;CONVENIENCE_TO_CHILDHOODCENTRE&quot;, 
+         &quot;KINDERGARTEN_PUBLIC_INSTITUTION_NUM&quot;, 
+         &quot;KINDERGARTEN_PRIVATE_INSTITUTION_NUM&quot;, 
+         # &quot;DISTANCE_TO_NEAREST_KINDERGARTEN&quot;, 
+         &quot;CONVENIENCE_TO_KINDERGARTEN&quot;, 
+         &quot;PRIMARY_PUBLIC_INSTITUTION_NUM&quot;,
+         &quot;PRIMARY_PRIVATE_INSTITUTION_NUM&quot;, 
+         # &quot;DISTANCE_TO_NEAREST_PRIMARYSCHOOL&quot;, 
+         &quot;CONVENIENCE_TO_PRIMARYSCHOOL&quot;,
+         &quot;MIDDLE_PUBLIC_INSTITUTION_NUM&quot;, 
+         &quot;MIDDLE_PRIVATE_INSTITUTION_NUM&quot;, 
+         # &quot;DISTANCE_TO_NEAREST_MIDDLESCHOOL&quot;, 
+         &quot;CONVENIENCE_TO_MIDDLESCHOOL&quot;, 
+         &quot;HIGH_PUBLIC_INSTITUTION_NUM&quot;, 
+         &quot;HIGH_PRIVATE_INSTITUTION_NUM&quot;, 
+         # &quot;DISTANCE_TO_NEAREST_HIGHSCHOOL&quot;,
+         &quot;CONVENIENCE_TO_HIGHSCHOOL&quot;,
+         &quot;POLYTECHNIC_PUBLIC_INSTITUTION_NUM&quot;, 
+         &quot;POLYTECHNIC_PRIVATE_INSTITUTION_NUM&quot;, 
+         # &quot;DISTANCE_TO_NEAREST_POLYTECHNIC&quot;,
+         &quot;CONVENIENCE_TO_POLYTECHNIC&quot;, 
+         &quot;COLLEGE_PUBLIC_INSTITUTION_NUM&quot;, 
+         &quot;COLLEGE_PRIVATE_INSTITUTION_NUM&quot;, 
+         # &quot;DISTANCE_TO_NEAREST_COLLEGE&quot;,
+         &quot;CONVENIENCE_TO_COLLEGE&quot;, 
+         &quot;ISLAMIC_SCHOOL_PRIVATE_INSTITUTION_NUM&quot;)</code></pre>
 <pre class="r"><code>summary(podes2_final)</code></pre>
 <pre><code>##      SHAPE        PROVINCE_ID   PROVINCE           CITY_ID         
 ##  Min.   :62130   Min.   :64   Length:384         Length:384        
@@ -1697,7 +1818,6 @@ podes1_final %&gt;%
 ##  Mean   :62430   Mean   :64                                        
 ##  3rd Qu.:62668   3rd Qu.:64                                        
 ##  Max.   :62814   Max.   :64                                        
-##                                                                    
 ##      CITY           DISTRICT_ID          DISTRICT          VILLAGE_ID       
 ##  Length:384         Length:384         Length:384         Length:384        
 ##  Class :character   Class :character   Class :character   Class :character  
@@ -1705,111 +1825,41 @@ podes1_final %&gt;%
 ##                                                                             
 ##                                                                             
 ##                                                                             
-##                                                                             
-##    VILLAGE          PRESENCE_MUDSLIDES 2017_MUDSLIDES 
-##  Length:384         1: 49              Min.   :0.000  
-##  Class :character   0:335              1st Qu.:1.000  
-##  Mode  :character                      Median :1.000  
-##                                        Mean   :1.673  
-##                                        3rd Qu.:2.000  
-##                                        Max.   :8.000  
-##                                        NA's   :335    
-##  2017_MUDSLIDES_CASUALTIES PRESENCE_FLOOD   2017_FLOOD    2017_FLOOD_CASUALTIES
-##  Min.   :0.0000            1:178          Min.   :0.000   Min.   :0.00000      
-##  1st Qu.:0.0000            0:206          1st Qu.:1.000   1st Qu.:0.00000      
-##  Median :0.0000                           Median :1.000   Median :0.00000      
-##  Mean   :0.0816                           Mean   :1.792   Mean   :0.01124      
-##  3rd Qu.:0.0000                           3rd Qu.:2.000   3rd Qu.:0.00000      
-##  Max.   :3.0000                           Max.   :9.000   Max.   :2.00000      
-##  NA's   :335                              NA's   :206     NA's   :206          
-##  PRESENCE_FLASHFLOOD 2017_FLASHFLOOD 2017_FLASHFLOOD_CASUALTIES
-##  1:  5               Min.   :0.0     Min.   :0.0               
-##  0:379               1st Qu.:1.0     1st Qu.:0.0               
-##                      Median :1.0     Median :0.0               
-##                      Mean   :0.8     Mean   :0.2               
-##                      3rd Qu.:1.0     3rd Qu.:0.0               
-##                      Max.   :1.0     Max.   :1.0               
-##                      NA's   :379     NA's   :379               
-##  PRESENCE_EARTHQUAKE 2017_EARTHQUAKE 2017_EARTHQUAKE_CASUALTIES
-##  0:384               Mode:logical    Mode:logical              
-##                      NA's:384        NA's:384                  
-##                                                                
-##                                                                
-##                                                                
-##                                                                
-##                                                                
-##  PRESENCE_TSUNAMI 2017_TSUNAMI   2017_TSUNAMI_CASUALTIES PRESENCE_TIDALWAVES
-##  0:384            Mode:logical   Mode:logical            1:  5              
-##                   NA's:384       NA's:384                0:379              
-##                                                                             
-##                                                                             
-##                                                                             
-##                                                                             
-##                                                                             
-##  2017_TIDALWAVES 2017_TIDALWAVES_CASUALTIES PRESENCE_TORNADO  2017_TORNADO   
-##  Min.   :1.0     Min.   :0                  1: 15            Min.   :0.0000  
-##  1st Qu.:1.0     1st Qu.:0                  0:369            1st Qu.:0.5000  
-##  Median :1.0     Median :0                                   Median :1.0000  
-##  Mean   :1.2     Mean   :0                                   Mean   :0.9333  
-##  3rd Qu.:1.0     3rd Qu.:0                                   3rd Qu.:1.0000  
-##  Max.   :2.0     Max.   :0                                   Max.   :4.0000  
-##  NA's   :379     NA's   :379                                 NA's   :369     
-##  2017_TORNADO_CASUALTIES PRESENCE_VOLCANIC_ERUPTIONS 2017_VOLCANIC_ERUPTIONS
-##  Min.   :0               0:384                       Mode:logical           
-##  1st Qu.:0                                           NA's:384               
-##  Median :0                                                                  
-##  Mean   :0                                                                  
-##  3rd Qu.:0                                                                  
-##  Max.   :0                                                                  
-##  NA's   :369                                                                
-##  2017_VOLCANIC_ERUPTIONS_CASUALTIES PRESENCE_FORESTFIRE 2017_FORESTFIRE 
-##  Mode:logical                       1: 41               Min.   :0.0000  
-##  NA's:384                           0:343               1st Qu.:0.0000  
-##                                                         Median :0.0000  
-##                                                         Mean   :0.7073  
-##                                                         3rd Qu.:1.0000  
-##                                                         Max.   :4.0000  
-##                                                         NA's   :343     
-##  2017_FORESTFIRE_CASUALTIES PRESENCE_DROUGHT  2017_DROUGHT   
-##  Min.   : 0.000             1: 22            Min.   :0.0000  
-##  1st Qu.: 0.000             0:362            1st Qu.:0.0000  
-##  Median : 0.000                              Median :0.0000  
-##  Mean   : 2.244                              Mean   :0.4091  
-##  3rd Qu.: 0.000                              3rd Qu.:1.0000  
-##  Max.   :72.000                              Max.   :1.0000  
-##  NA's   :343                                 NA's   :362     
-##  2017_DROUGHT_CASUALTIES WARNING_SYSTEM_NATURAL_DISASTER WARNING_SYSTEM_TSUNAMI
-##  Min.   :0               1: 43                           1:  3                 
-##  1st Qu.:0               0:341                           0:381                 
-##  Median :0                                                                     
-##  Mean   :0                                                                     
-##  3rd Qu.:0                                                                     
-##  Max.   :0                                                                     
-##  NA's   :362                                                                   
-##  SAFETY_EQUIPMENT SIGNS_EVACUATION_ROUTES CONSTRUCTION_MAINTENANCE_WATERBODY
-##  1: 45            1: 22                   1:139                             
-##  0:339            0:362                   0:245                             
-##                                                                             
-##                                                                             
-##                                                                             
-##                                                                             
-##                                                                             
-##   HOSPITAL_NUM     DISTANCE_TO_NEAREST_HOSPITAL CONVENIENCE_TO_HOSPITAL
-##  Min.   :0.00000   Min.   : 0.50                VERY EASY: 46          
-##  1st Qu.:0.00000   1st Qu.: 8.85                EASY     :182          
-##  Median :0.00000   Median :30.00                HARD     :111          
-##  Mean   :0.08333   Mean   :35.17                VERY HARD: 20          
-##  3rd Qu.:0.00000   3rd Qu.:53.60                NA's     : 25          
-##  Max.   :3.00000   Max.   :99.90                                       
-##                    NA's   :25                                          
-##  MATERNITY_HOSPITAL_NUM DISTANCE_TO_NEAREST_MATERNITY_HOSPITAL
-##  Min.   :0.00000        Min.   : 0.20                         
-##  1st Qu.:0.00000        1st Qu.:16.38                         
-##  Median :0.00000        Median :40.00                         
-##  Mean   :0.03646        Mean   :47.13                         
-##  3rd Qu.:0.00000        3rd Qu.:76.03                         
-##  Max.   :2.00000        Max.   :99.90                         
-##                         NA's   :12                            
+##    VILLAGE          PRESENCE_MUDSLIDES PRESENCE_FLOOD PRESENCE_FLASHFLOOD
+##  Length:384         1: 49              1:178          1:  5              
+##  Class :character   0:335              0:206          0:379              
+##  Mode  :character                                                        
+##                                                                          
+##                                                                          
+##                                                                          
+##  PRESENCE_EARTHQUAKE PRESENCE_TSUNAMI PRESENCE_TIDALWAVES PRESENCE_TORNADO
+##  0:384               0:384            1:  5               1: 15           
+##                                       0:379               0:369           
+##                                                                           
+##                                                                           
+##                                                                           
+##                                                                           
+##  PRESENCE_VOLCANIC_ERUPTIONS PRESENCE_FORESTFIRE PRESENCE_DROUGHT
+##  0:384                       1: 41               1: 22           
+##                              0:343               0:362           
+##                                                                  
+##                                                                  
+##                                                                  
+##                                                                  
+##  WARNING_SYSTEM_NATURAL_DISASTER WARNING_SYSTEM_TSUNAMI  HOSPITAL_NUM    
+##  1: 43                           1:  3                  Min.   :0.00000  
+##  0:341                           0:381                  1st Qu.:0.00000  
+##                                                         Median :0.00000  
+##                                                         Mean   :0.08333  
+##                                                         3rd Qu.:0.00000  
+##                                                         Max.   :3.00000  
+##  CONVENIENCE_TO_HOSPITAL MATERNITY_HOSPITAL_NUM
+##  VERY EASY: 46           Min.   :0.00000       
+##  EASY     :182           1st Qu.:0.00000       
+##  HARD     :111           Median :0.00000       
+##  VERY HARD: 20           Mean   :0.03646       
+##  NA's     : 25           3rd Qu.:0.00000       
+##                          Max.   :2.00000       
 ##  CONVENIENCE_TO_MATERNITY_HOSPITAL PUBLIC_HEALTH_CLINIC_INPATIENT_CARE_NUM
 ##  VERY EASY: 43                     Min.   :0.0000                         
 ##  EASY     :164                     1st Qu.:0.0000                         
@@ -1817,31 +1867,13 @@ podes1_final %&gt;%
 ##  VERY HARD: 23                     Mean   :0.1172                         
 ##  NA's     : 12                     3rd Qu.:0.0000                         
 ##                                    Max.   :2.0000                         
-##                                                                           
-##  DISTANCE_TO_NEAREST_CLINIC_INPATIENT_CARE CONVENIENCE_TO_CLINIC_INPATIENT_CARE
-##  Min.   : 0.20                             VERY EASY: 73                       
-##  1st Qu.: 4.30                             EASY     :206                       
-##  Median : 9.00                             HARD     : 52                       
-##  Mean   :18.25                             VERY HARD:  9                       
-##  3rd Qu.:24.00                             NA's     : 44                       
-##  Max.   :99.90                                                                 
-##  NA's   :44                                                                    
-##  PUBLIC_HEALTH_CLINIC_OUTPATIENT_CARE_NUM
-##  Min.   :0.0000                          
-##  1st Qu.:0.0000                          
-##  Median :0.0000                          
-##  Mean   :0.1536                          
-##  3rd Qu.:0.0000                          
-##  Max.   :2.0000                          
-##                                          
-##  DISTANCE_TO_NEAREST_CLINIC_OUTPATIENT_CARE
-##  Min.   : 0.20                             
-##  1st Qu.: 5.00                             
-##  Median :15.00                             
-##  Mean   :30.58                             
-##  3rd Qu.:40.00                             
-##  Max.   :99.90                             
-##  NA's   :57                                
+##  CONVENIENCE_TO_CLINIC_INPATIENT_CARE PUBLIC_HEALTH_CLINIC_OUTPATIENT_CARE_NUM
+##  VERY EASY: 73                        Min.   :0.0000                          
+##  EASY     :206                        1st Qu.:0.0000                          
+##  HARD     : 52                        Median :0.0000                          
+##  VERY HARD:  9                        Mean   :0.1536                          
+##  NA's     : 44                        3rd Qu.:0.0000                          
+##                                       Max.   :2.0000                          
 ##  CONVENIENCE_TO_CLINIC_OUTPATIENT_CARE POLYCLINIC_NUM  
 ##  VERY EASY: 50                         Min.   :0.0000  
 ##  EASY     :186                         1st Qu.:0.0000  
@@ -1849,39 +1881,20 @@ podes1_final %&gt;%
 ##  VERY HARD: 15                         Mean   :0.2682  
 ##  NA's     : 57                         3rd Qu.:0.0000  
 ##                                        Max.   :5.0000  
-##                                                        
-##  DISTANCE_TO_NEAREST_POLYCLINIC CONVENIENCE_TO_POLYCLINIC     GP_NUM     
-##  Min.   : 0.20                  VERY EASY: 36             Min.   : 0.00  
-##  1st Qu.: 7.00                  EASY     :170             1st Qu.: 0.00  
-##  Median :21.00                  HARD     : 84             Median : 0.00  
-##  Mean   :34.10                  VERY HARD: 22             Mean   : 1.18  
-##  3rd Qu.:56.17                  NA's     : 72             3rd Qu.: 1.00  
-##  Max.   :99.90                                            Max.   :40.00  
-##  NA's   :72                                                              
-##  DISTANCE_TO_NEAREST_GP CONVENIENCE_TO_GP MIDWIFE_PRACTICE_NUM
-##  Min.   : 0.10          VERY EASY: 32     Min.   : 0.0000     
-##  1st Qu.: 5.50          EASY     :162     1st Qu.: 0.0000     
-##  Median :10.00          HARD     : 50     Median : 1.0000     
-##  Mean   :21.52          VERY HARD:  9     Mean   : 0.9844     
-##  3rd Qu.:27.00          NA's     :131     3rd Qu.: 1.0000     
-##  Max.   :99.90                            Max.   :15.0000     
-##  NA's   :131                                                  
-##  DISTANCE_TO_NEAREST_MIDWIFE_PRACTICE CONVENIENCE_TO_MIDWIFE_PRACTICE
-##  Min.   : 0.20                        VERY EASY: 28                  
-##  1st Qu.: 5.00                        EASY     : 97                  
-##  Median :10.00                        HARD     : 48                  
-##  Mean   :22.66                        VERY HARD:  5                  
-##  3rd Qu.:27.25                        NA's     :206                  
-##  Max.   :99.90                                                       
-##  NA's   :206                                                         
-##  VILLAGE_HEALTH_POST_NUM DISTANCE_TO_NEAREST_HEALTH_POST
-##  Min.   :0.00000         Min.   : 0.30                  
-##  1st Qu.:0.00000         1st Qu.:18.25                  
-##  Median :0.00000         Median :50.00                  
-##  Mean   :0.07812         Mean   :56.95                  
-##  3rd Qu.:0.00000         3rd Qu.:99.80                  
-##  Max.   :3.00000         Max.   :99.90                  
-##                          NA's   :26                     
+##  CONVENIENCE_TO_POLYCLINIC     GP_NUM      CONVENIENCE_TO_GP
+##  VERY EASY: 36             Min.   : 0.00   VERY EASY: 32    
+##  EASY     :170             1st Qu.: 0.00   EASY     :162    
+##  HARD     : 84             Median : 0.00   HARD     : 50    
+##  VERY HARD: 22             Mean   : 1.18   VERY HARD:  9    
+##  NA's     : 72             3rd Qu.: 1.00   NA's     :131    
+##                            Max.   :40.00                    
+##  MIDWIFE_PRACTICE_NUM CONVENIENCE_TO_MIDWIFE_PRACTICE VILLAGE_HEALTH_POST_NUM
+##  Min.   : 0.0000      VERY EASY: 28                   Min.   :0.00000        
+##  1st Qu.: 0.0000      EASY     : 97                   1st Qu.:0.00000        
+##  Median : 1.0000      HARD     : 48                   Median :0.00000        
+##  Mean   : 0.9844      VERY HARD:  5                   Mean   :0.07812        
+##  3rd Qu.: 1.0000      NA's     :206                   3rd Qu.:0.00000        
+##  Max.   :15.0000                                      Max.   :3.00000        
 ##  CONVENIENCE_TO_HEALTH_POST VILLAGE_MATERNITY_HUT_NUM
 ##  VERY EASY: 16              Min.   :0.0000           
 ##  EASY     :137              1st Qu.:0.0000           
@@ -1889,79 +1902,34 @@ podes1_final %&gt;%
 ##  VERY HARD: 46              Mean   :0.2135           
 ##  NA's     : 26              3rd Qu.:0.0000           
 ##                             Max.   :2.0000           
-##                                                      
-##  DISTANCE_TO_NEAREST_MATERNITY_HUT CONVENIENCE_TO_MATERNITY_HUT
-##  Min.   : 0.30                     VERY EASY: 20               
-##  1st Qu.:14.50                     EASY     :112               
-##  Median :50.00                     HARD     :122               
-##  Mean   :56.53                     VERY HARD: 50               
-##  3rd Qu.:99.80                     NA's     : 80               
-##  Max.   :99.90                                                 
-##  NA's   :80                                                    
-##   PHARMACY_NUM    DISTANCE_TO_NEAREST_PHARMACY CONVENIENCE_TO_PHARMACY
-##  Min.   : 0.000   Min.   : 0.20                VERY EASY: 28          
-##  1st Qu.: 0.000   1st Qu.: 7.00                EASY     :147          
-##  Median : 0.000   Median :15.00                HARD     : 75          
-##  Mean   : 1.003   Mean   :28.21                VERY HARD:  8          
-##  3rd Qu.: 1.000   3rd Qu.:39.50                NA's     :126          
-##  Max.   :16.000   Max.   :99.90                                       
-##                   NA's   :126                                         
-##  DRUGSTORE_NUM     DISTANCE_TO_NEAREST_DRUGSTORE CONVENIENCE_TO_DRUGSTORE
-##  Min.   : 0.0000   Min.   : 0.50                 VERY EASY: 29           
-##  1st Qu.: 0.0000   1st Qu.: 5.70                 EASY     :141           
-##  Median : 0.0000   Median :12.00                 HARD     : 76           
-##  Mean   : 0.7135   Mean   :28.98                 VERY HARD:  7           
-##  3rd Qu.: 1.0000   3rd Qu.:40.00                 NA's     :131           
-##  Max.   :12.0000   Max.   :99.90                                         
-##                    NA's   :131                                           
-##   DENTIST_NUM      DIARRHEA_OUTBREAK DIARRHEA_COUNT  DIARRHEA_DEATH_COUNT
-##  Min.   : 0.0000   1: 18             Min.   : 1.00   Min.   :0           
-##  1st Qu.: 0.0000   0:366             1st Qu.: 2.00   1st Qu.:0           
-##  Median : 0.0000                     Median : 3.50   Median :0           
-##  Mean   : 0.2734                     Mean   :19.33   Mean   :0           
-##  3rd Qu.: 0.0000                     3rd Qu.:10.00   3rd Qu.:0           
-##  Max.   :15.0000                     Max.   :99.00   Max.   :0           
-##                                      NA's   :366     NA's   :366         
-##  DENGUE_OUTBREAK  DENGUE_COUNT    DENGUE_DEATH_COUNT MEASLES_OUTBREAK
-##  1: 26           Min.   : 1.000   Min.   :0.0000     1:  7           
-##  0:358           1st Qu.: 2.000   1st Qu.:0.0000     0:377           
-##                  Median : 3.000   Median :0.0000                     
-##                  Mean   : 7.231   Mean   :0.2308                     
-##                  3rd Qu.: 5.750   3rd Qu.:0.0000                     
-##                  Max.   :35.000   Max.   :3.0000                     
-##                  NA's   :358      NA's   :358                        
-##  MEASLES_COUNT    MEASLES_DEATH_COUNT MALARIA_OUTBREAK MALARIA_COUNT  
-##  Min.   : 1.000   Min.   :0           1:  9            Min.   : 2.00  
-##  1st Qu.: 3.000   1st Qu.:0           0:375            1st Qu.: 2.00  
-##  Median : 6.000   Median :0                            Median : 3.00  
-##  Mean   : 6.143   Mean   :0                            Mean   :14.67  
-##  3rd Qu.: 7.500   3rd Qu.:0                            3rd Qu.:10.00  
-##  Max.   :15.000   Max.   :0                            Max.   :75.00  
-##  NA's   :377      NA's   :377                          NA's   :375    
-##  MALARIA_DEATH_COUNT SARS_OUTBREAK SARS_COUNT     SARS_DEATH_COUNT
-##  Min.   :0.0000      0:384         Mode:logical   Mode:logical    
-##  1st Qu.:0.0000                    NA's:384       NA's:384        
-##  Median :0.0000                                                   
-##  Mean   :0.1111                                                   
-##  3rd Qu.:0.0000                                                   
-##  Max.   :1.0000                                                   
-##  NA's   :375                                                      
-##  HEPATITIS_OUTBREAK HEPATITIS_COUNT HEPATITIS_DEATH_COUNT DIPHTHERIA_OUTBREAK
-##  1:  2              Min.   :1.00    Min.   :0             1:  5              
-##  0:382              1st Qu.:1.75    1st Qu.:0             0:379              
-##                     Median :2.50    Median :0                                
-##                     Mean   :2.50    Mean   :0                                
-##                     3rd Qu.:3.25    3rd Qu.:0                                
-##                     Max.   :4.00    Max.   :0                                
-##                     NA's   :382     NA's   :382                              
-##  DIPHTHERIA_COUNT DIPHTHERIA_DEATH_COUNT MALNUTRITION_POP_2017
-##  Min.   : 1.0     Min.   : 0.0           Min.   :  0.0000     
-##  1st Qu.: 2.0     1st Qu.: 0.0           1st Qu.:  0.0000     
-##  Median : 2.0     Median : 0.0           Median :  0.0000     
-##  Mean   :21.8     Mean   :19.8           Mean   :  0.7031     
-##  3rd Qu.: 5.0     3rd Qu.: 0.0           3rd Qu.:  0.0000     
-##  Max.   :99.0     Max.   :99.0           Max.   :189.0000     
-##  NA's   :379      NA's   :379                                 
+##  CONVENIENCE_TO_MATERNITY_HUT  PHARMACY_NUM    CONVENIENCE_TO_PHARMACY
+##  VERY EASY: 20                Min.   : 0.000   VERY EASY: 28          
+##  EASY     :112                1st Qu.: 0.000   EASY     :147          
+##  HARD     :122                Median : 0.000   HARD     : 75          
+##  VERY HARD: 50                Mean   : 1.003   VERY HARD:  8          
+##  NA's     : 80                3rd Qu.: 1.000   NA's     :126          
+##                               Max.   :16.000                          
+##  DRUGSTORE_NUM     CONVENIENCE_TO_DRUGSTORE  DENTIST_NUM      DIARRHEA_OUTBREAK
+##  Min.   : 0.0000   VERY EASY: 29            Min.   : 0.0000   1: 18            
+##  1st Qu.: 0.0000   EASY     :141            1st Qu.: 0.0000   0:366            
+##  Median : 0.0000   HARD     : 76            Median : 0.0000                    
+##  Mean   : 0.7135   VERY HARD:  7            Mean   : 0.2734                    
+##  3rd Qu.: 1.0000   NA's     :131            3rd Qu.: 0.0000                    
+##  Max.   :12.0000                            Max.   :15.0000                    
+##  DENGUE_OUTBREAK MEASLES_OUTBREAK MALARIA_OUTBREAK SARS_OUTBREAK
+##  1: 26           1:  7            1:  9            0:384        
+##  0:358           0:377            0:375                         
+##                                                                 
+##                                                                 
+##                                                                 
+##                                                                 
+##  HEPATITIS_OUTBREAK DIPHTHERIA_OUTBREAK MALNUTRITION_POP_2017
+##  1:  2              1:  5               Min.   :  0.0000     
+##  0:382              0:379               1st Qu.:  0.0000     
+##                                         Median :  0.0000     
+##                                         Mean   :  0.7031     
+##                                         3rd Qu.:  0.0000     
+##                                         Max.   :189.0000     
 ##  UNIVERSAL_HEALTHCARE_PROGRAMME_POP_2017 STATEMENT_OF_POVERTY
 ##  Min.   :    4.0                         Min.   :   0.0      
 ##  1st Qu.:  132.0                         1st Qu.:  22.0      
@@ -1969,7 +1937,6 @@ podes1_final %&gt;%
 ##  Mean   :  931.9                         Mean   : 105.8      
 ##  3rd Qu.: 1159.5                         3rd Qu.: 121.0      
 ##  Max.   :18725.0                         Max.   :1900.0      
-##                                                              
 ##  EARLYCHILDHOOD_PUBLIC_INSTITUTION_NUM EARLYCHILDHOOD_PRIVATE_INSTITUTION_NUM
 ##  Min.   :0.00000                       Min.   : 0.000                        
 ##  1st Qu.:0.00000                       1st Qu.: 0.000                        
@@ -1977,31 +1944,20 @@ podes1_final %&gt;%
 ##  Mean   :0.03125                       Mean   : 2.078                        
 ##  3rd Qu.:0.00000                       3rd Qu.: 2.000                        
 ##  Max.   :2.00000                       Max.   :21.000                        
-##                                                                              
-##  DISTANCE_TO_NEAREST_CHILDHOOCCENTRE CONVENIENCE_TO_CHILDHOODCENTRE
-##  Min.   : 0.10                       VERY EASY: 15                 
-##  1st Qu.: 4.00                       EASY     : 61                 
-##  Median : 8.00                       HARD     : 24                 
-##  Mean   :23.85                       VERY HARD:  3                 
-##  3rd Qu.:40.00                       NA's     :281                 
-##  Max.   :99.90                                                     
-##  NA's   :281                                                       
-##  KINDERGARTEN_PUBLIC_INSTITUTION_NUM KINDERGARTEN_PRIVATE_INSTITUTION_NUM
-##  Min.   :0.0000                      Min.   : 0.000                      
-##  1st Qu.:0.0000                      1st Qu.: 1.000                      
-##  Median :0.0000                      Median : 2.000                      
-##  Mean   :0.1302                      Mean   : 2.411                      
-##  3rd Qu.:0.0000                      3rd Qu.: 3.000                      
-##  Max.   :4.0000                      Max.   :24.000                      
-##                                                                          
-##  DISTANCE_TO_NEAREST_KINDERGARTEN CONVENIENCE_TO_KINDERGARTEN
-##  Min.   : 0.10                    VERY EASY:  7              
-##  1st Qu.: 3.00                    EASY     : 21              
-##  Median : 6.50                    HARD     :  8              
-##  Mean   :13.08                    NA's     :348              
-##  3rd Qu.: 9.00                                               
-##  Max.   :99.90                                               
-##  NA's   :348                                                 
+##  CONVENIENCE_TO_CHILDHOODCENTRE KINDERGARTEN_PUBLIC_INSTITUTION_NUM
+##  VERY EASY: 15                  Min.   :0.0000                     
+##  EASY     : 61                  1st Qu.:0.0000                     
+##  HARD     : 24                  Median :0.0000                     
+##  VERY HARD:  3                  Mean   :0.1302                     
+##  NA's     :281                  3rd Qu.:0.0000                     
+##                                 Max.   :4.0000                     
+##  KINDERGARTEN_PRIVATE_INSTITUTION_NUM CONVENIENCE_TO_KINDERGARTEN
+##  Min.   : 0.000                       VERY EASY:  7              
+##  1st Qu.: 1.000                       EASY     : 21              
+##  Median : 2.000                       HARD     :  8              
+##  Mean   : 2.411                       NA's     :348              
+##  3rd Qu.: 3.000                                                  
+##  Max.   :24.000                                                  
 ##  PRIMARY_PUBLIC_INSTITUTION_NUM PRIMARY_PRIVATE_INSTITUTION_NUM
 ##  Min.   : 0.000                 Min.   :0.0000                 
 ##  1st Qu.: 1.000                 1st Qu.:0.0000                 
@@ -2009,31 +1965,20 @@ podes1_final %&gt;%
 ##  Mean   : 2.203                 Mean   :0.5755                 
 ##  3rd Qu.: 3.000                 3rd Qu.:1.0000                 
 ##  Max.   :13.000                 Max.   :7.0000                 
-##                                                                
-##  DISTANCE_TO_NEAREST_PRIMARYSCHOOL CONVENIENCE_TO_PRIMARYSCHOOL
-##  Min.   : 0.10                     VERY EASY:  4               
-##  1st Qu.: 0.30                     EASY     :  3               
-##  Median : 1.00                     HARD     :  2               
-##  Mean   :22.66                     NA's     :375               
-##  3rd Qu.: 2.00                                                 
-##  Max.   :99.90                                                 
-##  NA's   :375                                                   
-##  MIDDLE_PUBLIC_INSTITUTION_NUM MIDDLE_PRIVATE_INSTITUTION_NUM
-##  Min.   :0.0000                Min.   :0.0000                
-##  1st Qu.:0.0000                1st Qu.:0.0000                
-##  Median :0.0000                Median :0.0000                
-##  Mean   :0.5625                Mean   :0.5391                
-##  3rd Qu.:1.0000                3rd Qu.:1.0000                
-##  Max.   :4.0000                Max.   :5.0000                
-##                                                              
-##  DISTANCE_TO_NEAREST_MIDDLESCHOOL CONVENIENCE_TO_MIDDLESCHOOL
-##  Min.   : 0.50                    VERY EASY: 33              
-##  1st Qu.: 2.50                    EASY     : 67              
-##  Median : 4.65                    HARD     : 17              
-##  Mean   :13.00                    VERY HARD:  3              
-##  3rd Qu.: 8.00                    NA's     :264              
-##  Max.   :99.90                                               
-##  NA's   :264                                                 
+##  CONVENIENCE_TO_PRIMARYSCHOOL MIDDLE_PUBLIC_INSTITUTION_NUM
+##  VERY EASY:  4                Min.   :0.0000               
+##  EASY     :  3                1st Qu.:0.0000               
+##  HARD     :  2                Median :0.0000               
+##  NA's     :375                Mean   :0.5625               
+##                               3rd Qu.:1.0000               
+##                               Max.   :4.0000               
+##  MIDDLE_PRIVATE_INSTITUTION_NUM CONVENIENCE_TO_MIDDLESCHOOL
+##  Min.   :0.0000                 VERY EASY: 33              
+##  1st Qu.:0.0000                 EASY     : 67              
+##  Median :0.0000                 HARD     : 17              
+##  Mean   :0.5391                 VERY HARD:  3              
+##  3rd Qu.:1.0000                 NA's     :264              
+##  Max.   :5.0000                                            
 ##  HIGH_PUBLIC_INSTITUTION_NUM HIGH_PRIVATE_INSTITUTION_NUM
 ##  Min.   :0.0000              Min.   :0.0000              
 ##  1st Qu.:0.0000              1st Qu.:0.0000              
@@ -2041,31 +1986,20 @@ podes1_final %&gt;%
 ##  Mean   :0.2109              Mean   :0.2344              
 ##  3rd Qu.:0.0000              3rd Qu.:0.0000              
 ##  Max.   :3.0000              Max.   :4.0000              
-##                                                          
-##  DISTANCE_TO_NEAREST_HIGHSCHOOL CONVENIENCE_TO_HIGHSCHOOL
-##  Min.   : 0.200                 VERY EASY: 56            
-##  1st Qu.: 3.875                 EASY     :152            
-##  Median : 7.000                 HARD     : 45            
-##  Mean   :15.667                 VERY HARD:  3            
-##  3rd Qu.:15.000                 NA's     :128            
-##  Max.   :99.900                                          
-##  NA's   :128                                             
-##  POLYTECHNIC_PUBLIC_INSTITUTION_NUM POLYTECHNIC_PRIVATE_INSTITUTION_NUM
-##  Min.   :0.000                      Min.   :0.000                      
-##  1st Qu.:0.000                      1st Qu.:0.000                      
-##  Median :0.000                      Median :0.000                      
-##  Mean   :0.138                      Mean   :0.224                      
-##  3rd Qu.:0.000                      3rd Qu.:0.000                      
-##  Max.   :3.000                      Max.   :5.000                      
-##                                                                        
-##  DISTANCE_TO_NEAREST_POLYTECHNIC CONVENIENCE_TO_POLYTECHNIC
-##  Min.   : 0.50                   VERY EASY: 54             
-##  1st Qu.: 4.65                   EASY     :172             
-##  Median :10.00                   HARD     : 54             
-##  Mean   :19.93                   VERY HARD:  7             
-##  3rd Qu.:21.00                   NA's     : 97             
-##  Max.   :99.90                                             
-##  NA's   :97                                                
+##  CONVENIENCE_TO_HIGHSCHOOL POLYTECHNIC_PUBLIC_INSTITUTION_NUM
+##  VERY EASY: 56             Min.   :0.000                     
+##  EASY     :152             1st Qu.:0.000                     
+##  HARD     : 45             Median :0.000                     
+##  VERY HARD:  3             Mean   :0.138                     
+##  NA's     :128             3rd Qu.:0.000                     
+##                            Max.   :3.000                     
+##  POLYTECHNIC_PRIVATE_INSTITUTION_NUM CONVENIENCE_TO_POLYTECHNIC
+##  Min.   :0.000                       VERY EASY: 54             
+##  1st Qu.:0.000                       EASY     :172             
+##  Median :0.000                       HARD     : 54             
+##  Mean   :0.224                       VERY HARD:  7             
+##  3rd Qu.:0.000                       NA's     : 97             
+##  Max.   :5.000                                                 
 ##  COLLEGE_PUBLIC_INSTITUTION_NUM COLLEGE_PRIVATE_INSTITUTION_NUM
 ##  Min.   :0.00000                Min.   :0.0000                 
 ##  1st Qu.:0.00000                1st Qu.:0.0000                 
@@ -2073,23 +2007,13 @@ podes1_final %&gt;%
 ##  Mean   :0.02604                Mean   :0.1042                 
 ##  3rd Qu.:0.00000                3rd Qu.:0.0000                 
 ##  Max.   :3.00000                Max.   :5.0000                 
-##                                                                
-##  DISTANCE_TO_NEAREST_COLLEGE CONVENIENCE_TO_COLLEGE
-##  Min.   : 0.50               VERY EASY: 40         
-##  1st Qu.:10.50               EASY     :183         
-##  Median :44.50               HARD     :106         
-##  Mean   :47.77               VERY HARD: 21         
-##  3rd Qu.:85.00               NA's     : 34         
-##  Max.   :99.90                                     
-##  NA's   :34                                        
-##  ISLAMIC_SCHOOL_PRIVATE_INSTITUTION_NUM
-##  Min.   :0.0000                        
-##  1st Qu.:0.0000                        
-##  Median :0.0000                        
-##  Mean   :0.2891                        
-##  3rd Qu.:0.0000                        
-##  Max.   :6.0000                        
-## </code></pre>
+##  CONVENIENCE_TO_COLLEGE ISLAMIC_SCHOOL_PRIVATE_INSTITUTION_NUM
+##  VERY EASY: 40          Min.   :0.0000                        
+##  EASY     :183          1st Qu.:0.0000                        
+##  HARD     :106          Median :0.0000                        
+##  VERY HARD: 21          Mean   :0.2891                        
+##  NA's     : 34          3rd Qu.:0.0000                        
+##                         Max.   :6.0000</code></pre>
 <p>From this summary, the observations are:</p>
 <ul>
 <li></li>
@@ -2881,104 +2805,112 @@ podes1_final %&gt;%
 )</code></pre>
 <pre class="r"><code>colnames(podes3) &lt;- var_meaning3</code></pre>
 <pre class="r"><code>podes3_final &lt;- podes3 %&gt;%
-  select(&quot;SHAPE&quot;, &quot;PROVINCE_ID&quot;, &quot;PROVINCE&quot;, &quot;CITY_ID&quot;, &quot;CITY&quot;, &quot;DISTRICT_ID&quot;, &quot;DISTRICT&quot;, &quot;VILLAGE_ID&quot;, &quot;VILLAGE&quot;,
-                   'IS_MULTI_ETHNIC',
-                   'IS_MULTILINGUAL',
-                   'CULTURAL_RESERVE_SITES',
-                   'COMMUNAL_SPACES',
-                   'COMMUNAL_ACTIVITIES',
-                   'COMMUNAL_ACTIVITIES_HELPING_OTHER_VILLAGERS', 
-                   'NUM_FAMILY_EDUCATION_ORGS',
-                   'NUM_YOUTH_ORGS', #
-                   'NUM_TRADITIONAL_ORGS', #
-                   'NUM_FARMING_ORGS', #
-                   'NUM_WATER_MANAGEMENT_ORGS', #
-                   'NUM_COMMUNITY_ORGS', # 
-                   'TRANSPORTATION_METHODS', #
-                   'ROAD_MATERIAL',
-                   'ROAD_ACCESSIBLE_BY_4_WHEEL_VEHICLE', #
-                   'PUBLIC_TRANSPORT', #
-                   'PUBLIC_TRANSPORT_DAILY_OPERATION', #
-                   'PUBLIC_TRANSPORT_OPERATION_TIME', #
-                   'NUM_FAMILIES_WITH_LANDLINES', #
-                   'CITIZENS_OWN_CELLPHONES', #
-                   'INTERNET_CAFES',
-                   'BASE_TRANSCEIVER_STATIONS', #
-                   'MOBILE_PHONE_SERVICE_OPERATORS',#
-                   'STRENGTH_OF_CELLPHONE_SIGNALS', #
-                   'TYPE_OF_INTERNET_SIGNAL', #
-                   'COMPUTER_IN_VILLAGE_HEADOFFICE', 
-                   'INTERNET_FACILITIES_IN_VILLAGE_HEADOFFICE',
-                   'POST_OFFICE', #
-                   'MOBILE_POSTOFFICE', #
-                   'PRIVATE_DELIVERY_COURIER', #
-                   'NUM_LEATHER_INDUSTRY', 
-                   'NUM_WOOD_INDUSTRY',
-                   'NUM_METAL_INDUSTRY',
-                   'NUM_FABRIC_INDUSTRY',
-                   'NUM_POTTERY_INDUSTRY',
-                   'NUM_BAMBOORATTAN_INDUSTRY',
-                   'NUM_FOOD_INDUSTRY',
-                   'NUM_OTHERS_INDUSTRY',
-                   'NUM_INDUSTRIAL_CENTERS',
-                   'NUM_SMALL_INDUSTRIES_ECOSYSTEM',
-                   'NUM_SMALL_INDUSTRIAL_VILLAGES',
-                   'KEROSENE_SELLERS',
-                   'LPG_SELLERS',
-                   'VILLAGE_COOPERATIVE',
-                   'AGRICULTURE_VILLAGE_COOPERATIVE',
-                   'CREDITLOAN_VILLAGE_COOPERATIVE',
-                   'OTHER_VILLAGE_COOPERATIVE',
-                   'SMALL_INDUSTRIAL_COOPERATIVE_NONKUD',
-                   'CREDITSAVINGS_COOPERATIVE_NONKUD',
-                   'OTHER_COOPERATIVE_NONKUD',
-                   'AGRICULTURE_SHOPS_KUD_OWNED',
-                   'AGRICULTURE_SHOPS_BUM_OWNED',
-                   'AGRICULTURE_SHOPS_OTHER_OWNED', 
-                   'NUM_SHOPHOUSE',
-                   'SHOPHOUSE_ACCESSIBILITY',
-                   'NUM_PERMANENT_MARKET',
-                   'PERMANENT_MARKET_ACCESSIBILITY',
-                   'NUM_SEMIPERMANENT_MARKET',
-                   'SEMIPERMANENT_MARKET_ACCESSIBILITY',
-                   'NUM_MARKET_NOBUILDINGS',
-                   'MARKET_NOBUILDINGS_ACCESSIBILITY',  
-                   'NUM_MINIMART',
-                   'MINIMART_ACCESSIBILITY',
-                   'NUM_BIGGER_WARUNG',
-                   'BIGGER_WARUNG_ACCESSIBILITY',   
-                   'NUM_SMALLER_WARUNG',
-                   'SMALLER_WARUNG_ACCESSIBILITY',            
-                   'NUM_RESTAURANTS',
-                   'RESTAURANTS_ACCESSIBILITY',  
-                   'NUM_FOODSTALLS',
-                   'FOODSTALLS_ACCESSIBILITY',  
-                   'NUM_HOTELS',
-                   'HOTELS_ACCESSIBILITY',                    
-                   'NUM_LODGING_PLACES',
-                   'LODGING_PLACES_ACCESSIBILITY', 
-                   'PEOPLE_BUSINESS_CREDIT', 
-                   'ENERGY_FOOD_CREDIT', 
-                   'SMALL_BUSINESS_CREDIT', 
-                   'JOINT_FAMILY_GROUP', 
-                   'NUM_GOVT_BANKS',
-                   'GOVT_BANKS_ACCESSIBILITY',
-                   'NUM_COMMERCIAL_BANKS',
-                   'COMMERCIAL_BANKS_ACCESSIBILITY',   
-                   'NUM_RURAL_CREDIT_BANKS',
-                   'RURAL_CREDIT_BANKS_ACCESSIBILITY',  
-                   'BMT',
-                   'BMT_ACCESSIBILITY',
-                   'ATM',
-                   'ATM_ACCESSIBILITY',
-                   'CAR_SHOP',
-                   'CAR_SHOP_ACCESSIBILITY', 
-                   'BANK_AGENT',
-                   'DISTANCE_TO_NEAREST_BANK_AGENT',
-                   'BANK_AGENT_ACCESSIBILITY'
+  select(&quot;SHAPE&quot;, 
+         &quot;PROVINCE_ID&quot;, 
+         &quot;PROVINCE&quot;, 
+         &quot;CITY_ID&quot;, 
+         &quot;CITY&quot;, 
+         &quot;DISTRICT_ID&quot;, 
+         &quot;DISTRICT&quot;, 
+         &quot;VILLAGE_ID&quot;, 
+         &quot;VILLAGE&quot;,
+         # 'IS_MULTI_ETHNIC',
+         # 'IS_MULTILINGUAL',
+         # 'CULTURAL_RESERVE_SITES',
+         # 'COMMUNAL_SPACES',
+         # 'COMMUNAL_ACTIVITIES',
+         # 'COMMUNAL_ACTIVITIES_HELPING_OTHER_VILLAGERS', 
+         # 'NUM_FAMILY_EDUCATION_ORGS',
+         # 'NUM_YOUTH_ORGS', #
+         # 'NUM_TRADITIONAL_ORGS', #
+         # 'NUM_FARMING_ORGS', #
+         # 'NUM_WATER_MANAGEMENT_ORGS', #
+         # 'NUM_COMMUNITY_ORGS', # 
+         'TRANSPORTATION_METHODS', #
+         'ROAD_MATERIAL',
+         'ROAD_ACCESSIBLE_BY_4_WHEEL_VEHICLE', #
+         'PUBLIC_TRANSPORT', #
+         'PUBLIC_TRANSPORT_DAILY_OPERATION', #
+         # 'PUBLIC_TRANSPORT_OPERATION_TIME', #
+         'NUM_FAMILIES_WITH_LANDLINES', #
+         'CITIZENS_OWN_CELLPHONES', #
+         'INTERNET_CAFES',
+         'BASE_TRANSCEIVER_STATIONS', #
+         'MOBILE_PHONE_SERVICE_OPERATORS',#
+         'STRENGTH_OF_CELLPHONE_SIGNALS', #
+         # 'TYPE_OF_INTERNET_SIGNAL', #
+         # 'COMPUTER_IN_VILLAGE_HEADOFFICE', 
+         # 'INTERNET_FACILITIES_IN_VILLAGE_HEADOFFICE',
+         'POST_OFFICE', #
+         'MOBILE_POSTOFFICE', #
+         'PRIVATE_DELIVERY_COURIER', #
+         'NUM_LEATHER_INDUSTRY', 
+         'NUM_WOOD_INDUSTRY',
+         'NUM_METAL_INDUSTRY',
+         'NUM_FABRIC_INDUSTRY',
+         'NUM_POTTERY_INDUSTRY',
+         'NUM_BAMBOORATTAN_INDUSTRY',
+         'NUM_FOOD_INDUSTRY',
+         'NUM_OTHERS_INDUSTRY',
+         'NUM_INDUSTRIAL_CENTERS',
+         'NUM_SMALL_INDUSTRIES_ECOSYSTEM',
+         'NUM_SMALL_INDUSTRIAL_VILLAGES',
+         # 'KEROSENE_SELLERS',
+         # 'LPG_SELLERS',
+         'VILLAGE_COOPERATIVE',
+         'AGRICULTURE_VILLAGE_COOPERATIVE',
+         'CREDITLOAN_VILLAGE_COOPERATIVE',
+         # 'OTHER_VILLAGE_COOPERATIVE',
+         'SMALL_INDUSTRIAL_COOPERATIVE_NONKUD',
+         'CREDITSAVINGS_COOPERATIVE_NONKUD',
+         # 'OTHER_COOPERATIVE_NONKUD',
+         # 'AGRICULTURE_SHOPS_KUD_OWNED',
+         # 'AGRICULTURE_SHOPS_BUM_OWNED',
+         # 'AGRICULTURE_SHOPS_OTHER_OWNED', 
+         'NUM_SHOPHOUSE',
+         'SHOPHOUSE_ACCESSIBILITY',
+         'NUM_PERMANENT_MARKET',
+         'PERMANENT_MARKET_ACCESSIBILITY',
+         'NUM_SEMIPERMANENT_MARKET',
+         'SEMIPERMANENT_MARKET_ACCESSIBILITY',
+         'NUM_MARKET_NOBUILDINGS',
+         'MARKET_NOBUILDINGS_ACCESSIBILITY',  
+         'NUM_MINIMART',
+         'MINIMART_ACCESSIBILITY',
+         'NUM_BIGGER_WARUNG',
+         'BIGGER_WARUNG_ACCESSIBILITY',   
+         'NUM_SMALLER_WARUNG',
+         'SMALLER_WARUNG_ACCESSIBILITY',            
+         'NUM_RESTAURANTS',
+         'RESTAURANTS_ACCESSIBILITY',  
+         'NUM_FOODSTALLS',
+         'FOODSTALLS_ACCESSIBILITY',  
+         'NUM_HOTELS',
+         'HOTELS_ACCESSIBILITY',                    
+         'NUM_LODGING_PLACES',
+         'LODGING_PLACES_ACCESSIBILITY', 
+         'PEOPLE_BUSINESS_CREDIT', 
+         'ENERGY_FOOD_CREDIT', 
+         'SMALL_BUSINESS_CREDIT', 
+         'JOINT_FAMILY_GROUP', 
+         'NUM_GOVT_BANKS',
+         'GOVT_BANKS_ACCESSIBILITY',
+         'NUM_COMMERCIAL_BANKS',
+         'COMMERCIAL_BANKS_ACCESSIBILITY',   
+         'NUM_RURAL_CREDIT_BANKS',
+         'RURAL_CREDIT_BANKS_ACCESSIBILITY',  
+         'BMT',
+         'BMT_ACCESSIBILITY',
+         'ATM',
+         'ATM_ACCESSIBILITY',
+         # 'CAR_SHOP',
+         # 'CAR_SHOP_ACCESSIBILITY', 
+         'BANK_AGENT',
+         # 'DISTANCE_TO_NEAREST_BANK_AGENT',
+         'BANK_AGENT_ACCESSIBILITY'
 )</code></pre>
 <pre class="r"><code>head(podes3_final)</code></pre>
-<pre><code>## # A tibble: 6 x 103
+<pre><code>## # A tibble: 6 x 77
 ##   SHAPE PROVINCE_ID PROVINCE CITY_ID CITY  DISTRICT_ID DISTRICT VILLAGE_ID
 ##   &lt;dbl&gt;       &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;       &lt;chr&gt;    &lt;chr&gt;     
 ## 1 62130          64 KALIMAN~ 03      KUTA~ 010         SEMBOJA  001       
@@ -2987,36 +2919,23 @@ podes1_final %&gt;%
 ## 4 62133          64 KALIMAN~ 03      KUTA~ 010         SEMBOJA  004       
 ## 5 62134          64 KALIMAN~ 03      KUTA~ 010         SEMBOJA  005       
 ## 6 62135          64 KALIMAN~ 03      KUTA~ 010         SEMBOJA  006       
-## # ... with 95 more variables: VILLAGE &lt;chr&gt;, IS_MULTI_ETHNIC &lt;fct&gt;,
-## #   IS_MULTILINGUAL &lt;fct&gt;, CULTURAL_RESERVE_SITES &lt;fct&gt;, COMMUNAL_SPACES &lt;fct&gt;,
-## #   COMMUNAL_ACTIVITIES &lt;fct&gt;,
-## #   COMMUNAL_ACTIVITIES_HELPING_OTHER_VILLAGERS &lt;fct&gt;,
-## #   NUM_FAMILY_EDUCATION_ORGS &lt;dbl&gt;, NUM_YOUTH_ORGS &lt;dbl&gt;,
-## #   NUM_TRADITIONAL_ORGS &lt;dbl&gt;, NUM_FARMING_ORGS &lt;dbl&gt;,
-## #   NUM_WATER_MANAGEMENT_ORGS &lt;dbl&gt;, NUM_COMMUNITY_ORGS &lt;dbl&gt;,
-## #   TRANSPORTATION_METHODS &lt;fct&gt;, ROAD_MATERIAL &lt;fct&gt;,
-## #   ROAD_ACCESSIBLE_BY_4_WHEEL_VEHICLE &lt;fct&gt;, PUBLIC_TRANSPORT &lt;fct&gt;,
-## #   PUBLIC_TRANSPORT_DAILY_OPERATION &lt;fct&gt;,
-## #   PUBLIC_TRANSPORT_OPERATION_TIME &lt;fct&gt;, NUM_FAMILIES_WITH_LANDLINES &lt;dbl&gt;,
-## #   CITIZENS_OWN_CELLPHONES &lt;fct&gt;, INTERNET_CAFES &lt;fct&gt;,
-## #   BASE_TRANSCEIVER_STATIONS &lt;dbl&gt;, MOBILE_PHONE_SERVICE_OPERATORS &lt;dbl&gt;,
-## #   STRENGTH_OF_CELLPHONE_SIGNALS &lt;fct&gt;, TYPE_OF_INTERNET_SIGNAL &lt;fct&gt;,
-## #   COMPUTER_IN_VILLAGE_HEADOFFICE &lt;fct&gt;,
-## #   INTERNET_FACILITIES_IN_VILLAGE_HEADOFFICE &lt;fct&gt;, POST_OFFICE &lt;fct&gt;,
-## #   MOBILE_POSTOFFICE &lt;fct&gt;, PRIVATE_DELIVERY_COURIER &lt;fct&gt;,
+## # ... with 69 more variables: VILLAGE &lt;chr&gt;, TRANSPORTATION_METHODS &lt;fct&gt;,
+## #   ROAD_MATERIAL &lt;fct&gt;, ROAD_ACCESSIBLE_BY_4_WHEEL_VEHICLE &lt;fct&gt;,
+## #   PUBLIC_TRANSPORT &lt;fct&gt;, PUBLIC_TRANSPORT_DAILY_OPERATION &lt;fct&gt;,
+## #   NUM_FAMILIES_WITH_LANDLINES &lt;dbl&gt;, CITIZENS_OWN_CELLPHONES &lt;fct&gt;,
+## #   INTERNET_CAFES &lt;fct&gt;, BASE_TRANSCEIVER_STATIONS &lt;dbl&gt;,
+## #   MOBILE_PHONE_SERVICE_OPERATORS &lt;dbl&gt;, STRENGTH_OF_CELLPHONE_SIGNALS &lt;fct&gt;,
+## #   POST_OFFICE &lt;fct&gt;, MOBILE_POSTOFFICE &lt;fct&gt;, PRIVATE_DELIVERY_COURIER &lt;fct&gt;,
 ## #   NUM_LEATHER_INDUSTRY &lt;dbl&gt;, NUM_WOOD_INDUSTRY &lt;dbl&gt;,
 ## #   NUM_METAL_INDUSTRY &lt;dbl&gt;, NUM_FABRIC_INDUSTRY &lt;dbl&gt;,
 ## #   NUM_POTTERY_INDUSTRY &lt;dbl&gt;, NUM_BAMBOORATTAN_INDUSTRY &lt;dbl&gt;,
 ## #   NUM_FOOD_INDUSTRY &lt;dbl&gt;, NUM_OTHERS_INDUSTRY &lt;dbl&gt;,
 ## #   NUM_INDUSTRIAL_CENTERS &lt;dbl&gt;, NUM_SMALL_INDUSTRIES_ECOSYSTEM &lt;dbl&gt;,
-## #   NUM_SMALL_INDUSTRIAL_VILLAGES &lt;dbl&gt;, KEROSENE_SELLERS &lt;fct&gt;,
-## #   LPG_SELLERS &lt;fct&gt;, VILLAGE_COOPERATIVE &lt;dbl&gt;,
+## #   NUM_SMALL_INDUSTRIAL_VILLAGES &lt;dbl&gt;, VILLAGE_COOPERATIVE &lt;dbl&gt;,
 ## #   AGRICULTURE_VILLAGE_COOPERATIVE &lt;dbl&gt;,
-## #   CREDITLOAN_VILLAGE_COOPERATIVE &lt;dbl&gt;, OTHER_VILLAGE_COOPERATIVE &lt;dbl&gt;,
+## #   CREDITLOAN_VILLAGE_COOPERATIVE &lt;dbl&gt;,
 ## #   SMALL_INDUSTRIAL_COOPERATIVE_NONKUD &lt;dbl&gt;,
-## #   CREDITSAVINGS_COOPERATIVE_NONKUD &lt;dbl&gt;, OTHER_COOPERATIVE_NONKUD &lt;dbl&gt;,
-## #   AGRICULTURE_SHOPS_KUD_OWNED &lt;fct&gt;, AGRICULTURE_SHOPS_BUM_OWNED &lt;fct&gt;,
-## #   AGRICULTURE_SHOPS_OTHER_OWNED &lt;fct&gt;, NUM_SHOPHOUSE &lt;dbl&gt;,
+## #   CREDITSAVINGS_COOPERATIVE_NONKUD &lt;dbl&gt;, NUM_SHOPHOUSE &lt;dbl&gt;,
 ## #   SHOPHOUSE_ACCESSIBILITY &lt;fct&gt;, NUM_PERMANENT_MARKET &lt;dbl&gt;,
 ## #   PERMANENT_MARKET_ACCESSIBILITY &lt;fct&gt;, NUM_SEMIPERMANENT_MARKET &lt;dbl&gt;,
 ## #   SEMIPERMANENT_MARKET_ACCESSIBILITY &lt;fct&gt;, NUM_MARKET_NOBUILDINGS &lt;dbl&gt;,
@@ -3033,9 +2952,8 @@ podes1_final %&gt;%
 ## #   GOVT_BANKS_ACCESSIBILITY &lt;fct&gt;, NUM_COMMERCIAL_BANKS &lt;dbl&gt;,
 ## #   COMMERCIAL_BANKS_ACCESSIBILITY &lt;fct&gt;, NUM_RURAL_CREDIT_BANKS &lt;dbl&gt;,
 ## #   RURAL_CREDIT_BANKS_ACCESSIBILITY &lt;fct&gt;, BMT &lt;fct&gt;, BMT_ACCESSIBILITY &lt;fct&gt;,
-## #   ATM &lt;fct&gt;, ATM_ACCESSIBILITY &lt;fct&gt;, CAR_SHOP &lt;fct&gt;,
-## #   CAR_SHOP_ACCESSIBILITY &lt;fct&gt;, BANK_AGENT &lt;fct&gt;,
-## #   DISTANCE_TO_NEAREST_BANK_AGENT &lt;dbl&gt;, BANK_AGENT_ACCESSIBILITY &lt;fct&gt;</code></pre>
+## #   ATM &lt;fct&gt;, ATM_ACCESSIBILITY &lt;fct&gt;, BANK_AGENT &lt;fct&gt;,
+## #   BANK_AGENT_ACCESSIBILITY &lt;fct&gt;</code></pre>
 <pre class="r"><code>summary(podes3_final)</code></pre>
 <pre><code>##      SHAPE        PROVINCE_ID   PROVINCE           CITY_ID         
 ##  Min.   :62130   Min.   :64   Length:384         Length:384        
@@ -3053,54 +2971,14 @@ podes1_final %&gt;%
 ##                                                                             
 ##                                                                             
 ##                                                                             
-##    VILLAGE          IS_MULTI_ETHNIC IS_MULTILINGUAL
-##  Length:384         1:382           1:333          
-##  Class :character   0:  2           0: 51          
-##  Mode  :character                                  
-##                                                    
-##                                                    
-##                                                    
-##                                                    
-##          CULTURAL_RESERVE_SITES         COMMUNAL_SPACES
-##  YES, MANAGED       : 27        YES, MANAGED    : 79   
-##  YES, RARELY MANAGED: 11        YES, NOT MANAGED: 44   
-##  YES, NOT MANAGED   : 13        NO              :261   
-##  NO                 :333                               
-##                                                        
-##                                                        
-##                                                        
-##              COMMUNAL_ACTIVITIES COMMUNAL_ACTIVITIES_HELPING_OTHER_VILLAGERS
-##  YES, MAJORITY INVOLVED:320      YES, MAJORITY INVOLVED:352                 
-##  YES, SOME INVOLVED    : 62      YES, SOME INVOLVED    : 30                 
-##  No                    :  2      NO                    :  2                 
-##                                                                             
-##                                                                             
-##                                                                             
-##                                                                             
-##  NUM_FAMILY_EDUCATION_ORGS NUM_YOUTH_ORGS   NUM_TRADITIONAL_ORGS
-##  Min.   : 0.00             Min.   : 0.000   Min.   : 0.0000     
-##  1st Qu.: 1.00             1st Qu.: 1.000   1st Qu.: 0.0000     
-##  Median : 1.00             Median : 1.000   Median : 1.0000     
-##  Mean   : 2.76             Mean   : 1.271   Mean   : 0.6667     
-##  3rd Qu.: 1.00             3rd Qu.: 1.000   3rd Qu.: 1.0000     
-##  Max.   :71.00             Max.   :35.000   Max.   :12.0000     
-##                                                                 
-##  NUM_FARMING_ORGS NUM_WATER_MANAGEMENT_ORGS NUM_COMMUNITY_ORGS
-##  Min.   : 0.000   Min.   :0.000             Min.   : 0.000    
-##  1st Qu.: 1.000   1st Qu.:0.000             1st Qu.: 0.000    
-##  Median : 5.000   Median :0.000             Median : 0.000    
-##  Mean   : 7.094   Mean   :0.224             Mean   : 1.688    
-##  3rd Qu.:10.000   3rd Qu.:0.000             3rd Qu.: 1.000    
-##  Max.   :40.000   Max.   :4.000             Max.   :49.000    
-##                                                               
-##     TRANSPORTATION_METHODS          ROAD_MATERIAL
-##  LAND          :294        ASPHALT/CONCRETE:291  
-##  WATER         : 13        GRAVEL/STONE    : 55  
-##  LAND AND WATER: 77        SOIL            : 18  
-##                            OTHERS          :  7  
-##                            NA's            : 13  
-##                                                  
-##                                                  
+##    VILLAGE             TRANSPORTATION_METHODS          ROAD_MATERIAL
+##  Length:384         LAND          :294        ASPHALT/CONCRETE:291  
+##  Class :character   WATER         : 13        GRAVEL/STONE    : 55  
+##  Mode  :character   LAND AND WATER: 77        SOIL            : 18  
+##                                               OTHERS          :  7  
+##                                               NA's            : 13  
+##                                                                     
+##                                                                     
 ##                   ROAD_ACCESSIBLE_BY_4_WHEEL_VEHICLE
 ##  ALWAYS                            :313             
 ##  ALWAYS, EXCEPT FOR EXTREME WEATHER: 49             
@@ -3117,62 +2995,46 @@ podes1_final %&gt;%
 ##                                                              
 ##                                                              
 ##                                                              
-##  PUBLIC_TRANSPORT_OPERATION_TIME NUM_FAMILIES_WITH_LANDLINES
-##  MORNING &amp; NIGHT:115             Min.   :   0               
-##  MORNING        :107             1st Qu.:   0               
-##  NA's           :162             Median :   0               
-##                                  Mean   : 185               
-##                                  3rd Qu.:   0               
-##                                  Max.   :3000               
-##                                                             
-##  CITIZENS_OWN_CELLPHONES INTERNET_CAFES BASE_TRANSCEIVER_STATIONS
-##  MAJORITY:372            1:137          Min.   : 0.000           
-##  MINORITY:  5            0:247          1st Qu.: 0.000           
-##  NONE    :  7                           Median : 1.000           
-##                                         Mean   : 2.164           
-##                                         3rd Qu.: 3.000           
-##                                         Max.   :38.000           
-##                                                                  
-##  MOBILE_PHONE_SERVICE_OPERATORS STRENGTH_OF_CELLPHONE_SIGNALS
-##  Min.   :0.000                  VERY STRONG:116              
-##  1st Qu.:2.000                  STRONG     :188              
-##  Median :3.000                  WEAK       : 80              
-##  Mean   :2.651                                               
-##  3rd Qu.:4.000                                               
-##  Max.   :7.000                                               
-##                                                              
-##  TYPE_OF_INTERNET_SIGNAL COMPUTER_IN_VILLAGE_HEADOFFICE
-##  4G/LTE      :194        USED       :380               
-##  3G/H/H+/EVDO:148        RARELY USED:  1               
-##  2.5G/E/GPRS : 19        NOT USED   :  1               
-##  NONE        : 23        NONE       :  2               
-##                                                        
-##                                                        
-##                                                        
-##  INTERNET_FACILITIES_IN_VILLAGE_HEADOFFICE             POST_OFFICE 
-##  FUNCTIONING       :242                    OPERATIONAL       : 67  
-##  RARELY FUNCTIONING: 14                    RARELY OPERATIONAL:  8  
-##  NOT FUNCTIONING   : 21                    NOT OPERATIONAL   :  3  
-##  NONE              :107                    NONE              :306  
+##  NUM_FAMILIES_WITH_LANDLINES CITIZENS_OWN_CELLPHONES INTERNET_CAFES
+##  Min.   :   0                MAJORITY:372            1:137         
+##  1st Qu.:   0                MINORITY:  5            0:247         
+##  Median :   0                NONE    :  7                          
+##  Mean   : 185                                                      
+##  3rd Qu.:   0                                                      
+##  Max.   :3000                                                      
 ##                                                                    
-##                                                                    
-##                                                                    
-##  MOBILE_POSTOFFICE       PRIVATE_DELIVERY_COURIER NUM_LEATHER_INDUSTRY
-##  1: 98             OPERATIONAL       :110         Min.   :0.00000     
-##  0:286             RARELY OPERATIONAL:  3         1st Qu.:0.00000     
-##                    NOT OPERATIONAL   :  3         Median :0.00000     
-##                    NONE              :268         Mean   :0.03125     
-##                                                   3rd Qu.:0.00000     
-##                                                   Max.   :3.00000     
+##  BASE_TRANSCEIVER_STATIONS MOBILE_PHONE_SERVICE_OPERATORS
+##  Min.   : 0.000            Min.   :0.000                 
+##  1st Qu.: 0.000            1st Qu.:2.000                 
+##  Median : 1.000            Median :3.000                 
+##  Mean   : 2.164            Mean   :2.651                 
+##  3rd Qu.: 3.000            3rd Qu.:4.000                 
+##  Max.   :38.000            Max.   :7.000                 
+##                                                          
+##  STRENGTH_OF_CELLPHONE_SIGNALS             POST_OFFICE  MOBILE_POSTOFFICE
+##  VERY STRONG:116               OPERATIONAL       : 67   1: 98            
+##  STRONG     :188               RARELY OPERATIONAL:  8   0:286            
+##  WEAK       : 80               NOT OPERATIONAL   :  3                    
+##                                NONE              :306                    
+##                                                                          
+##                                                                          
+##                                                                          
+##        PRIVATE_DELIVERY_COURIER NUM_LEATHER_INDUSTRY NUM_WOOD_INDUSTRY
+##  OPERATIONAL       :110         Min.   :0.00000      Min.   : 0.000   
+##  RARELY OPERATIONAL:  3         1st Qu.:0.00000      1st Qu.: 0.000   
+##  NOT OPERATIONAL   :  3         Median :0.00000      Median : 0.000   
+##  NONE              :268         Mean   :0.03125      Mean   : 1.659   
+##                                 3rd Qu.:0.00000      3rd Qu.: 2.000   
+##                                 Max.   :3.00000      Max.   :57.000   
 ##                                                                       
-##  NUM_WOOD_INDUSTRY NUM_METAL_INDUSTRY NUM_FABRIC_INDUSTRY NUM_POTTERY_INDUSTRY
-##  Min.   : 0.000    Min.   : 0.0000    Min.   :  0.000     Min.   : 0.000      
-##  1st Qu.: 0.000    1st Qu.: 0.0000    1st Qu.:  0.000     1st Qu.: 0.000      
-##  Median : 0.000    Median : 0.0000    Median :  0.000     Median : 0.000      
-##  Mean   : 1.659    Mean   : 0.3125    Mean   :  3.828     Mean   : 1.354      
-##  3rd Qu.: 2.000    3rd Qu.: 0.0000    3rd Qu.:  1.000     3rd Qu.: 0.000      
-##  Max.   :57.000    Max.   :24.0000    Max.   :100.000     Max.   :65.000      
-##                                                                               
+##  NUM_METAL_INDUSTRY NUM_FABRIC_INDUSTRY NUM_POTTERY_INDUSTRY
+##  Min.   : 0.0000    Min.   :  0.000     Min.   : 0.000      
+##  1st Qu.: 0.0000    1st Qu.:  0.000     1st Qu.: 0.000      
+##  Median : 0.0000    Median :  0.000     Median : 0.000      
+##  Mean   : 0.3125    Mean   :  3.828     Mean   : 1.354      
+##  3rd Qu.: 0.0000    3rd Qu.:  1.000     3rd Qu.: 0.000      
+##  Max.   :24.0000    Max.   :100.000     Max.   :65.000      
+##                                                             
 ##  NUM_BAMBOORATTAN_INDUSTRY NUM_FOOD_INDUSTRY NUM_OTHERS_INDUSTRY
 ##  Min.   :  0.000           Min.   :  0.00    Min.   :  0.0000   
 ##  1st Qu.:  0.000           1st Qu.:  0.00    1st Qu.:  0.0000   
@@ -3189,14 +3051,14 @@ podes1_final %&gt;%
 ##  3rd Qu.:0.00000        3rd Qu.:0.00000               
 ##  Max.   :2.00000        Max.   :6.00000               
 ##                                                       
-##  NUM_SMALL_INDUSTRIAL_VILLAGES KEROSENE_SELLERS LPG_SELLERS VILLAGE_COOPERATIVE
-##  Min.   :0.00000               1: 72            1:353       Min.   :0.0000     
-##  1st Qu.:0.00000               0:312            0: 31       1st Qu.:0.0000     
-##  Median :0.00000                                            Median :0.0000     
-##  Mean   :0.03646                                            Mean   :0.2396     
-##  3rd Qu.:0.00000                                            3rd Qu.:0.0000     
-##  Max.   :5.00000                                            Max.   :5.0000     
-##                                                                                
+##  NUM_SMALL_INDUSTRIAL_VILLAGES VILLAGE_COOPERATIVE
+##  Min.   :0.00000               Min.   :0.0000     
+##  1st Qu.:0.00000               1st Qu.:0.0000     
+##  Median :0.00000               Median :0.0000     
+##  Mean   :0.03646               Mean   :0.2396     
+##  3rd Qu.:0.00000               3rd Qu.:0.0000     
+##  Max.   :5.00000               Max.   :5.0000     
+##                                                   
 ##  AGRICULTURE_VILLAGE_COOPERATIVE CREDITLOAN_VILLAGE_COOPERATIVE
 ##  Min.   :0.0                     Min.   :0.00                  
 ##  1st Qu.:0.0                     1st Qu.:0.00                  
@@ -3205,46 +3067,30 @@ podes1_final %&gt;%
 ##  3rd Qu.:1.0                     3rd Qu.:1.00                  
 ##  Max.   :5.0                     Max.   :3.00                  
 ##  NA's   :324                     NA's   :324                   
-##  OTHER_VILLAGE_COOPERATIVE SMALL_INDUSTRIAL_COOPERATIVE_NONKUD
-##  Min.   :0.0000            Min.   :0.00000                    
-##  1st Qu.:0.0000            1st Qu.:0.00000                    
-##  Median :0.0000            Median :0.00000                    
-##  Mean   :0.5167            Mean   :0.09115                    
-##  3rd Qu.:1.0000            3rd Qu.:0.00000                    
-##  Max.   :4.0000            Max.   :7.00000                    
-##  NA's   :324                                                  
-##  CREDITSAVINGS_COOPERATIVE_NONKUD OTHER_COOPERATIVE_NONKUD
-##  Min.   : 0.000                   Min.   :0.0000          
-##  1st Qu.: 0.000                   1st Qu.:0.0000          
-##  Median : 0.000                   Median :0.0000          
-##  Mean   : 0.599                   Mean   :0.1484          
-##  3rd Qu.: 1.000                   3rd Qu.:0.0000          
-##  Max.   :16.000                   Max.   :4.0000          
-##                                                           
-##  AGRICULTURE_SHOPS_KUD_OWNED AGRICULTURE_SHOPS_BUM_OWNED
-##  1:  7                       1: 26                      
-##  0:377                       0:358                      
+##  SMALL_INDUSTRIAL_COOPERATIVE_NONKUD CREDITSAVINGS_COOPERATIVE_NONKUD
+##  Min.   :0.00000                     Min.   : 0.000                  
+##  1st Qu.:0.00000                     1st Qu.: 0.000                  
+##  Median :0.00000                     Median : 0.000                  
+##  Mean   :0.09115                     Mean   : 0.599                  
+##  3rd Qu.:0.00000                     3rd Qu.: 1.000                  
+##  Max.   :7.00000                     Max.   :16.000                  
+##                                                                      
+##  NUM_SHOPHOUSE     SHOPHOUSE_ACCESSIBILITY NUM_PERMANENT_MARKET
+##  Min.   : 0.0000   VERY EASY: 50           Min.   :0.0000      
+##  1st Qu.: 0.0000   EASY     :189           1st Qu.:0.0000      
+##  Median : 0.0000   HARD     : 65           Median :0.0000      
+##  Mean   : 0.5729   VERY HARD:  7           Mean   :0.1797      
+##  3rd Qu.: 0.0000   NA's     : 73           3rd Qu.:0.0000      
+##  Max.   :48.0000                           Max.   :2.0000      
+##                                                                
+##  PERMANENT_MARKET_ACCESSIBILITY NUM_SEMIPERMANENT_MARKET
+##  VERY EASY: 60                  Min.   :0.0000          
+##  EASY     :159                  1st Qu.:0.0000          
+##  HARD     : 91                  Median :0.0000          
+##  VERY HARD:  6                  Mean   :0.2734          
+##  NA's     : 68                  3rd Qu.:1.0000          
+##                                 Max.   :3.0000          
 ##                                                         
-##                                                         
-##                                                         
-##                                                         
-##                                                         
-##  AGRICULTURE_SHOPS_OTHER_OWNED NUM_SHOPHOUSE     SHOPHOUSE_ACCESSIBILITY
-##  1:123                         Min.   : 0.0000   VERY EASY: 50          
-##  0:261                         1st Qu.: 0.0000   EASY     :189          
-##                                Median : 0.0000   HARD     : 65          
-##                                Mean   : 0.5729   VERY HARD:  7          
-##                                3rd Qu.: 0.0000   NA's     : 73          
-##                                Max.   :48.0000                          
-##                                                                         
-##  NUM_PERMANENT_MARKET PERMANENT_MARKET_ACCESSIBILITY NUM_SEMIPERMANENT_MARKET
-##  Min.   :0.0000       VERY EASY: 60                  Min.   :0.0000          
-##  1st Qu.:0.0000       EASY     :159                  1st Qu.:0.0000          
-##  Median :0.0000       HARD     : 91                  Median :0.0000          
-##  Mean   :0.1797       VERY HARD:  6                  Mean   :0.2734          
-##  3rd Qu.:0.0000       NA's     : 68                  3rd Qu.:1.0000          
-##  Max.   :2.0000                                      Max.   :3.0000          
-##                                                                              
 ##  SEMIPERMANENT_MARKET_ACCESSIBILITY NUM_MARKET_NOBUILDINGS
 ##  VERY EASY: 55                      Min.   : 0.0000       
 ##  EASY     :167                      1st Qu.: 0.0000       
@@ -3325,22 +3171,14 @@ podes1_final %&gt;%
 ##  NA's     : 27                            NA's     : 24            
 ##                                                                    
 ##                                                                    
-##  ATM_ACCESSIBILITY CAR_SHOP CAR_SHOP_ACCESSIBILITY BANK_AGENT
-##  VERY EASY: 36     1:323    VERY EASY:  7          1:168     
-##  EASY     :148     0: 61    EASY     : 32          0:216     
-##  HARD     : 56              HARD     : 17                    
-##  VERY HARD:  6              VERY HARD:  5                    
-##  NA's     :138              NA's     :323                    
-##                                                              
-##                                                              
-##  DISTANCE_TO_NEAREST_BANK_AGENT BANK_AGENT_ACCESSIBILITY
-##  Min.   : 1.00                  VERY EASY: 35           
-##  1st Qu.: 5.00                  EASY     :115           
-##  Median :11.00                  HARD     : 60           
-##  Mean   :28.64                  VERY HARD:  6           
-##  3rd Qu.:40.00                  NA's     :168           
-##  Max.   :99.90                                          
-##  NA's   :168</code></pre>
+##  ATM_ACCESSIBILITY BANK_AGENT BANK_AGENT_ACCESSIBILITY
+##  VERY EASY: 36     1:168      VERY EASY: 35           
+##  EASY     :148     0:216      EASY     :115           
+##  HARD     : 56                HARD     : 60           
+##  VERY HARD:  6                VERY HARD:  6           
+##  NA's     :138                NA's     :168           
+##                                                       
+## </code></pre>
 <p>Observations:</p>
 <ul>
 <li><p>Only 2 villages are non-multiethnic the rest 382 villages are and 333 villages are multilingual as well</p></li>
@@ -4151,9 +3989,51 @@ TECHNICAL_EXECUTOR = R1702B, TERRITORIAL_EXECUTOR= R1702C, VILLAGE_OFFICIALS= R1
 <pre class="r"><code>colnames(podes4) &lt;- var_meaning4</code></pre>
 <p>variables chosen:</p>
 <pre class="r"><code>podes4_final &lt;- podes4 %&gt;%
-  select(&quot;SHAPE&quot;, &quot;PROVINCE_ID&quot;, &quot;PROVINCE&quot;, &quot;CITY_ID&quot;, &quot;CITY&quot;, &quot;DISTRICT_ID&quot;, &quot;DISTRICT&quot;, &quot;VILLAGE_ID&quot;, &quot;VILLAGE&quot;, &quot;AVAILABILITY_OF_VILLAGE_INFORMATION&quot;, &quot;USAGE_OF_VILLAGE_FINANCIAL_SYSTEM&quot;,&quot;VILLAGE_OWNED_ENTERPRISE_LAND&quot;, &quot;VILLAGE_BUILDINGS&quot;,&quot;VILLAGE_MARKET&quot;,&quot;OTHER_VILLAGE_ASSETS&quot;,&quot;VILLAGE_MED_TERM_DEV_PLAN&quot;, &quot;PERIOD_OF_RPJM_DEVELOP_YEAR_START&quot;, &quot;PERIOD_OF_RPJM_DEVELOP_YEAR_END&quot;, &quot;VILLAGE_GOV_WORK_PLAN_2018&quot;, &quot;VILLAGE_REGULATION_NUMBER_2017&quot;, &quot;NO_OF_HEADMAN_REGULATION_2017&quot;, &quot;AVAILABILITY_OF_VILLAGE_COOPERATION_BETWEEN_VILLAGES_2018&quot;, &quot;AVAILABILITY_OF_VILLAGE_COOPERATION_WITH_THIRD_PARTIES_2018&quot;, &quot;TRANSPORTATION_INFRASTRUCTURE_DEVELOPMENT&quot;, &quot;ENERGY_INFRASTRUCTURE&quot;, &quot;INFORMATION_COMMUNICATION_INFRASTRUCTURE&quot;, &quot;SANITATION_INFRASTRUCTURE&quot;, &quot;EDUCATION_CULTURE_HEALTH_INFRASTRUCTURE&quot;, &quot;TRADING_SERVICES_INFRASTRUCTURE&quot;, &quot;FARMING_PRODUCTION_VILLAGE_SMALL_INDUSTRY_INFRASTRUCTURE&quot;, &quot;RECREATION_TOURISM_INFRASTRUCTURE&quot;, &quot;DISASTER_MGMT_ENV_CONSERVATION_INFRASTRUCTURE&quot;, &quot;GOV_SUPPORT_INFRASTRUCTURE&quot;, &quot;EDU_HEALTH_PUBLIC_CULTURE_EMPOWERMENT&quot;, &quot;VILLAGE_RESIDENTIAL_NEIGHBOURHOOD_MGMT_EMPOWERMENT&quot;, &quot;VILLAGE_TRANSPORTATION_MGMT_EMPOWERMENT&quot;, &quot;RENEWABLE_ENERGY_DEVELOPMENT_EMPOWERMENT&quot;, &quot;INFORMATION_COMMUNICATION_MGMT_EMPOWERMENT&quot;, &quot;AGRI_BASED_PRODUCTIVE_BUSI_NON_AGRI_VILLAGE_SMALL_BUSI_MGMT_EMPOWERMENT&quot;, &quot;NATURE_CONSERVE_AWARENESS_DISASTER_MGMT_EMPOWERMENT&quot;, &quot;COMMUNITY_ROLE_IMPROVE_VILLAGE_GOVERNANCE_EMPOWERMENT&quot;, &quot;QUALITY_CAPACITY_OF_VILLAGE_COMMUNITY_EMPOWERMENT&quot;, &quot;ESTABLISHMENT_DEVELOPMENT_VILLAGE_GOV_ENTERPRISE_EMPOWERMENT&quot;)</code></pre>
+  select(&quot;SHAPE&quot;,
+         &quot;PROVINCE_ID&quot;, 
+         &quot;PROVINCE&quot;,
+         &quot;CITY_ID&quot;, 
+         &quot;CITY&quot;, 
+         &quot;DISTRICT_ID&quot;,
+         &quot;DISTRICT&quot;,
+         &quot;VILLAGE_ID&quot;, 
+         &quot;VILLAGE&quot;, 
+         &quot;AVAILABILITY_OF_VILLAGE_INFORMATION&quot;,
+         &quot;USAGE_OF_VILLAGE_FINANCIAL_SYSTEM&quot;,
+         # &quot;VILLAGE_OWNED_ENTERPRISE_LAND&quot;,
+         # &quot;VILLAGE_BUILDINGS&quot;,
+         # &quot;VILLAGE_MARKET&quot;,
+         # &quot;OTHER_VILLAGE_ASSETS&quot;,
+         &quot;VILLAGE_MED_TERM_DEV_PLAN&quot;, 
+         # &quot;PERIOD_OF_RPJM_DEVELOP_YEAR_START&quot;, 
+         # &quot;PERIOD_OF_RPJM_DEVELOP_YEAR_END&quot;, 
+         # &quot;VILLAGE_GOV_WORK_PLAN_2018&quot;, 
+         # &quot;VILLAGE_REGULATION_NUMBER_2017&quot;, 
+         # &quot;NO_OF_HEADMAN_REGULATION_2017&quot;,
+         # &quot;AVAILABILITY_OF_VILLAGE_COOPERATION_BETWEEN_VILLAGES_2018&quot;,
+         # &quot;AVAILABILITY_OF_VILLAGE_COOPERATION_WITH_THIRD_PARTIES_2018&quot;, 
+         &quot;TRANSPORTATION_INFRASTRUCTURE_DEVELOPMENT&quot;,
+         &quot;ENERGY_INFRASTRUCTURE&quot;, 
+         &quot;INFORMATION_COMMUNICATION_INFRASTRUCTURE&quot;, 
+         &quot;SANITATION_INFRASTRUCTURE&quot;, 
+         &quot;EDUCATION_CULTURE_HEALTH_INFRASTRUCTURE&quot;, 
+         &quot;TRADING_SERVICES_INFRASTRUCTURE&quot;,
+         &quot;FARMING_PRODUCTION_VILLAGE_SMALL_INDUSTRY_INFRASTRUCTURE&quot;,
+         &quot;RECREATION_TOURISM_INFRASTRUCTURE&quot;, 
+         &quot;DISASTER_MGMT_ENV_CONSERVATION_INFRASTRUCTURE&quot;,
+         &quot;GOV_SUPPORT_INFRASTRUCTURE&quot;, 
+         &quot;EDU_HEALTH_PUBLIC_CULTURE_EMPOWERMENT&quot;, 
+         &quot;VILLAGE_RESIDENTIAL_NEIGHBOURHOOD_MGMT_EMPOWERMENT&quot;,
+         &quot;VILLAGE_TRANSPORTATION_MGMT_EMPOWERMENT&quot;,
+         &quot;RENEWABLE_ENERGY_DEVELOPMENT_EMPOWERMENT&quot;,
+         &quot;INFORMATION_COMMUNICATION_MGMT_EMPOWERMENT&quot;, 
+         &quot;AGRI_BASED_PRODUCTIVE_BUSI_NON_AGRI_VILLAGE_SMALL_BUSI_MGMT_EMPOWERMENT&quot;,
+         &quot;NATURE_CONSERVE_AWARENESS_DISASTER_MGMT_EMPOWERMENT&quot;,
+         &quot;COMMUNITY_ROLE_IMPROVE_VILLAGE_GOVERNANCE_EMPOWERMENT&quot;,
+         &quot;QUALITY_CAPACITY_OF_VILLAGE_COMMUNITY_EMPOWERMENT&quot;, 
+         &quot;ESTABLISHMENT_DEVELOPMENT_VILLAGE_GOV_ENTERPRISE_EMPOWERMENT&quot;)</code></pre>
 <pre class="r"><code>head(podes4_final)</code></pre>
-<pre><code>## # A tibble: 6 x 43
+<pre><code>## # A tibble: 6 x 32
 ##   SHAPE PROVINCE_ID PROVINCE CITY_ID CITY  DISTRICT_ID DISTRICT VILLAGE_ID
 ##   &lt;dbl&gt;       &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;       &lt;chr&gt;    &lt;chr&gt;     
 ## 1 62130          64 KALIMAN~ 03      KUTA~ 010         SEMBOJA  001       
@@ -4162,16 +4042,9 @@ TECHNICAL_EXECUTOR = R1702B, TERRITORIAL_EXECUTOR= R1702C, VILLAGE_OFFICIALS= R1
 ## 4 62133          64 KALIMAN~ 03      KUTA~ 010         SEMBOJA  004       
 ## 5 62134          64 KALIMAN~ 03      KUTA~ 010         SEMBOJA  005       
 ## 6 62135          64 KALIMAN~ 03      KUTA~ 010         SEMBOJA  006       
-## # ... with 35 more variables: VILLAGE &lt;chr&gt;,
+## # ... with 24 more variables: VILLAGE &lt;chr&gt;,
 ## #   AVAILABILITY_OF_VILLAGE_INFORMATION &lt;fct&gt;,
-## #   USAGE_OF_VILLAGE_FINANCIAL_SYSTEM &lt;fct&gt;,
-## #   VILLAGE_OWNED_ENTERPRISE_LAND &lt;fct&gt;, VILLAGE_BUILDINGS &lt;fct&gt;,
-## #   VILLAGE_MARKET &lt;fct&gt;, OTHER_VILLAGE_ASSETS &lt;fct&gt;,
-## #   VILLAGE_MED_TERM_DEV_PLAN &lt;fct&gt;, PERIOD_OF_RPJM_DEVELOP_YEAR_START &lt;dbl&gt;,
-## #   PERIOD_OF_RPJM_DEVELOP_YEAR_END &lt;dbl&gt;, VILLAGE_GOV_WORK_PLAN_2018 &lt;fct&gt;,
-## #   VILLAGE_REGULATION_NUMBER_2017 &lt;dbl&gt;, NO_OF_HEADMAN_REGULATION_2017 &lt;dbl&gt;,
-## #   AVAILABILITY_OF_VILLAGE_COOPERATION_BETWEEN_VILLAGES_2018 &lt;fct&gt;,
-## #   AVAILABILITY_OF_VILLAGE_COOPERATION_WITH_THIRD_PARTIES_2018 &lt;fct&gt;,
+## #   USAGE_OF_VILLAGE_FINANCIAL_SYSTEM &lt;fct&gt;, VILLAGE_MED_TERM_DEV_PLAN &lt;fct&gt;,
 ## #   TRANSPORTATION_INFRASTRUCTURE_DEVELOPMENT &lt;fct&gt;,
 ## #   ENERGY_INFRASTRUCTURE &lt;fct&gt;,
 ## #   INFORMATION_COMMUNICATION_INFRASTRUCTURE &lt;dbl&gt;,
@@ -4260,6 +4133,10 @@ podes &lt;- inner_join(podesv1, podesv2, by = c(&quot;SHAPE&quot;, &quot;PROVINC
 ## #   IRGN_FISHING &lt;fct&gt;, RSRV_FISHING &lt;fct&gt;, BASIN_FISHING &lt;fct&gt;,
 ## #   RIVER_TRANSPORTATION &lt;fct&gt;, IRGN_TRANSPORTATION &lt;fct&gt;, ...</code></pre>
 <p>We can see that the podes data frame have 757 variables now, and it's correct because if we bind everything it will have 784 variables and subtracted by 3 times of 9 same variable will be 784-27 = 757.</p>
+<p>We will also do inner joins on the subsetted podes dataframes to retrieve the initial dataframe with the metrics we would like to analyse for the Project. The join condition will be on similar fields as above.</p>
+<pre class="r"><code>podesv1.subset &lt;- inner_join(podes1_final, podes2_final, by = c(&quot;SHAPE&quot;, &quot;PROVINCE_ID&quot;, &quot;PROVINCE&quot;, &quot;CITY_ID&quot;, &quot;CITY&quot;, &quot;DISTRICT_ID&quot;, &quot;DISTRICT&quot;, &quot;VILLAGE_ID&quot;, &quot;VILLAGE&quot;))
+podesv2.subset &lt;- inner_join(podes3_final, podes4_final, by = c(&quot;SHAPE&quot;, &quot;PROVINCE_ID&quot;, &quot;PROVINCE&quot;, &quot;CITY_ID&quot;, &quot;CITY&quot;, &quot;DISTRICT_ID&quot;, &quot;DISTRICT&quot;, &quot;VILLAGE_ID&quot;, &quot;VILLAGE&quot;))
+podes.subset &lt;- inner_join(podesv1.subset, podesv2.subset, by = c(&quot;SHAPE&quot;, &quot;PROVINCE_ID&quot;, &quot;PROVINCE&quot;, &quot;CITY_ID&quot;, &quot;CITY&quot;, &quot;DISTRICT_ID&quot;, &quot;DISTRICT&quot;, &quot;VILLAGE_ID&quot;, &quot;VILLAGE&quot;))</code></pre>
 </div>
 <div id="combining-spatial-and-aspatial-data" class="section level1">
 <h1>3.7 Combining spatial and aspatial data</h1>
@@ -4268,7 +4145,193 @@ podes &lt;- inner_join(podesv1, podesv2, by = c(&quot;SHAPE&quot;, &quot;PROVINC
 podes$CITY_ID &lt;- as.character(podes$CITY_ID)
 podes$DISTRICT_ID &lt;- as.character(podes$DISTRICT_ID)
 podes$VILLAGE_ID &lt;- as.character(podes$VILLAGE_ID)</code></pre>
-<pre class="r"><code>eastkalimantan.podes &lt;- inner_join(area,podes, by = c(&quot;PROVINCE_ID&quot;, &quot;CITY_ID&quot;, &quot;DISTRICT_ID&quot;, &quot;VILLAGE_ID&quot;)) </code></pre>
+<pre class="r"><code>eastkalimantan.podes &lt;- inner_join(area,podes, by = c(&quot;PROVINCE_ID&quot;, &quot;CITY_ID&quot;, &quot;DISTRICT_ID&quot;, &quot;VILLAGE_ID&quot;,&quot;PROVINCE&quot;,
+                                                                    &quot;CITY&quot;,&quot;DISTRICT&quot;,&quot;VILLAGE&quot;)) </code></pre>
+<p>Do the same for podes.subset</p>
+<pre class="r"><code>podes.subset$PROVINCE_ID &lt;- as.character(podes.subset$PROVINCE_ID)
+podes.subset$CITY_ID &lt;- as.character(podes.subset$CITY_ID)
+podes.subset$DISTRICT_ID &lt;- as.character(podes.subset$DISTRICT_ID)
+podes.subset$VILLAGE_ID &lt;- as.character(podes.subset$VILLAGE_ID)</code></pre>
+<pre class="r"><code>eastkalimantan.podes.subset &lt;- inner_join(area,podes.subset, by = c(&quot;PROVINCE_ID&quot;, &quot;CITY_ID&quot;, &quot;DISTRICT_ID&quot;, &quot;VILLAGE_ID&quot;,&quot;PROVINCE&quot;,
+                                                                    &quot;CITY&quot;,&quot;DISTRICT&quot;,&quot;VILLAGE&quot;)) </code></pre>
+<p>Check for nulls in resulting dataframe</p>
+<pre class="r"><code>any(is.na.data.frame(eastkalimantan.podes.subset))</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+<p>There are nulls present in the dataframe. This is probably due to the way in which the survey is structured, where there are multi parts to certain questions. We will loop through and replace such values with -1 to encode for such situations.</p>
+<pre class="r"><code>eastkalimantan.podes.subset[is.na(eastkalimantan.podes.subset)] = -1</code></pre>
+<pre><code>## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated
+
+## Warning in `[&lt;-.factor`(`*tmp*`, thisvar, value = -1): invalid factor level, NA
+## generated</code></pre>
+<p>The error messages tell us that there are still NAs present in the dataframe. This is due to some columns being coded as factors.</p>
+<pre class="r"><code>factorised_cols &lt;- colnames(eastkalimantan.podes.subset)[colSums(is.na(eastkalimantan.podes.subset)) &gt; 0]</code></pre>
+<pre class="r"><code>for (colname in factorised_cols) {
+  col &lt;- as.data.frame(eastkalimantan.podes.subset %&gt;% select(colname))
+  vec &lt;- as.numeric(factor(col[,1]))
+  vec[is.na(vec)] = -1
+  eastkalimantan.podes.subset[which(colnames(eastkalimantan.podes.subset) == colname)] &lt;- vec
+}</code></pre>
+<pre><code>## Note: Using an external vector in selections is ambiguous.
+## i Use `all_of(colname)` instead of `colname` to silence this message.
+## i See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.
+## This message is displayed once per session.</code></pre>
+<pre class="r"><code>any(is.na.data.frame(eastkalimantan.podes.subset))</code></pre>
+<pre><code>## [1] FALSE</code></pre>
+<p>All NA values are successfully replaced.</p>
 </div>
 <div id="exploratory-data-analysis-eda" class="section level1">
 <h1>4. Exploratory Data Analysis (EDA)</h1>
