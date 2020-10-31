@@ -1950,11 +1950,6 @@ var_meaning3 = c("SHAPE", "PROVINCE_ID", "PROVINCE", "CITY_ID", "CITY", "DISTRIC
 
 ```{r}
 colnames(podes3) <- var_meaning3
-podes3$R101 <- as.character(podes3$R101) #change data type to allow for join
-podes3.joined <- inner_join(area, podes3, by = c("PROVINCE_ID" = "R101",
-                                                "CITY_ID" = "R102",
-                                                "DISTRICT_ID" = "R103",
-                                                "VILLAGE_ID" = "R104"))
 ```
 
 ```{r}
@@ -1966,7 +1961,7 @@ podes3_final <- podes3 %>%
                    'COMMUNAL_SPACES',
                    'COMMUNAL_ACTIVITIES',
                    'COMMUNAL_ACTIVITIES_HELPING_OTHER_VILLAGERS', 
-                   'NUM_FAMILY_WELFARE_ORGS',
+                   'NUM_FAMILY_EDUCATION_ORGS',
                    'NUM_YOUTH_ORGS', #
                    'NUM_TRADITIONAL_ORGS', #
                    'NUM_FARMING_ORGS', #
@@ -3502,7 +3497,7 @@ variables chosen:
 
 ```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
 podes4_final <- podes4 %>%
-  select("SHAPE", "PROVINCE_ID", "PROVINCE", "CITY_ID", "CITY", "DISTRICT_ID", "DISTRICT", "VILLAGE_ID", "VILLAGE", "AVAILABILITY_OF_VILLAGE_INFORMATION", "USAGE_OF_VILLAGE_FINANCIAL_SYSTEM","VILLAGE_OWNED_ENTERPRISE_LAND", "VILLAGE_BUILDINGS","VILLAGE_MARKET","OTHER_VILLAGE_ASSETS","VILLAGE_MED_TERM_DEV_PLAN", "PERIOD_OF_RPJM_DEVELOP_YEAR_START", "PERIOD_OF_RPJM_DEVELOP_YEAR_END", "VILLAGE_GOV_WORK_PLAN_2018", "VILLAGE_REGULATION_NUMBER_2017", "NO_OF_HEADMAN_REGULATION_2017", "AVAILABILITY_OF_VILLAGE_COOPERATION_BETWEEN_VILLAGES_2018", "AVAILABILITY_OF_VILLAGE_COOPERATION_WITH_THIRD_PARTIES_2018", "TRANSPORTATION_INFRASTRUCTURE_DEVELOPMENT", "ENERGY_INFRASTRUCTURE", "INFORMATION_COMMUNICATION_INFRASTRUCTURE", "SANITATION_INFRASTRUCTURE", "EDUCATION_CULTURE_HEALTH_INFRASTRUCTURE", "TRADING_SERVICES_INFRASTRUCTURE", "FARMING_PRODUCTION_VILLAGE_SMALL_INDUSTRY_INFRASTRUCTURE", "RECREATION_TOURISM_INFRASTRUCTURE", "DISASTER_MGMT_ENV_CONSERVATION_INFRASTRUCTURE", "GOV_SUPPORT_INFRASTRUCTURE", "EDU_HEALTH_PUBLIC_CULTURE_EMPOWERMENT", "VILLAGE_RESIDENTIAL_NEIGHBOURHOOD_MGMT_EMPOWERMENT", "VILLAGE_TRANSPORTATION_MGMT_EMPOWERMENT", "RENEWABLE_ENERGY_DEVELOPMENT_EMPOWERMENT", "INFORMATION_COMMUNICATION_MGMT_EMPOWERMENT", "AGRI_BASED_PRODUCTIVE_BUSI_NON_AGRI_VILLAGE_SMALL_BUSI_MGMT_EMPOWERMENT", "NATURE_CONSERVE_AWARENESS_DISASTER_MGMT_EMPOWERMENT", "COMMUNITY_ROLE_IMPROVE_VILLAGE_GOVERNANCE_EMPOWERMENT", "QUALITY_CAPACITY_OF_VILLAGE_COMMUNITY_EMPOWERMENT", "ESTABLISHMENT_DEVELOPMENT_VILLAGE_GOV_ENTERPRISE_EMPOWERMENT")
+  select("SHAPE", "PROVINCE_ID", "PROVINCE", "CITY_ID", "CITY", "DISTRICT_ID", "DISTRICT", "VILLAGE_ID", "VILLAGE", "AVAILABILITY_OF_VILLAGE_INFORMATION", "USAGE_OF_VILLAGE_FINANCIAL_SYSTEM","VILLAGE_OWNED_ENTERPRISE_LAND", "VILLAGE_BUILDINGS","VILLAGE_MARKET","OTHER_VILLAGE_ASSETS","VILLAGE_MED_TERM_DEV_PLAN", "PERIOD_OF_RPJM_DEVELOP_YEAR_START", "PERIOD_OF_RPJM_DEVELOP_YEAR_END", "VILLAGE_GOV_WORK_PLAN_2018", "VILLAGE_REGULATION_NUMBER_2017", "NO_OF_HEADMAN_REGULATION_2017", "AVAILABILITY_OF_VILLAGE_COOPERATION_BETWEEN_VILLAGES_2018", "AVAILABILITY_OF_VILLAGE_COOPERATION_WITH_THIRD_PARTIES_2018", "TRANSPORTATION_INFRASTRUCTURE_DEVELOPMENT", "ENERGY_INFRASTRUCTURE", "INFORMATION_COMMUNICATION_INFRASTRUCTURE", "SANITATION_INFRASTRUCTURE", "EDUCATION_CULTURE_HEALTH_INFRASTRUCTURE", "TRADING_SERVICES_INFRASTRUCTURE", "FARMING_PRODUCTION_VILLAGE_SMALL_INDUSTRY_INFRASTRUCTURE", "RECREATION_TOURISM_INFRASTRUCTURE", "DISASTER_MGMT_ENV_CONSERVATION_INFRASTRUCTURE", "GOV_SUPPORT_INFRASTRUCTURE", "EDU_HEALTH_PUBLIC_CULTURE_EMPOWERMENT", "VILLAGE_RESIDENTIAL_NEIGHBOURHOOD_MGMT_EMPOWERMENT", "VILLAGE_TRANSPORTATION_MGMT_EMPOWERMENT", "RENEWABLE_ENERGY_DEVELOPMENT_EMPOWERMENT", "INFORMATION_COMMUNICATION_MGMT_EMPOWERMENT", "AGRI_BASED_PRODUCTIVE_BUSI_NON_AGRI_VILLAGE_SMALL_BUSI_MGMT_EMPOWERMENT", "NATURE_CONSERVE_AWARENESS_DISASTER_MGMT_EMPOWERMENT", "COMMUNITY_ROLE_IMPROVE_VILLAGE_GOVERNANCE_EMPOWERMENT","QUALITY_CAPACITY_OF_VILLAGE_COMMUNITY_EMPOWERMENT", "ESTABLISHMENT_DEVELOPMENT_VILLAGE_GOV_ENTERPRISE_EMPOWERMENT")
 ```
 
 ```{r}
@@ -3528,6 +3523,17 @@ head(podes)
 
 We can see that the podes data frame have 757 variables now, and it's correct because if we bind everything it will have 784 variables and subtracted by 3 times of 9 same variable will be 784-27 = 757.
 
+
+We will also do inner joins on the subsetted podes dataframes to retrieve the initial dataframe with the metrics we would like to analyse for the Project. The join condition will be on similar fields as above. 
+```{r}
+podesv1.subset <- inner_join(podes1_final, podes2_final, by = c("SHAPE", "PROVINCE_ID", "PROVINCE", "CITY_ID", "CITY", "DISTRICT_ID", "DISTRICT", "VILLAGE_ID", "VILLAGE"))
+podesv2.subset <- inner_join(podes3_final, podes4_final, by = c("SHAPE", "PROVINCE_ID", "PROVINCE", "CITY_ID", "CITY", "DISTRICT_ID", "DISTRICT", "VILLAGE_ID", "VILLAGE"))
+podes.subset <- inner_join(podesv1.subset, podesv2.subset, by = c("SHAPE", "PROVINCE_ID", "PROVINCE", "CITY_ID", "CITY", "DISTRICT_ID", "DISTRICT", "VILLAGE_ID", "VILLAGE"))
+```
+
+
+
+
 # 3.7 Combining spatial and aspatial data
 
 We will join the `area` shapefile of East Kalimantan boundary with the tidied podes dataset so that we can do further analysis. Our common variables between `area` and `podes` have different data types so we have to change the podes' variabel into character type.
@@ -3541,10 +3547,53 @@ podes$VILLAGE_ID <- as.character(podes$VILLAGE_ID)
 
 
 ```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
-eastkalimantan.podes <- inner_join(area,podes, by = c("PROVINCE_ID", "CITY_ID", "DISTRICT_ID", "VILLAGE_ID")) 
+eastkalimantan.podes <- inner_join(area,podes, by = c("PROVINCE_ID", "CITY_ID", "DISTRICT_ID", "VILLAGE_ID","PROVINCE",
+                                                                    "CITY","DISTRICT","VILLAGE")) 
 ```
 
-# 4. Exploratory Data Analysis (EDA)
+Do the same for podes.subset
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes.subset$PROVINCE_ID <- as.character(podes.subset$PROVINCE_ID)
+podes.subset$CITY_ID <- as.character(podes.subset$CITY_ID)
+podes.subset$DISTRICT_ID <- as.character(podes.subset$DISTRICT_ID)
+podes.subset$VILLAGE_ID <- as.character(podes.subset$VILLAGE_ID)
+```
+
+```{r}
+eastkalimantan.podes.subset <- inner_join(area,podes.subset, by = c("PROVINCE_ID", "CITY_ID", "DISTRICT_ID", "VILLAGE_ID","PROVINCE",
+                                                                    "CITY","DISTRICT","VILLAGE")) 
+```
+
+Check for nulls in resulting dataframe 
+```{r}
+any(is.na.data.frame(eastkalimantan.podes.subset))
+```
+There are nulls present in the dataframe. This is probably due to the way in which the survey is structured, where there are multi parts to certain questions. We will loop through and replace such values with -1 to encode for such situations. 
+
+```{r}
+eastkalimantan.podes.subset[is.na(eastkalimantan.podes.subset)] = -1
+```
+
+The error messages tell us that there are still NAs present in the dataframe. This is due to some columns being coded as factors. 
+```{r}
+factorised_cols <- colnames(eastkalimantan.podes.subset)[colSums(is.na(eastkalimantan.podes.subset)) > 0]
+```
+
+```{r}
+for (colname in factorised_cols) {
+  col <- as.data.frame(eastkalimantan.podes.subset %>% select(colname))
+  vec <- as.numeric(factor(col[,1]))
+  vec[is.na(vec)] = -1
+  eastkalimantan.podes.subset[which(colnames(eastkalimantan.podes.subset) == colname)] <- vec
+}
+```
+
+```{r}
+any(is.na.data.frame(eastkalimantan.podes.subset))
+```
+All NA values are successfully replaced. 
+
+4. Exploratory Data Analysis (EDA)
 
 ## 4.1 EDA using choropleth map
 
@@ -3562,25 +3611,18 @@ tm_shape(eastkalimantan.podes)+
   tm_scale_bar(width = 0.15)
 ```
 
-# Clustering Analysis 
+# 5. Clustering Analysis 
 
-Take out selected columns only 
+## 5.1 Generate Correlation Plot 
 ```{r}
-selected <- names(podes3.joined)[names(podes3.joined) %in% selected_podes3]
-podes3.subset <- podes3.joined[,selected]
+#podes3.subset.cor = cor(podes3.subset[,6:91], use = "complete.obs") # use complete.obs to ignore NAs 
+#corrplot.mixed(cluster_vars.cor,
+#       lower = "ellipse", 
+#             upper = "number",
+#             tl.pos = "lt",
+#             diag = "l",
+#             tl.col = "black")
+
 ```
-
-Basic Clustering Analysis
-
-```{r}
-podes3.subset.cor = cor(podes3.subset[,6:91], use = "complete.obs") # use complete.obs to ignore NAs 
-corrplot.mixed(cluster_vars.cor,
-         lower = "ellipse", 
-               upper = "number",
-               tl.pos = "lt",
-               diag = "l",
-               tl.col = "black")
-
-
 
 
