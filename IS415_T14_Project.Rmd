@@ -42,7 +42,7 @@ R packages needed:
 * tidyverse - for tidying data (tidyr, purrr, tibble, stringr, forcats, readr, ggplot2 & dplyr)
 
 ```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
-packages = c('sf','spdep','rgdal','tmap','lubridate','tidyverse','ggpubr')
+packages = c('sf','spdep','rgdal','tmap','tidyverse', 'cluster', 'NbClust', 'heatmaply', 'corrplot','factoextra', 'lubridate', 'ggpubr')
 for (p in packages){
   if(!require(p, character.only = T)){
     install.packages(p)
@@ -1765,7 +1765,7 @@ var_meaning3 = c("SHAPE", "PROVINCE_ID", "PROVINCE", "CITY_ID", "CITY", "DISTRIC
                    'MARRIAGE_CULTURE',
                    'COMMUNITY_CULTURE',
                    'DEATH_CULTURE',
-                   'NUM_FAMILY_WELFARE_ORGS', 
+                   'NUM_FAMILY_EDUCATION_ORGS', 
                    'NUM_YOUTH_ORGS', #
                    'NUM_TRADITIONAL_ORGS', #
                    'NUM_FARMING_ORGS', #
@@ -1948,9 +1948,13 @@ var_meaning3 = c("SHAPE", "PROVINCE_ID", "PROVINCE", "CITY_ID", "CITY", "DISTRIC
                    
 ```
 
-
 ```{r}
 colnames(podes3) <- var_meaning3
+podes3$R101 <- as.character(podes3$R101) #change data type to allow for join
+podes3.joined <- inner_join(area, podes3, by = c("PROVINCE_ID" = "R101",
+                                                "CITY_ID" = "R102",
+                                                "DISTRICT_ID" = "R103",
+                                                "VILLAGE_ID" = "R104"))
 ```
 
 ```{r}
@@ -1961,7 +1965,8 @@ podes3_final <- podes3 %>%
                    'CULTURAL_RESERVE_SITES',
                    'COMMUNAL_SPACES',
                    'COMMUNAL_ACTIVITIES',
-                   'COMMUNAL_ACTIVITIES_HELPING_OTHER_VILLAGERS', 'NUM_FAMILY_WELFARE_ORGS',
+                   'COMMUNAL_ACTIVITIES_HELPING_OTHER_VILLAGERS', 
+                   'NUM_FAMILY_WELFARE_ORGS',
                    'NUM_YOUTH_ORGS', #
                    'NUM_TRADITIONAL_ORGS', #
                    'NUM_FARMING_ORGS', #
@@ -2050,8 +2055,8 @@ podes3_final <- podes3 %>%
                    'DISTANCE_TO_NEAREST_BANK_AGENT',
                    'BANK_AGENT_ACCESSIBILITY'
 )
-
 ```
+
 
 ```{r}
 head(podes3_final)
@@ -3557,6 +3562,24 @@ tm_shape(eastkalimantan.podes)+
   tm_scale_bar(width = 0.15)
 ```
 
+# Clustering Analysis 
+
+Take out selected columns only 
+```{r}
+selected <- names(podes3.joined)[names(podes3.joined) %in% selected_podes3]
+podes3.subset <- podes3.joined[,selected]
+```
+
+Basic Clustering Analysis
+
+```{r}
+podes3.subset.cor = cor(podes3.subset[,6:91], use = "complete.obs") # use complete.obs to ignore NAs 
+corrplot.mixed(cluster_vars.cor,
+         lower = "ellipse", 
+               upper = "number",
+               tl.pos = "lt",
+               diag = "l",
+               tl.col = "black")
 
 
 
