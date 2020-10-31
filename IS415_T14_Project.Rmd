@@ -39,7 +39,7 @@ R packages needed:
 * tidyverse - for tidying data (tidyr, purrr, tibble, stringr, forcats, readr, ggplot2 & dplyr)
 
 ```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
-packages = c('sf','spdep','rgdal','tmap','tidyverse')
+packages = c('sf','spdep','rgdal','tmap','tidyverse', 'cluster', 'NbClust', 'heatmaply', 'corrplot','factoextra')
 for (p in packages){
   if(!require(p, character.only = T)){
     install.packages(p)
@@ -1219,7 +1219,7 @@ var_meaning3 = c("Shape", "R101", "R101N", "R102", "R102N", "R103", "R103N", "R1
                    'HAS_COMMUNAL_SPACES',
                    'HAS_COMMUNAL_ACTIVITIES',
                    'HAS_COMMUNAL_ACTIVITIES_HELPING_OTHER_VILLAGERS',
-                   'dummy1',
+                   'dummy1', #add in 7 dummy variable names for columns that we will not be keeping 
                    'dummy2',
                    'dummy3',
                    'dummy4',
@@ -1409,18 +1409,20 @@ var_meaning3 = c("Shape", "R101", "R101N", "R102", "R102N", "R103", "R103N", "R1
                    
 ```
 
+Join Podes3 to area to retrieve GIS Information
 ```{r}
 colnames(podes3) <- var_meaning3
+podes3$R101 <- as.character(podes3$R101) #change data type to allow for join
+podes3.joined <- inner_join(area, podes3, by = c("PROVINCE_ID" = "R101",
+                                                "CITY_ID" = "R102",
+                                                "DISTRICT_ID" = "R103",
+                                                "VILLAGE_ID" = "R104"))
 ```
 
 ```{r}
-selected_podes3 <- c("Shape", "R101", "R101N", "R102", "R102N", "R103", "R103N", "R104", "R104N",
-                   'IS_MULTI_ETHNIC',
-                   'IS_MULTILINGUAL',
+selected_podes3 <- c("Shape", "R101", "R101N", "R102", "R102N", "R103", "R103N", "R104", "R104N", "GEOMETRY",
                    'HAS_CULTURAL_RESERVE_SITES',
                    'HAS_COMMUNAL_SPACES',
-                   'HAS_COMMUNAL_ACTIVITIES',
-                   'HAS_COMMUNAL_ACTIVITIES_HELPING_OTHER_VILLAGERS',
                    'NUM_WOMEN_EDUCATION_ORGS',
                    'NUM_YOUTH_ORGS', #
                    'NUM_TRADITIONAL_ORGS', #
@@ -1440,8 +1442,6 @@ selected_podes3 <- c("Shape", "R101", "R101N", "R102", "R102N", "R103", "R103N",
                    'NUM_MOBILE_PHONE_SERVICE_OPERATORS',#
                    'STRENGTH_OF_TELEPHONE_SIGNALS', #
                    'TYPE_OF_INTERNET_SIGNAL', #
-                   'HAS_COMPUTER_IN_VILLAGE_OFFICE', 
-                   'HAS_INTERNET_FACILITIES_IN_VILLAGE_OFFICE',
                    'HAS_POST_OFFICE', #
                    'HAS_MOBILE_POSTOFFICE', #
                    'HAS_PRIVATE_DELIVERY_COURIER', #
@@ -1456,8 +1456,6 @@ selected_podes3 <- c("Shape", "R101", "R101N", "R102", "R102N", "R103", "R103N",
                    'NUM_INDUSTRIAL_CENTERS',
                    'NUM_SMALL_INDUSTRIES_FACTORIES',
                    'NUM_INDUSTRIAL_VILLAGES',
-                   'HAS_KEROSENE_SELLERS',
-                   'HAS_LPG_SELLERS',
                    'HAS_VILLAGE_COOPERATIVE',
                    'HAS_AGRICULTURE_VILLAGE_COOPERATIVE',
                    'HAS_CREDITGIVING_VILLAGE_COOPERATIVE',
@@ -1510,9 +1508,24 @@ selected_podes3 <- c("Shape", "R101", "R101N", "R102", "R102N", "R103", "R103N",
                    'DISTANCE_TO_BANK_AGENT',
                    'IS_EASY_TO_ACCESS_BANK_AGENT'
 )
+```
 
-selected <- names(podes3)[names(podes3) %in% selected_podes3]
-podes3.subset <- podes3[,selected]
+Take out selected columns only 
+```{r}
+selected <- names(podes3.joined)[names(podes3.joined) %in% selected_podes3]
+podes3.subset <- podes3.joined[,selected]
+```
+
+Basic Clustering Analysis
+
+```{r}
+podes3.subset.cor = cor(podes3.subset[,6:91], use = "complete.obs") # use complete.obs to ignore NAs 
+corrplot.mixed(cluster_vars.cor,
+         lower = "ellipse", 
+               upper = "number",
+               tl.pos = "lt",
+               diag = "l",
+               tl.col = "black")
 ```
 
 ### 3.6.4 PODES 2018 part 4 (...)
