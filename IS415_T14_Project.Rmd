@@ -3588,6 +3588,10 @@ eastkalimantan.podes.subset <- inner_join(area,podes.subset, by = c("PROVINCE_ID
                                                                     "CITY","DISTRICT","VILLAGE")) 
 ```
 
+# 3.8 Data Transformation
+
+## 3.8.1 Process Nulls 
+
 Check for nulls in resulting dataframe 
 ```{r}
 any(is.na.data.frame(eastkalimantan.podes.subset))
@@ -3617,7 +3621,36 @@ any(is.na.data.frame(eastkalimantan.podes.subset))
 ```
 All NA values are successfully replaced. 
 
+## 3.8.2 Recode Categorical Variables as Numbers 
 
+This step is necessary for the clustering analysis later on, which requires numerical inputs. Save the new dataframe as a new variable so that we can refer to the categories for analysis if needed later on. 
+
+```{r}
+# Use visual inspection to sieve out columns, which is alright since we have reduced the number of columns already. 
+# Another reason is because some of the factors have already been encoded - if we unclass it, it will ruin the encoding 
+to_recode <- c("VILLAGE_LOCATION_TO_FOREST",
+               "VILLAGE_MAIN_INCOME",
+               "STREET_LIGHTING",
+               "FUEL_USED_OFTEN",
+               "TRASH_DUMP_USED_OFTEN",
+               "TOILET_FACILITIES",
+               "TRANSPORTATION_METHODS",
+               "PUBLIC_TRANSPORT",
+               "CITIZENS_OWN_CELLPHONES",
+               "STRENGTH_OF_CELLPHONE_SIGNALS",
+               "POST_OFFICE",
+               "PRIVATE_DELIVERY_COURIER")
+
+ekps.recoded <- eastkalimantan.podes.subset 
+```
+
+```{r}
+for (name in to_recode) {
+  col <- as.data.frame(ekps.recoded %>% select(name))
+  vec <- as.numeric(factor(col[,1]))  
+  ekps.recoded[which(colnames(ekps.recoded) == name)] <- vec
+}
+```
 
 # 4. Exploratory Data Analysis (EDA)
 
