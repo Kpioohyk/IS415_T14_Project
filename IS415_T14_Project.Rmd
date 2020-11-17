@@ -4229,3 +4229,126 @@ Visualize on chloropleth
 ```{r}
 qtm(ekps.transformed, "H_CLUSTER")
 ```
+
+## 5.2 Spatially Constrained Clustering 
+Next, let us try the spatially constrained clustering method. This approach is likely to be more appropriate in this case as the urban planners likely do not want a collection of fragmented land for the new capital. 
+
+### 5.2.1 Convert to SpatialPolygonsDataFrame
+```{r}
+ekps.transformed.sp <- as_Spatial(st_zm(ekps.transformed)) #st_zm needed since GIS data is in multipolygons
+```
+
+Change CRS to EPSG:2933 (Source)[https://epsg.io/2933]
+```{r}
+ekps.transformed.sp <- spTransform(ekps.transformed.sp, CRS("+init=epsg:2933"))
+```
+
+### 5.2.2 Compute Neighbours List
+```{r}
+ekps.nb <- poly2nb(ekps.transformed.sp)
+summary(ekps.nb)
+```
+From the above, it seems that there is one desa that is not connected to any of the other desas. We need to keep this in mind when doing the spatially constrained clustering method. 
+
+### 5.2.3 Resolve Desa that is unconnected
+First, let us find out which Desa is disconnected.
+```{r}
+cnt <- card(ekps.nb)
+island_ind <- match(0, cnt)
+print(island_ind)
+```
+The island desa's index is 30 in ekps.nb.
+
+Next, we join it to the Desa that is the nearest to it
+```{r}
+nearest <- knearneigh(coordinates(ekps.transformed.sp))$nn
+ekps.nb[[island_ind]] <- nearest[island_ind]
+
+# We need to add this island to the neighbors of its connected municipality as well
+ekps.nb[[nearest[island_ind]]] <- c(as.integer(island_ind), as.integer(ekps.nb[[nearest[island_ind]]]))
+```
+
+
+Visualize Final Neighbours List
+```{r}
+plot(ekps.transformed.sp, border=grey(.5))
+plot(ekps.nb, coordinates(ekps.transformed.sp), col="blue", add=TRUE)
+```
+
+### 5.2.4 Compute Minimum Spanning Tree
+```{r}
+lcosts <- nbcosts(ekps.nb, cluster_df)
+ekps.w <- nb2listw(ekps.nb, lcosts, style="B")
+summary(ekps.w)
+```
+
+Find MST
+```{r}
+ekps.mst <- mstree(ekps.w)
+```
+
+Check dimensions
+```{r}
+dim(ekps.mst)
+```
+383 Edges present, which is equals to 384 (# of Desas) - 1. 
+
+Visualise MST
+```{r}
+plot(ekps.transformed.sp, border=gray(.5))
+plot.mst(ekps.mst, coordinates(ekps.transformed.sp), 
+     col="blue", cex.lab=0.3, cex.circles=0.005, add=TRUE)
+```
+
+### 5.2.5 Compute Spatially Constrained Clusters using SKATER Approach
+
+```{r}
+clust6 <- skater(ekps.mst[,1:2], cluster_df, method = "euclidean", 6)
+```
+
+Check Cluster Assignment
+```{r}
+ccs6 <- clust6$groups
+ccs6
+```
+
+```{r}
+table(ccs6)
+```
+Looks relatively evenly spread, with the exception of Cluster 2. 
+
+Visualise Clusters on MST
+```{r}
+plot(ekps.transformed.sp, border=gray(.5))
+plot(clust6, coordinates(ekps.transformed.sp), cex.lab=.4,
+     groups.colors=c("red","green","blue","yellow", "orange", "black", "grey"), cex.circles=0.005, add=TRUE)
+```
+The discrepancy in the size of desas makes the above plot hard to visualise. Let us use a chloropleth to do it.
+
+### 5.2.6 Visualise Spatially Constrained Clusters using Chloropleth Map
+
+```{r}
+groups_mat <- as.matrix(clust6$groups)
+ekps.transformed <- cbind(ekps.transformed, as.factor(groups_mat)) %>%
+  rename(`SP_CLUSTER`=`as.factor.groups_mat.`)
+qtm(ekps.transformed, "SP_CLUSTER")
+```
+Compare both clustering methods
+```{r}
+hclust.map <- qtm(ekps.transformed,
+                  "H_CLUSTER", legend.outside = T) + 
+  tm_borders(alpha = 0.5) 
+
+spclust.map <- qtm(ekps.transformed,
+                   "SP_CLUSTER", legend.outside = T) + 
+  tm_borders(alpha = 0.5) 
+
+tmap_arrange(hclust.map, spclust.map,
+             asp=NA, ncol=2)
+```
+
+
+
+
+
+
