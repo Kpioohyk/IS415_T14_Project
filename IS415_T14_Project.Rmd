@@ -3654,10 +3654,12 @@ for (name in to_recode) {
 }
 ```
 
-## Further Dimensional Reduction - Aggregating Features
+## 3.8.3 Further Dimensional Reduction - Aggregating Features
 Let us first change the datatypes of some columns to numerical. 
 ```{r}
 to_numeric <- c("STREET_LIGHTING",
+                "PRESENCE_SLUMS",
+                "SLASH_AND_BURN",
                 "PRESENCE_POWER_LINES",
                 "PRESENCE_RIVER",
                 "PRESENCE_IRRIGATIONCHANNEL",
@@ -3701,14 +3703,11 @@ to_numeric <- c("STREET_LIGHTING",
                 "GOV_SUPPORT_INFRASTRUCTURE",
                 "INTERNET_CAFES")
 
-  
+
 
 for (col in to_numeric) {
-  ekps.recoded[, col] <- as.numeric(factor(ekps.recoded[,col] %>% st_set_geometry(NULL)))
+  ekps.recoded[, col] <- as.numeric(unlist(ekps.recoded[,col] %>% st_set_geometry(NULL)))
 }
-
-
-
 
 ```
 
@@ -3738,7 +3737,8 @@ ekps.recoded <- ekps.recoded %>%
   mutate(`BANK_ACCESS_SCORE` = GOVT_BANKS_ACCESSIBILITY + COMMERCIAL_BANKS_ACCESSIBILITY + RURAL_CREDIT_BANKS_ACCESSIBILITY) %>%
   mutate(`FI_INFRA_NUM` = BMT + ATM + BANK_AGENT) %>%
   mutate(`FI_INFRA_ACCESS_SCORE` = BMT_ACCESSIBILITY + ATM_ACCESSIBILITY + BANK_AGENT_ACCESSIBILITY) %>%
-  mutate(`INFRA_DEVELOPMENT_SCORE` = TRANSPORTATION_INFRASTRUCTURE_DEVELOPMENT + INFORMATION_COMMUNICATION_INFRASTRUCTURE + SANITATION_INFRASTRUCTURE + EDUCATION_CULTURE_HEALTH_INFRASTRUCTURE + TRADING_SERVICES_INFRASTRUCTURE + FARMING_PRODUCTION_VILLAGE_SMALL_INDUSTRY_INFRASTRUCTURE + RECREATION_TOURISM_INFRASTRUCTURE + DISASTER_MGMT_ENV_CONSERVATION_INFRASTRUCTURE + GOV_SUPPORT_INFRASTRUCTURE)
+  mutate(`INFRA_DEVELOPMENT_SCORE` = TRANSPORTATION_INFRASTRUCTURE_DEVELOPMENT + INFORMATION_COMMUNICATION_INFRASTRUCTURE + SANITATION_INFRASTRUCTURE + EDUCATION_CULTURE_HEALTH_INFRASTRUCTURE + TRADING_SERVICES_INFRASTRUCTURE + FARMING_PRODUCTION_VILLAGE_SMALL_INDUSTRY_INFRASTRUCTURE + RECREATION_TOURISM_INFRASTRUCTURE + DISASTER_MGMT_ENV_CONSERVATION_INFRASTRUCTURE + GOV_SUPPORT_INFRASTRUCTURE) %>%
+  mutate(DESA = paste(CITY, DISTRICT, VILLAGE)) # done to generate a unique identifier other than region code, which may be hard to interpret in plots
 ```
 
 Next, let us deal with some aggregated variables that are in different scales/unit of measurement
@@ -3758,15 +3758,18 @@ ekps.recoded <- ekps.recoded %>%
 Now, let us select out all the variables.
 ```{r}
 ekps.transformed <- ekps.recoded %>%
+  mutate(`MALNOURISHED_POP` = MALNUTRITION_POP_2017) %>%
+  mutate(`POVERTY_POP` = STATEMENT_OF_POVERTY) %>%
   select("PROVINCE_ID", 
          "CITY_ID", 
          "DISTRICT_ID", 
          "VILLAGE_ID", 
          "REGION_CODE", 
+         "DESA",
          "PRESENCE_SLUMS", 
          "SLASH_AND_BURN", 
-         "MALNUTRITION_POP_2017", 
-         "STATEMENT_OF_POVERTY",
+         "MALNOURISHED_POP", 
+         "POVERTY_POP",
          "TRANSPORTATION_METHODS",
          "ROAD_ACCESSIBLE_BY_4_WHEEL_VEHICLE",
          "PUBLIC_TRANSPORT",
@@ -3805,6 +3808,7 @@ ekps.transformed <- ekps.recoded %>%
          "GEOMETRY"
          )
 ```
+
 # 4. Exploratory Data Analysis (EDA)
 
 ## 4.1 EDA using choropleth map
@@ -3823,18 +3827,343 @@ tm_shape(eastkalimantan.podes)+
   tm_scale_bar(width = 0.15)
 ```
 
+## 4.2 Correlation Analysis 
+```{r}
+ekps.cor <- cor(as.data.frame(ekps.transformed[6:44] %>% st_set_geometry(NULL)))
+corrplot.mixed(ekps.cor,
+         lower = "ellipse", 
+         upper = "number",
+         tl.pos = "lt",
+         diag = "l",
+         tl.col = "black",
+         tl.cex = 0.3
+         )
+```
+As there are still many transformed variables, it becomes hard to interpret the correlation plot. Let us write a function that will pull out the variables with high correlation (>0.8) that we should drop for the clustering analysis. 
+
+```{r}
+corr_filter <- function(df_cor, threshold) {
+  #run a correlation and drop the insignificant ones
+  
+  corr <- cor(df_cor)
+  # replace lower triangle values with NA
+  corr[lower.tri(corr,diag=TRUE)] <- NA 
+
+  #change to data frame format 
+  corr <- as.data.frame(as.table(corr))
+  
+  #drop NA values
+  corr <- na.omit(corr) 
+  
+  # filter out correlations that are higher than the threshold
+  
+  corr <- subset(corr, abs(Freq) > threshold) 
+  
+  #sort by correlation value 
+  corr <- corr[order(-abs(corr$Freq)),] 
+  
+  #print correlation table
+  print(corr)
+  
+  # transform from df to matrix for plot
+  mtx_corr <- reshape2::acast(corr, Var1~Var2, value.var="Freq")
+  
+  return(mtx_corr)
+}
+```
+
+```{r}
+ekps.corr.filtered <- corr_filter(as.data.frame(ekps.transformed[6:44] %>% st_set_geometry(NULL)), 0.7)
+corrplot(ekps.corr.filtered,
+         tl.pos = "lt",
+         tl.col = "black",
+         tl.cex = 0.5
+         )
+```
+The above reduced plot shows us only the variables with correlations above 0.7. Looking at the plot, we will drop:
+
++ **HEALTHCARE_ACCESS_SCORE** as it has a high correlation with 6 other variables. 
++ **FI_INFRA_ACCESS_SCORE** as it has a high correlation with 4 other variables, getting rid of 3 more high correlations.
++ **BANK_ACCESS_SCORE** as it is highly correlated with 3 other variables, getting rid of 2 more high correlations. 
++ **EDUCATION_ACCESS_SCORE** as it is highly correlated with 2 other variables, getting rid of 2 more high correlations
++ **GROCERIES_ACCESS_SCORE** as it is highly correlated with 2 other variables, getting rid of the last 2 high correlations.
+
 # 5. Clustering Analysis 
 
-## 5.1 Generate Correlation Plot 
-```{r}
-#podes3.subset.cor = cor(podes3.subset[,6:91], use = "complete.obs") # use complete.obs to ignore NAs 
-#corrplot.mixed(cluster_vars.cor,
-#       lower = "ellipse", 
-#             upper = "number",
-#             tl.pos = "lt",
-#             diag = "l",
-#             tl.col = "black")
+## 5.1 Hierarchial Clustering Analysis
+Firstly, let us extract the clustering variables.
 
+```{r}
+cluster_df <- ekps.transformed %>%
+  st_set_geometry(NULL) %>%
+  select("DESA",
+         "PRESENCE_SLUMS",
+         "SLASH_AND_BURN",
+         "MALNOURISHED_POP",
+         "POVERTY_POP",
+         "TRANSPORTATION_METHODS",
+         "ROAD_ACCESSIBLE_BY_4_WHEEL_VEHICLE",
+         "PUBLIC_TRANSPORT",
+         "NUM_LEATHER_INDUSTRY",
+         "NUM_WOOD_INDUSTRY",
+         "NUM_METAL_INDUSTRY",
+         "NUM_FABRIC_INDUSTRY",
+         "NUM_POTTERY_INDUSTRY",
+         "NUM_BAMBOORATTAN_INDUSTRY",
+         "NUM_FOOD_INDUSTRY",
+         "ELECTRICTY",
+         "WASTE_DISPOSAL",
+         "WATER_MANAGEMENT",
+         "NATURAL_DISASTER_SCORE",
+         "HEALTHCARE_SERVICE_NUM",
+         "DISEASE_OUTBREAK_SCORE",
+         "EDUCATION_INSTITUTION_NUM",
+         "MAIL_ACCESS_SCORE",
+         "INDUSTRIES",
+         "COOPERATIVES",
+         "GROCERIES_NUMBER",
+         "FOOD_ESTAB_NUMBER",
+         "FOOD_ESTAB_ACCESS_SCORE",
+         "LODGING_NUM",
+         "LODGING_ACCESS_SCORE",
+         "TOOK_CREDIT_SCORE",
+         "BANK_NUM",
+         "FI_INFRA_NUM",
+         "INFRA_DEVELOPMENT_SCORE",
+         "TELECOMMUNICATIONS"
+  )
+
+head(cluster_df, 5)
 ```
+
+Use region code as unique identifier of the rows. Drop **REGION_CODE** column afterwards
+```{r}
+row.names(cluster_df) <- cluster_df$DESA
+cluster_df <- select(cluster_df, c(2:35))
+
+# Verify df
+head(cluster_df,5)
+```
+
+### 5.1.1 Standardise Data
+This step is important as the variables that we have selected for are different in terms of units and thus range. We will use Min-Max standardisation as we cannot assume that the variables come from a normal distribution.
+
+```{r}
+cluster_df <- normalize(cluster_df)
+summary(cluster_df)
+```
+
+### 5.1.2 Compute Proximity Matrix
+This computes the euclidean distance between 2 of the DESAs using the input attributes.
+
+```{r}
+proxmat <- dist(cluster_df, method = "euclidean")
+```
+
+### 5.1.3 Select Optimal Clustering Method
+```{r}
+m <- c( "average", "single", "complete", "ward")
+names(m) <- c( "average", "single", "complete", "ward")
+
+ac <- function(x) {
+  agnes(cluster_df, method = x)$ac
+}
+
+map_dbl(m, ac)
+```
+From the above, we can see the Ward's method provides the strongest clustering structure. We will use this method for hierarchical clustering of the municipalities.
+
+### 5.1.4 Perform Hierarchical Clustering
+
+```{r}
+hclust_ward <- hclust(proxmat, method = 'ward.D')
+```
+
+Visualise Dendogram
+```{r}
+plot(hclust_ward, cex = 0.3)
+```
+### 5.1.5 Select Optimal Number of Clusters
+We will use the gap statistic method which compares total intra-cluster variation for different number of clusters used; with comparison to the expected values under null reference data distriubtion. We want to select the cluster number that maximises the gap statistic.
+
+```{r}
+set.seed(12345)
+gap_stat <- clusGap(cluster_df, FUN = hcut, nstart = 20, K.max = 15, B =50)
+# Print the result
+print(gap_stat, method = "firstmax")
+```
+
+Visualize Gap Statistic
+```{r}
+fviz_gap_stat(gap_stat)
+```
+From the above plot, we can see that the Gap Statistic seems to be increasing as k increases. While theoratically it means we can pick a large number for k, this is not a good practice as it will result in lesser than meaningful clusters. Pick k = 7 as the line from k =6 to k=7 is distinctively steeper than any value from k = 8 onwards. 
+
+### 5.1.6 Cut Dendogram and Visualize it
+```{r}
+plot(hclust_ward, cex = 0.4)
+rect.hclust(hclust_ward, k = 7, border = 2:5)
+```
+### 5.1.7 Visually-driven Hierarchical Clustering Analysis
+
+Transform df to matrix
+```{r}
+cluster_df_mat <- data.matrix(cluster_df)
+```
+
+Plot interactive Cluster Heat Map
+```{r}
+heatmaply(cluster_df_mat,
+          Colv=NA,
+          dist_method = "euclidean",
+          hclust_method = "ward.D",
+          seriate = "OLO",
+          colors = Blues,
+          k_row = 7,
+          margins = c(NA,200,60,NA),
+          fontsize_row = 2,
+          fontsize_col = 5,
+          main="Geographic Segmentation of East Kalimantan by EconoSocial Indicators",
+          xlab = "EconoSocial Indicators",
+          ylab = "Kalimantan DESA"
+          )
+```
+
+### 5.1.8 Map back Clusters
+```{r}
+groups <- as.factor(cutree(hclust_ward, k=7))
+```
+
+Join back to original df
+```{r}
+ekps.transformed <- cbind(ekps.transformed, as.matrix(groups)) %>%
+  rename(`H_CLUSTER` = `as.matrix.groups.`)
+```
+
+Visualize on chloropleth
+```{r}
+qtm(ekps.transformed, "H_CLUSTER")
+```
+
+## 5.2 Spatially Constrained Clustering 
+Next, let us try the spatially constrained clustering method. This approach is likely to be more appropriate in this case as the urban planners likely do not want a collection of fragmented land for the new capital. 
+
+### 5.2.1 Convert to SpatialPolygonsDataFrame
+```{r}
+ekps.transformed.sp <- as_Spatial(st_zm(ekps.transformed)) #st_zm needed since GIS data is in multipolygons
+```
+
+Change CRS to EPSG:2933 (Source)[https://epsg.io/2933]
+```{r}
+ekps.transformed.sp <- spTransform(ekps.transformed.sp, CRS("+init=epsg:2933"))
+```
+
+### 5.2.2 Compute Neighbours List
+```{r}
+ekps.nb <- poly2nb(ekps.transformed.sp)
+summary(ekps.nb)
+```
+From the above, it seems that there is one desa that is not connected to any of the other desas. We need to keep this in mind when doing the spatially constrained clustering method. 
+
+### 5.2.3 Resolve Desa that is unconnected
+First, let us find out which Desa is disconnected.
+```{r}
+cnt <- card(ekps.nb)
+island_ind <- match(0, cnt)
+print(island_ind)
+```
+The island desa's index is 30 in ekps.nb.
+
+Next, we join it to the Desa that is the nearest to it
+```{r}
+nearest <- knearneigh(coordinates(ekps.transformed.sp))$nn
+ekps.nb[[island_ind]] <- nearest[island_ind]
+
+# We need to add this island to the neighbors of its connected municipality as well
+ekps.nb[[nearest[island_ind]]] <- c(as.integer(island_ind), as.integer(ekps.nb[[nearest[island_ind]]]))
+```
+
+
+Visualize Final Neighbours List
+```{r}
+plot(ekps.transformed.sp, border=grey(.5))
+plot(ekps.nb, coordinates(ekps.transformed.sp), col="blue", add=TRUE)
+```
+
+### 5.2.4 Compute Minimum Spanning Tree
+```{r}
+lcosts <- nbcosts(ekps.nb, cluster_df)
+ekps.w <- nb2listw(ekps.nb, lcosts, style="B")
+summary(ekps.w)
+```
+
+Find MST
+```{r}
+ekps.mst <- mstree(ekps.w)
+```
+
+Check dimensions
+```{r}
+dim(ekps.mst)
+```
+383 Edges present, which is equals to 384 (# of Desas) - 1. 
+
+Visualise MST
+```{r}
+plot(ekps.transformed.sp, border=gray(.5))
+plot.mst(ekps.mst, coordinates(ekps.transformed.sp), 
+     col="blue", cex.lab=0.3, cex.circles=0.005, add=TRUE)
+```
+
+### 5.2.5 Compute Spatially Constrained Clusters using SKATER Approach
+
+```{r}
+clust6 <- skater(ekps.mst[,1:2], cluster_df, method = "euclidean", 6)
+```
+
+Check Cluster Assignment
+```{r}
+ccs6 <- clust6$groups
+ccs6
+```
+
+```{r}
+table(ccs6)
+```
+Looks relatively evenly spread, with the exception of Cluster 2. 
+
+Visualise Clusters on MST
+```{r}
+plot(ekps.transformed.sp, border=gray(.5))
+plot(clust6, coordinates(ekps.transformed.sp), cex.lab=.4,
+     groups.colors=c("red","green","blue","yellow", "orange", "black", "grey"), cex.circles=0.005, add=TRUE)
+```
+The discrepancy in the size of desas makes the above plot hard to visualise. Let us use a chloropleth to do it.
+
+### 5.2.6 Visualise Spatially Constrained Clusters using Chloropleth Map
+
+```{r}
+groups_mat <- as.matrix(clust6$groups)
+ekps.transformed <- cbind(ekps.transformed, as.factor(groups_mat)) %>%
+  rename(`SP_CLUSTER`=`as.factor.groups_mat.`)
+qtm(ekps.transformed, "SP_CLUSTER")
+```
+Compare both clustering methods
+```{r}
+hclust.map <- qtm(ekps.transformed,
+                  "H_CLUSTER", legend.outside = T) + 
+  tm_borders(alpha = 0.5) 
+
+spclust.map <- qtm(ekps.transformed,
+                   "SP_CLUSTER", legend.outside = T) + 
+  tm_borders(alpha = 0.5) 
+
+tmap_arrange(hclust.map, spclust.map,
+             asp=NA, ncol=2)
+```
+
+
+
+
 
 
