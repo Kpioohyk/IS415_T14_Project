@@ -3839,10 +3839,12 @@ for (name in to_recode) {
 }
 ```
 
-## Further Dimensional Reduction - Aggregating Features
+## 3.8.3 Further Dimensional Reduction - Aggregating Features
 Let us first change the datatypes of some columns to numerical. 
 ```{r}
 to_numeric <- c("STREET_LIGHTING",
+                "PRESENCE_SLUMS",
+                "SLASH_AND_BURN",
                 "PRESENCE_POWER_LINES",
                 "PRESENCE_RIVER",
                 "PRESENCE_IRRIGATIONCHANNEL",
@@ -3886,14 +3888,11 @@ to_numeric <- c("STREET_LIGHTING",
                 "GOV_SUPPORT_INFRASTRUCTURE",
                 "INTERNET_CAFES")
 
-  
+
 
 for (col in to_numeric) {
-  ekps.recoded[, col] <- as.numeric(factor(ekps.recoded[,col] %>% st_set_geometry(NULL)))
+  ekps.recoded[, col] <- as.numeric(unlist(ekps.recoded[,col] %>% st_set_geometry(NULL)))
 }
-
-
-
 
 ```
 
@@ -3943,6 +3942,8 @@ ekps.recoded <- ekps.recoded %>%
 Now, let us select out all the variables.
 ```{r}
 ekps.transformed <- ekps.recoded %>%
+  mutate(`MALNOURISHED_POP` = MALNUTRITION_POP_2017) %>%
+  mutate(`POVERTY_POP` = STATEMENT_OF_POVERTY) %>%
   select("PROVINCE_ID", 
          "CITY_ID", 
          "DISTRICT_ID", 
@@ -3950,8 +3951,8 @@ ekps.transformed <- ekps.recoded %>%
          "REGION_CODE", 
          "PRESENCE_SLUMS", 
          "SLASH_AND_BURN", 
-         "MALNUTRITION_POP_2017", 
-         "STATEMENT_OF_POVERTY",
+         "MALNOURISHED_POP", 
+         "POVERTY_POP",
          "TRANSPORTATION_METHODS",
          "ROAD_ACCESSIBLE_BY_4_WHEEL_VEHICLE",
          "PUBLIC_TRANSPORT",
@@ -3990,6 +3991,7 @@ ekps.transformed <- ekps.recoded %>%
          "GEOMETRY"
          )
 ```
+
 # 4. Exploratory Data Analysis (EDA)
 
 ## 4.1 EDA using choropleth map
@@ -4007,6 +4009,67 @@ tm_shape(eastkalimantan.podes)+
   tm_compass(type="8star", size = 2) +
   tm_scale_bar(width = 0.15)
 ```
+
+## 4.2 Correlation Analysis 
+```{r}
+ekps.cor <- cor(as.data.frame(ekps.transformed[6:44] %>% st_set_geometry(NULL)))
+corrplot.mixed(ekps.cor,
+         lower = "ellipse", 
+         upper = "number",
+         tl.pos = "lt",
+         diag = "l",
+         tl.col = "black",
+         tl.cex = 0.3
+         )
+```
+As there are still many transformed variables, it becomes hard to interpret the correlation plot. Let us write a function that will pull out the variables with high correlation (>0.8) that we should drop for the clustering analysis. 
+
+```{r}
+corr_filter <- function(df_cor, threshold) {
+  #run a correlation and drop the insignificant ones
+  
+  corr <- cor(df_cor)
+  # replace lower triangle values with NA
+  corr[lower.tri(corr,diag=TRUE)] <- NA 
+
+  #change to data frame format 
+  corr <- as.data.frame(as.table(corr))
+  
+  #drop NA values
+  corr <- na.omit(corr) 
+  
+  # filter out correlations that are higher than the threshold
+  
+  corr <- subset(corr, abs(Freq) > threshold) 
+  
+  #sort by correlation value 
+  corr <- corr[order(-abs(corr$Freq)),] 
+  
+  #print correlation table
+  print(corr)
+  
+  # transform from df to matrix for plot
+  mtx_corr <- reshape2::acast(corr, Var1~Var2, value.var="Freq")
+  
+  return(mtx_corr)
+}
+```
+
+```{r}
+ekps.corr.filtered <- corr_filter(as.data.frame(ekps.transformed[6:44] %>% st_set_geometry(NULL)), 0.7)
+corrplot(ekps.corr.filtered,
+         tl.pos = "lt",
+         tl.col = "black",
+         tl.cex = 0.5
+         )
+```
+The above reduced plot shows us only the variables with correlations above 0.7. Looking at the plot, we will drop:
+
++ **HEALTHCARE_ACCESS_SCORE** as it has a high correlation with 6 other variables. 
++ **FI_INFRA_ACCESS_SCORE** as it has a high correlation with 4 other variables, getting rid of 3 more high correlations.
++ **BANK_ACCESS_SCORE** as it is highly correlated with 3 other variables, getting rid of 2 more high correlations. 
++ **EDUCATION_ACCESS_SCORE** as it is highly correlated with 2 other variables, getting rid of 2 more high correlations
++ **GROCERIES_ACCESS_SCORE** as it is highly correlated with 2 other variables, getting rid of the last 2 high correlations.
 
 # 5. Clustering Analysis 
 
