@@ -4012,6 +4012,82 @@ tm_shape(eastkalimantan.podes)+
   tm_scale_bar(width = 0.15)
 ```
 
+Let us create the boxmap function to use it to better visualise the variables.
+```{r}
+boxbreaks <- function(v,mult=1.5) { 
+  qv <- unname(quantile(v,na.rm = TRUE))
+  iqr <- qv[4] - qv[2]  
+  upfence <- qv[4] + mult * iqr  
+  lofence <- qv[2] - mult * iqr
+  
+  # initialize break points vector  
+  bb <- vector(mode="numeric",length=7)
+  # logic for lower and upper fences
+  if (lofence < qv[1]) {  
+    # no lower outliers    
+    bb[1] <- lofence    
+    bb[2] <- floor(qv[1])  
+  } else {    
+    bb[2] <- lofence    
+    bb[1] <- qv[1]
+  }
+  
+  if(upfence > qv[5]) {
+  # no upper outliers   
+    bb[7] <- upfence   
+    bb[6] <- ceiling(qv[5]) 
+  } else {   
+    bb[6] <- upfence  
+    bb[7] <- qv[5]
+  } 
+  bb[3:5] <- qv[2:4]
+  return(bb)
+}
+
+get.var <- function(vname,df) { 
+  v <- df[vname] %>% st_set_geometry(NULL)
+  v <- unname(v[,1])
+  return(v)
+}
+
+boxmap <- function(vnam,df,titlesize,legx, legy, legtitle=NA,mtitle="Box Map",mult=1.5){  
+  var  <- get.var(vnam,df)
+  bb <- boxbreaks(var)
+  tm_shape(df) +    
+    tm_fill(vnam,
+            title=legtitle,
+            breaks=bb,
+            palette="-RdBu", 
+            labels = c("lower outlier", "< 25%", "25% - 50%", "50% - 75%","> 75%", "upper outlier")
+            ) +
+    tm_fill(vnam, 
+            df %>% 
+              filter(is.na(vnam)), 
+            labels = c("NA")
+            ) +
+  tm_borders(alpha =0.2) +
+  tm_layout(main.title = paste("Box Map of ",toString(vnam)," Numbers by Desa"),
+            main.title.size = titlesize,
+            main.title.position =  "center",
+            frame = FALSE,
+            legend.height = legx,
+            legend.width = legy
+            )
+}
+
+bm_qtm <- function(vnam,df,titlesize,legx, legy) {
+  tm <- qtm(df, vnam, main.title = paste("Chloropleth of ",toString(vnam)," Numbers by Desa"), frame = FALSE, main.title.size = titlesize, main.title.position = "center")
+  bm <- boxmap(vnam, df, titlesize, legx,legy)
+  tmap_arrange(tm,bm, nrow = 2)
+}
+
+```
+
+```{r}
+#example
+boxmap("INFRA_DEVELOPMENT_SCORE", ekps.transformed, 0.5,0.5,0.5)
+```
+
 ## 4.2 Correlation Analysis 
 ```{r}
 ekps.cor <- cor(as.data.frame(ekps.transformed[6:44] %>% st_set_geometry(NULL)))
@@ -4166,7 +4242,7 @@ hclust_ward <- hclust(proxmat, method = 'ward.D')
 
 Visualise Dendogram
 ```{r}
-plot(hclust_ward, cex = 0.3)
+plot(hclust_ward, cex = 0.3)#can try to drop labels
 ```
 ### 5.1.5 Select Optimal Number of Clusters
 We will use the gap statistic method which compares total intra-cluster variation for different number of clusters used; with comparison to the expected values under null reference data distriubtion. We want to select the cluster number that maximises the gap statistic.
@@ -4229,6 +4305,7 @@ Visualize on chloropleth
 ```{r}
 qtm(ekps.transformed, "H_CLUSTER")
 ```
+Maybe can explore the statistical test he used in class to see if this is randomly distributed. 
 
 ## 5.2 Spatially Constrained Clustering 
 Next, let us try the spatially constrained clustering method. This approach is likely to be more appropriate in this case as the urban planners likely do not want a collection of fragmented land for the new capital. 
