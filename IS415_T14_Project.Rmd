@@ -4090,7 +4090,7 @@ boxmap("INFRA_DEVELOPMENT_SCORE", ekps.transformed, 0.5,0.5,0.5)
 
 ## 4.2 Correlation Analysis 
 ```{r}
-ekps.cor <- cor(as.data.frame(ekps.transformed[6:44] %>% st_set_geometry(NULL)))
+ekps.cor <- cor(as.data.frame(ekps.transformed[7:45] %>% st_set_geometry(NULL)))
 corrplot.mixed(ekps.cor,
          lower = "ellipse", 
          upper = "number",
@@ -4134,7 +4134,7 @@ corr_filter <- function(df_cor, threshold) {
 ```
 
 ```{r}
-ekps.corr.filtered <- corr_filter(as.data.frame(ekps.transformed[6:44] %>% st_set_geometry(NULL)), 0.7)
+ekps.corr.filtered <- corr_filter(as.data.frame(ekps.transformed[7:45] %>% st_set_geometry(NULL)), 0.7)
 corrplot(ekps.corr.filtered,
          tl.pos = "lt",
          tl.col = "black",
@@ -4242,7 +4242,7 @@ hclust_ward <- hclust(proxmat, method = 'ward.D')
 
 Visualise Dendogram
 ```{r}
-plot(hclust_ward, cex = 0.3)#can try to drop labels
+plot(hclust_ward, cex = 0.1)#can try to drop labels
 ```
 ### 5.1.5 Select Optimal Number of Clusters
 We will use the gap statistic method which compares total intra-cluster variation for different number of clusters used; with comparison to the expected values under null reference data distriubtion. We want to select the cluster number that maximises the gap statistic.
@@ -4305,9 +4305,10 @@ Visualize on chloropleth
 ```{r}
 qtm(ekps.transformed, "H_CLUSTER")
 ```
-Maybe can explore the statistical test he used in class to see if this is randomly distributed. 
+From the above, we can see that the spatial distribution of the generated hierarchical clusters is rather fragmented. This does not make sense in the context of this project as urban planners likely would want a continuous plot of land to develop the new capital. Thus, we will be using the spatially constrained method moving forward. 
 
-## 5.2 Spatially Constrained Clustering 
+
+## 5.2 Spatially Constrained Clustering - All Variables
 Next, let us try the spatially constrained clustering method. This approach is likely to be more appropriate in this case as the urban planners likely do not want a collection of fragmented land for the new capital. 
 
 ### 5.2.1 Convert to SpatialPolygonsDataFrame
@@ -4424,6 +4425,106 @@ tmap_arrange(hclust.map, spclust.map,
              asp=NA, ncol=2)
 ```
 
+# 6 Spatially Constrained Clustering by Sector
+This section details the spatially constrained method by different sectors/variable groups. 
+
+First, let us create functions in order to reduce the amount of repeated code that is written.
+
+This function takes in the original transformed df and the specific columns we want that are in a vector format. It resets the index of the dataframe and normalises it. Furthermore, the gap statistic is calculated to pick out the optimum cluster number for the spatially contrained clustering. 
+
+```{r}
+prep_cluster_df <- function(org_df, vector_cols) {
+  cluster_df <- org_df %>%
+  st_set_geometry(NULL) %>%
+  select(all_of(
+    vector_cols)
+    )
+  
+  row.names(cluster_df) <- cluster_df$DESA
+  cluster_df <- cluster_df[,-1] # drop the DESA column since it is now the index
+  
+  #Normalize df
+  cluster_df <- normalize(cluster_df)
+    
+  # Select clust_num using gap statistic
+  set.seed(12345)
+  gap_stat <- clusGap(cluster_df, FUN = hcut, nstart = 20, K.max = 15, B =50)
+  
+  # Print the result
+  print(gap_stat, method = "firstmax")
+  
+  # Visualize statistic in a plot for selection of optimal clusters
+  fviz_gap_stat(gap_stat)  
+}
+```
+
+This function performs the spatially contrained method using the previously constructed neighbour weights and the optimum number of clusters. It also takes in a col_name argument which will be used to rename the generated column for the sector spatially constrained method. 
+```{r}
+sc_clust <- function(nb_mat, cluster_df, clust_num, col_name) {
+  # Generate Weights
+  lcosts <- nbcosts(nb_mat, cluster_df)
+  ekps.w <- nb2listw(nb_mat, lcosts, style="B")
+  summary(ekps.w)
+  
+  # Compute MST
+  ekps.mst <- mstree(ekps.w)
+  dim(ekps.mst) # check if the mst has the correct number of edges
+  
+  # Visualize MST
+  plot(ekps.transformed.sp, border=gray(.5))
+  plot.mst(ekps.mst, coordinates(ekps.transformed.sp), 
+       col="blue", cex.lab=0.3, cex.circles=0.005, add=TRUE)
+  
+  # Use Skater Method to create spatially constrained clusters
+  clust <- skater(ekps.mst[,1:2], cluster_df, method = "euclidean", clust_num)
+  
+  groups_mat <- as.matrix(clust$groups)
+  
+  ekps.transformed <- cbind(ekps.transformed, as.factor(groups_mat)) %>%
+  rename(`col_name`=`as.factor.groups_mat.`)
+  
+  qtm(ekps.transformed, col_name)
+}
+```
+
+Now, let us split all the variables we have into several sectors for profiling. 
+```{r}
+# "DESA",
+#          "PRESENCE_SLUMS",
+#          "SLASH_AND_BURN",
+#          "MALNOURISHED_POP",
+#          "POVERTY_POP",
+#          "TRANSPORTATION_METHODS",
+#          "ROAD_ACCESSIBLE_BY_4_WHEEL_VEHICLE",
+#          "PUBLIC_TRANSPORT",
+#          "NUM_LEATHER_INDUSTRY",
+#          "NUM_WOOD_INDUSTRY",
+#          "NUM_METAL_INDUSTRY",
+#          "NUM_FABRIC_INDUSTRY",
+#          "NUM_POTTERY_INDUSTRY",
+#          "NUM_BAMBOORATTAN_INDUSTRY",
+#          "NUM_FOOD_INDUSTRY",
+#          "ELECTRICTY",
+#          "WASTE_DISPOSAL",
+#          "WATER_MANAGEMENT",
+#          "NATURAL_DISASTER_SCORE",
+#          "HEALTHCARE_SERVICE_NUM",
+#          "DISEASE_OUTBREAK_SCORE",
+#          "EDUCATION_INSTITUTION_NUM",
+#          "MAIL_ACCESS_SCORE",
+#          "INDUSTRIES",
+#          "COOPERATIVES",
+#          "GROCERIES_NUMBER",
+#          "FOOD_ESTAB_NUMBER",
+#          "FOOD_ESTAB_ACCESS_SCORE",
+#          "LODGING_NUM",
+#          "LODGING_ACCESS_SCORE",
+#          "TOOK_CREDIT_SCORE",
+#          "BANK_NUM",
+#          "FI_INFRA_NUM",
+#          "INFRA_DEVELOPMENT_SCORE",
+#          "TELECOMMUNICATIONS"
+```
 
 
 
