@@ -3827,9 +3827,85 @@ tm_shape(eastkalimantan.podes)+
   tm_scale_bar(width = 0.15)
 ```
 
+Let us create the boxmap function to use it to better visualise the variables.
+```{r}
+boxbreaks <- function(v,mult=1.5) { 
+  qv <- unname(quantile(v,na.rm = TRUE))
+  iqr <- qv[4] - qv[2]  
+  upfence <- qv[4] + mult * iqr  
+  lofence <- qv[2] - mult * iqr
+  
+  # initialize break points vector  
+  bb <- vector(mode="numeric",length=7)
+  # logic for lower and upper fences
+  if (lofence < qv[1]) {  
+    # no lower outliers    
+    bb[1] <- lofence    
+    bb[2] <- floor(qv[1])  
+  } else {    
+    bb[2] <- lofence    
+    bb[1] <- qv[1]
+  }
+  
+  if(upfence > qv[5]) {
+  # no upper outliers   
+    bb[7] <- upfence   
+    bb[6] <- ceiling(qv[5]) 
+  } else {   
+    bb[6] <- upfence  
+    bb[7] <- qv[5]
+  } 
+  bb[3:5] <- qv[2:4]
+  return(bb)
+}
+
+get.var <- function(vname,df) { 
+  v <- df[vname] %>% st_set_geometry(NULL)
+  v <- unname(v[,1])
+  return(v)
+}
+
+boxmap <- function(vnam,df,titlesize,legx, legy, legtitle=NA,mtitle="Box Map",mult=1.5){  
+  var  <- get.var(vnam,df)
+  bb <- boxbreaks(var)
+  tm_shape(df) +    
+    tm_fill(vnam,
+            title=legtitle,
+            breaks=bb,
+            palette="-RdBu", 
+            labels = c("lower outlier", "< 25%", "25% - 50%", "50% - 75%","> 75%", "upper outlier")
+            ) +
+    tm_fill(vnam, 
+            df %>% 
+              filter(is.na(vnam)), 
+            labels = c("NA")
+            ) +
+  tm_borders(alpha =0.2) +
+  tm_layout(main.title = paste("Box Map of ",toString(vnam)," Numbers by Desa"),
+            main.title.size = titlesize,
+            main.title.position =  "center",
+            frame = FALSE,
+            legend.height = legx,
+            legend.width = legy
+            )
+}
+
+bm_qtm <- function(vnam,df,titlesize,legx, legy) {
+  tm <- qtm(df, vnam, main.title = paste("Chloropleth of ",toString(vnam)," Numbers by Desa"), frame = FALSE, main.title.size = titlesize, main.title.position = "center")
+  bm <- boxmap(vnam, df, titlesize, legx,legy)
+  tmap_arrange(tm,bm, nrow = 2)
+}
+
+```
+
+```{r}
+#example
+boxmap("INFRA_DEVELOPMENT_SCORE", ekps.transformed, 0.5,0.5,0.5)
+```
+
 ## 4.2 Correlation Analysis 
 ```{r}
-ekps.cor <- cor(as.data.frame(ekps.transformed[6:44] %>% st_set_geometry(NULL)))
+ekps.cor <- cor(as.data.frame(ekps.transformed[7:45] %>% st_set_geometry(NULL)))
 corrplot.mixed(ekps.cor,
          lower = "ellipse", 
          upper = "number",
@@ -3873,7 +3949,7 @@ corr_filter <- function(df_cor, threshold) {
 ```
 
 ```{r}
-ekps.corr.filtered <- corr_filter(as.data.frame(ekps.transformed[6:44] %>% st_set_geometry(NULL)), 0.7)
+ekps.corr.filtered <- corr_filter(as.data.frame(ekps.transformed[7:45] %>% st_set_geometry(NULL)), 0.7)
 corrplot(ekps.corr.filtered,
          tl.pos = "lt",
          tl.col = "black",
@@ -3981,7 +4057,7 @@ hclust_ward <- hclust(proxmat, method = 'ward.D')
 
 Visualise Dendogram
 ```{r}
-plot(hclust_ward, cex = 0.3)
+plot(hclust_ward, cex = 0.1)#can try to drop labels
 ```
 ### 5.1.5 Select Optimal Number of Clusters
 We will use the gap statistic method which compares total intra-cluster variation for different number of clusters used; with comparison to the expected values under null reference data distriubtion. We want to select the cluster number that maximises the gap statistic.
@@ -4044,8 +4120,10 @@ Visualize on chloropleth
 ```{r}
 qtm(ekps.transformed, "H_CLUSTER")
 ```
+From the above, we can see that the spatial distribution of the generated hierarchical clusters is rather fragmented. This does not make sense in the context of this project as urban planners likely would want a continuous plot of land to develop the new capital. Thus, we will be using the spatially constrained method moving forward. 
 
-## 5.2 Spatially Constrained Clustering 
+
+## 5.2 Spatially Constrained Clustering - All Variables
 Next, let us try the spatially constrained clustering method. This approach is likely to be more appropriate in this case as the urban planners likely do not want a collection of fragmented land for the new capital. 
 
 ### 5.2.1 Convert to SpatialPolygonsDataFrame
@@ -4162,8 +4240,266 @@ tmap_arrange(hclust.map, spclust.map,
              asp=NA, ncol=2)
 ```
 
+# 6 Spatially Constrained Clustering by Sector
+This section details the spatially constrained method by different sectors/variable groups. 
+
+First, let us create functions in order to reduce the amount of repeated code that is written.
+
+This function takes in the original transformed df and the specific columns we want that are in a vector format. It resets the index of the dataframe and normalises it. Furthermore, the gap statistic is calculated to pick out the optimum cluster number for the spatially contrained clustering. 
+
+```{r}
+prep_cluster_df <- function(org_df, vector_cols) {
+  cluster_df <- org_df %>%
+  st_set_geometry(NULL) %>%
+  select(all_of(
+    vector_cols)
+    )
+  
+  row.names(cluster_df) <- cluster_df$DESA
+  cluster_df <- cluster_df[,-1] # drop the DESA column since it is now the index
+  
+  #Normalize df
+  cluster_df <- normalize(cluster_df)
+    
+  # Select clust_num using gap statistic
+  set.seed(12345)
+  gap_stat <- clusGap(cluster_df, FUN = hcut, nstart = 20, K.max =15, B =50)
+  
+  # Print the result
+  print(gap_stat, method = "firstmax")
+  
+  # Visualize statistic in a plot for selection of optimal clusters
+  print(fviz_gap_stat(gap_stat))  
+  
+  return(cluster_df)
+}
+```
+
+This function performs the spatially contrained method using the previously constructed neighbour weights and the optimum number of clusters. It also takes in a col_name argument which will be used to rename the generated column for the sector spatially constrained method. 
+```{r}
+sc_clust <- function(nb_mat, cluster_df, clust_num) {
+  # Generate Weights
+  lcosts <- nbcosts(nb_mat, cluster_df)
+  ekps.w <- nb2listw(nb_mat, lcosts, style="B")
+  summary(ekps.w)
+  
+  # Compute MST
+  ekps.mst <- mstree(ekps.w)
+  dim(ekps.mst) # check if the mst has the correct number of edges
+  
+  # Visualize MST
+  plot(ekps.transformed.sp, border=gray(.5))
+  plot.mst(ekps.mst, coordinates(ekps.transformed.sp), 
+       col="blue", cex.lab=0.3, cex.circles=0.005, add=TRUE)
+  
+  # Use Skater Method to create spatially constrained clusters
+  clust <- skater(ekps.mst[,1:2], cluster_df, method = "euclidean", clust_num-1)
+  groups_mat <- as.matrix(clust$groups)
+  
+  
+  ekps.transformed <- cbind(ekps.transformed, as.factor(groups_mat)) 
+  return(ekps.transformed)
+}
+```
+
+Now, let us split all the variables we have into several sectors for profiling. 
+```{r}
+healthcare <- c("DESA", "HEALTHCARE_SERVICE_NUM", "DISEASE_OUTBREAK_SCORE","MALNOURISHED_POP", "HEALTHCARE_ACCESS_SCORE")
+
+industrial <- c("DESA", "NUM_LEATHER_INDUSTRY", "NUM_WOOD_INDUSTRY", "NUM_METAL_INDUSTRY", "NUM_FABRIC_INDUSTRY", "NUM_POTTERY_INDUSTRY", "NUM_BAMBOORATTAN_INDUSTRY", "NUM_FOOD_INDUSTRY", "INDUSTRIES", "COOPERATIVES")
+
+financial <- c("DESA", "BANK_NUM", "BANK_ACCESS_SCORE", "FI_INFRA_ACCESS_SCORE", "FI_INFRA_NUM", "TOOK_CREDIT_SCORE", "POVERTY_POP")
+
+transport <- c("DESA", "TRANSPORTATION_METHODS","ROAD_ACCESSIBLE_BY_4_WHEEL_VEHICLE", "PUBLIC_TRANSPORT")
+
+food <- c("DESA", "GROCERIES_ACCESS_SCORE" , "GROCERIES_NUMBER", "FOOD_ESTAB_NUMBER", "FOOD_ESTAB_ACCESS_SCORE")
+
+development <- c("DESA", "PRESENCE_SLUMS", "INFRA_DEVELOPMENT_SCORE", "ELECTRICTY", "WASTE_DISPOSAL", "WATER_MANAGEMENT")
+
+disasters <- c("DESA", "PRESENCE_MUDSLIDES", "PRESENCE_FLOOD", "PRESENCE_FLASHFLOOD" , "PRESENCE_EARTHQUAKE", "PRESENCE_TSUNAMI", "PRESENCE_TIDALWAVES", "PRESENCE_TORNADO", "PRESENCE_VOLCANIC_ERUPTIONS", "PRESENCE_FORESTFIRE" , "WARNING_SYSTEM_NATURAL_DISASTER" ,"WARNING_SYSTEM_TSUNAMI") #use non aggregated variable as using only 1 clustering variable NATURAL_DISASTER_SCORE does not make sense
+
+communication <- c("DESA","MAIL_ACCESS_SCORE", "TELECOMMUNICATIONS")
+
+education <- c("DESA", "EDUCATION_INSTITUTION_NUM", "EDUCATION_ACCESS_SCORE")
+```
+
+## 6.1 Spatially Constrained Clustering - Profiling Healthcare Sector
+Select optimal number of clusters
+```{r}
+healthcare_cluster_df <- prep_cluster_df(ekps.transformed, healthcare)
+```
+From the above, we pick k=5 since the gradient from 4 to 5 is steep while the gradient from 5 to 6 is very gentle. 
+
+```{r}
+ekps.transformed <- sc_clust(ekps.nb, healthcare_cluster_df, 5)
+```
+
+Lastly, we rename the column and plot the cluster number on a qtm.
+```{r}
+ekps.transformed <- ekps.transformed %>% rename(`HEALTHCARE_SC_CLUSTER` = `as.factor.groups_mat.`)
+qtm(ekps.transformed, "HEALTHCARE_SC_CLUSTER")
+```
+
+## 6.2 Spatially Constrained Clustering - Profiling Industrial Sector
+Select optimal number of clusters
+```{r}
+industrial_cluster_df <- prep_cluster_df(ekps.transformed, industrial)
+```
+
+From the above, we pick k=4 since the gradient from 3 to 4 is steep while the gradient from 4 to 5 is very gentle. 
+
+```{r}
+ekps.transformed <- sc_clust(ekps.nb, industrial_cluster_df, 4)
+```
+
+Lastly, we rename the column and plot the cluster number on a qtm.
+```{r}
+ekps.transformed <- ekps.transformed %>% rename(`INDUSTRIAL_SC_CLUSTER` = `as.factor.groups_mat.`)
+qtm(ekps.transformed, "INDUSTRIAL_SC_CLUSTER")
+```
+
+## 6.3 Spatially Constrained Clustering - Profiling Financial Sector
+Select optimal number of clusters
+```{r}
+financial_cluster_df <- prep_cluster_df(ekps.transformed, financial)
+```
+From the above, we pick k=8 since the gradient from 7 to 8 is steep while the gradient from 8 to 9 is gentler. 
+
+```{r}
+ekps.transformed <- sc_clust(ekps.nb, financial_cluster_df, 8)
+```
+
+Lastly, we rename the column and plot the cluster number on a qtm.
+```{r}
+ekps.transformed <- ekps.transformed %>% rename(`FINANCIAL_SC_CLUSTER` = `as.factor.groups_mat.`)
+qtm(ekps.transformed, "FINANCIAL_SC_CLUSTER")
+```
+
+## 6.4 Spatially Constrained Clustering - Profiling Transport Sector
+
+Select optimal number of clusters
+```{r}
+transport_cluster_df <- prep_cluster_df(ekps.transformed, transport)
+```
+
+From the above, we pick k=6 since the gradient from 5 to 6 is steep while the gradient from 6 to 7 is gentler. 
+
+```{r}
+ekps.transformed <- sc_clust(ekps.nb, transport_cluster_df, 6)
+```
+
+Lastly, we rename the column and plot the cluster number on a qtm.
+```{r}
+ekps.transformed <- ekps.transformed %>% rename(`TRANSPORT_SC_CLUSTER` = `as.factor.groups_mat.`)
+qtm(ekps.transformed, "TRANSPORT_SC_CLUSTER")
+```
+
+## 6.5 Spatially Constrained Clustering - Profiling Food Sector
+
+Select optimal number of clusters
+```{r}
+food_cluster_df <- prep_cluster_df(ekps.transformed, food)
+```
+
+From the above, we pick k=6 since the gradient from 6 to 7 had a drop. 
+
+```{r}
+ekps.transformed <- sc_clust(ekps.nb, food_cluster_df,6 )
+```
+
+Lastly, we rename the column and plot the cluster number on a qtm.
+```{r}
+ekps.transformed <- ekps.transformed %>% rename(`FOOD_SC_CLUSTER` = `as.factor.groups_mat.`)
+qtm(ekps.transformed, "FOOD_SC_CLUSTER")
+```
+
+## 6.6 Spatially Constrained Clustering - Profiling Development
+
+Select optimal number of clusters
+```{r}
+development_cluster_df <- prep_cluster_df(ekps.transformed, development)
+```
+
+From the above, we pick k=6 since the gradient from 5 to 6 is steep while the gradient from 6 to 7 is gentler. 
+
+```{r}
+ekps.transformed <- sc_clust(ekps.nb, development_cluster_df, 6)
+```
+
+Lastly, we rename the column and plot the cluster number on a qtm.
+```{r}
+ekps.transformed <- ekps.transformed %>% rename(`DEVELOPMENT_SC_CLUSTER` = `as.factor.groups_mat.`)
+qtm(ekps.transformed, "DEVELOPMENT_SC_CLUSTER")
+```
 
 
+## 6.7 Spatially Constrained Clustering - Profiling Disasters
+
+Initial running of clustering algorithm resulted in errors. Diagnose why error occurs.
+```{r}
+diag <- ekps.recoded %>% st_set_geometry(NULL) %>% select(all_of(disasters))
+normalize(diag)
+```
+We cam see that **PRESENCE_EARTHQUAKE**, **PRESENCE_TSUNAMI** and **PRESENCE_VOLCANIC_ERUPTIONS** have NaN values. This means that before scaling, they were probably the same value throughout all 384 desas. Remove these variables. 
+
+```{r}
+remove <- c("PRESENCE_EARTHQUAKE", "PRESENCE_TSUNAMI", "PRESENCE_VOLCANIC_ERUPTIONS")
+disasters <- setdiff(disasters, remove)
+```
+With that out of the way, let us continue running the algorithm.
+
+Select optimal number of clusters
+```{r}
+disaster_cluster_df <- prep_cluster_df(ekps.recoded, disasters)
+```
+
+From the above, we pick k=5 since the gradient from 4 to 5 is steeper than the gradient from 5 to 6.
+
+```{r}
+ekps.transformed <- sc_clust(ekps.nb, disaster_cluster_df, 5)
+```
+
+Lastly, we rename the column and plot the cluster number on a qtm.
+```{r}
+ekps.transformed <- ekps.transformed %>% rename(`DISASTER_SC_CLUSTER` = `as.factor.groups_mat.`)
+qtm(ekps.transformed, "DISASTER_SC_CLUSTER")
+```
+
+## 6.8 Spatially Constrained Clustering - Profiling Telecommunication Sector
+
+Select optimal number of clusters
+```{r}
+telecomm_cluster_df <- prep_cluster_df(ekps.transformed, communication)
+```
+
+From the above, we pick k=3 since the gap statistic drops when k is increased to 4.
+
+```{r}
+ekps.transformed <- sc_clust(ekps.nb, telecomm_cluster_df, 3)
+```
+
+Lastly, we rename the column and plot the cluster number on a qtm.
+```{r}
+ekps.transformed <- ekps.transformed %>% rename(`TELECOMM_SC_CLUSTER` = `as.factor.groups_mat.`)
+qtm(ekps.transformed, "TELECOMM_SC_CLUSTER")
+```
+
+## 6.9 Spatially Constrained Clustering - Profiling Education Sector
+
+Select optimal number of clusters
+```{r}
+edu_cluster_df <- prep_cluster_df(ekps.transformed, education)
+```
+
+From the above, we pick k=2 since the gap statistic drops when k is increased to 3.
+
+```{r}
+ekps.transformed <- sc_clust(ekps.nb, edu_cluster_df,2 )
+```
 
 
-
+Lastly, we rename the column and plot the cluster number on a qtm.
+```{r}
+ekps.transformed <- ekps.transformed %>% rename(`EDUCATION_SC_CLUSTER` = `as.factor.groups_mat.`)
+qtm(ekps.transformed, "EDUCATION_SC_CLUSTER")
+```
