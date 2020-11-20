@@ -1,0 +1,2228 @@
+---
+title: "Team 14: East Kalimantan as the new J-Town"
+author: "Team 14, Ng Xun Jie, Erika Aldisa Gunawan, Sean Lee Jun Hui"
+date: "9/26/2020 (updated: `r Sys.Date()`)"
+output: 
+  html_document:
+    theme: read
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 1. Overview
+
+Team 14 aims to do profiling & segmentation of the new proposed area of Indonesia's capital city in East Kalimantan province. 
+
+To do this, we will firstly load the necessary R packages to do our analysis. Next, we will load the PODES 2018 data (CSV) and East Kalimantan province shapefile, both received from Professor Kam Tin Seong.
+
+Afterwards, data wrangling to get renamed columns and extra variables is really important because the datasets are in Bahasa Indonesia so some translation by renaming columns will be done.
+
+Lastly, we will conduct **Spatially Constrained Clustering** analysis on the variables selected that are indicators of how well developed a city is. 
+
+
+# 2. Load/Install necessary R packages
+
+R packages needed:
+
+* sf - for handling simple feature objects
+
+* spdep - for spatial statistical analysis
+
+* rgdal - for handling spatial data
+
+* tmap - for choropleth mapping
+
+* tidyverse - for tidying data (tidyr, purrr, tibble, stringr, forcats, readr, ggplot2 & dplyr)
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+packages = c('sf','spdep','rgdal','tmap','tidyverse', "knitr")
+for (p in packages){
+  if(!require(p, character.only = T)){
+    install.packages(p)
+  }
+  library(p, character.only = T)
+}
+```
+
+
+# 3. Importing Data into R
+
+We import shapefile using **readOGR() function** of rgdal package.
+
+Then, we import csv file using **read_csv() function** of readr package (tidyverse).
+
+
+## 3.1 Importing geospatial data (shapefile)
+
+- Imported as sf data frame
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=TRUE}
+area <- st_read(dsn = "data/geospatial/StudyArea.shp", layer = "StudyArea")
+```
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+glimpse(area)
+```
+
+We can see that there are 12 variables whose column names are in Bahasa Indonesia.
+
+* PROVNO - unique ID of the province East Kalimantan
+
+* KABKOTNO - unique ID of regencies/cities
+
+* KECNO - unique ID of districts
+
+* DESANO - unique ID of villages
+
+* PROVINSI - name of **provinces** (East Kalimantan), the highest level of govt. administrative region
+
+* KABKOT - name of **regencies/cities** in East Kalimantan, the second level of govt. administrative region
+
+* KECAMATAN - name of **districts** in East Kalimantan, the third level of govt. administrative region
+
+* DESA - name of **village** in East Kalimantan, the lowest level of govt. administrative region
+
+* IDDESA - unique ID of villages that is the full region code (concatenation of PROVNO, KABKOTNO, KECNO, DESANO)
+
+* TAHUN - year
+
+* SUMBER - source of data, BPS stands for Badan Pusat Statistik, Statistics Indonesia 
+
+* geometry - the coordinates of the geometries polygons
+
+For this project, it's important to learn about the government administrative region of Indonesia. In Indonesia, nationally one country, divided into **34 provinces** which includes East Kalimantan. 
+
+* A **province (provinsi)** is divided into **cities/regencies**
+
+* **Regencies (kabupaten)** are usually larger than cities (kota) in size and have agricultural activities. In East Kalimantan province, there are 3 cities (Balikpapan, Samarinda, Bontang) and 7 regencies
+
+* Regencies and cities are further divided into **districts (kecamatan)**
+
+* The last level of government administrative region is **village (desa)** or **subdistrict (kelurahan)**
+
+* Village most often used for regencies & subdistrict most often used for cities, just like how regency is more rural than city
+
+## 3.2 Renaming columns of area shapefile
+
+We will rename the columns of "area" into english.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+area <- area %>%
+  rename(
+    PROVINCE_ID = PROVNO,
+    CITY_ID = KABKOTNO,
+    DISTRICT_ID = KECNO,
+    VILLAGE_ID = DESANO,
+    PROVINCE = PROVINSI,
+    CITY = KABKOT,
+    DISTRICT =KECAMATAN,
+    VILLAGE = DESA,
+    REGION_CODE = IDDESA,
+    YEAR = TAHUN,
+    SOURCE = SUMBER,
+    GEOMETRY = geometry
+  )
+```
+
+
+
+Let's observe if the area shapefile has any missing/NA values.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=TRUE}
+summary(area)
+any(is.na(area))
+```
+We can see that there are no NA values and all variables have the same number of observations. 
+
+
+## 3.3 Plot of the Study Area
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=TRUE}
+tm_shape(area)+
+  tm_basemap('OpenStreetMap')+
+  tm_polygons("CITY")+
+  tm_text("VILLAGE_ID", size = 0.1)+ 
+  tm_borders(lwd=0.5)+
+  tm_layout(legend.height = 0.50, 
+            legend.width = 0.44,
+            frame = FALSE) +
+  tm_compass(type="8star", size = 2) +
+  tm_scale_bar(width = 0.15)
+```
+
+Note: The study area does not cover the whole area of East Kalimantan province, only 2 regencies which are Kutai Kartanegara and Penajam Paser Utara & 2 biggest cities in East Kalimantan which are Balikpapan and Samarinda. This is shown below by finding the distinct regencies/cities variable.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+distinct(as.data.frame(area$CITY))
+```
+
+
+## 3.4 Importing aspatial data (PODES 2018 in CSV format)
+
+The PODES 2018 data is divided into 4 parts in CSV format so we will import all 4 CSV files and bind them to one dataframe.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes1 <- read_csv("data/aspatial/podes2018_part1.csv")
+head(podes1)
+```
+
+We can see that the variables of the PODES 2018 data are in codes (R101N, R102, R102N, etc.) which we have to convert based on the information found in the reference of this data. 
+
+However, we will firstly see the other parts of the PODES 2018 data and see if there's some tidying to do.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+glimpse(podes1)
+```
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes2 <- read_csv("data/aspatial/podes2018_part2.csv")
+#glimpse(podes2)
+```
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes3 <- read_csv("data/aspatial/podes2018_part3.csv")
+#glimpse(podes3)
+```
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes4 <- read_csv("data/aspatial/podes2018_part4.csv")
+#glimpse(podes4)
+```
+
+As we can see from the glimpse() function, all the different parts of PODES 2018 dataframe have different number of columns/variable. 
+
+PODES1 has 150 variables, PODES2 has 217 variables, PODES3 has 232 variables and PODES4 has 185 variables. However, we can see **the only overlapping variables are the first 9 variables** namely shape, R101, R101N, R102, R102N, R103, R103N, R104, R104N. 
+
+
+## 3.5 Combining 4 parts PODES 2018 data 
+
+Since, all the 4 parts have the same number of rows, we will just use inner_join() function of dplyr package to combine the 4 parts into 1 dataframe.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes5 <- inner_join(podes1, podes2, by = c("Shape", "R101", "R101N", "R102", "R102N", "R103", "R103N", "R104", "R104N"))
+podes6 <- inner_join(podes3, podes4, by = c("Shape", "R101", "R101N", "R102", "R102N", "R103", "R103N", "R104", "R104N"))
+podes <- inner_join(podes5, podes6, by = c("Shape", "R101", "R101N", "R102", "R102N", "R103", "R103N", "R104", "R104N"))
+head(podes)
+```
+
+We can see that the *podes* data frame have 757 variables now, and it's correct because if we bind everything it will have 784 variables and subtracted by 3 times of 9 same variables will be (150 + 217 + 232 + 185) - (3*9) = 784-27 = 757.
+
+## 3.6 Deriving column names of combined PODES 2018 dataframe (Data wrangling)
+
+### 3.6.1 PODES 2018 part 1 (general info of village, demographics & employment, housing & living environment)
+
+From the reference data, we can derive the meaning of each variables and we will be doing so in the order of the podes dataframe. Note that some variables need further tidying such as *changing type of variable from double to factor*. 
+
+
+What we will be doing now is to either *recode* the variable or to change the variable values, and we will only be **changing the column name at the end to simplify the process**, we will be keeping a vector of all the variable name in podes1 dataframe and will be setting the column names of the new tidy podes1 data frame with that variable name vector.
+
+Changing variable "R301" - governance status to factor variable by using *recode_factor()* function of **dplyr** package.
+
+UTP means Transmigration Settlement Unit & STP means Entity of Transmigration Settlement. 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R301 = recode_factor(as.vector(podes$R301), `1` = "VILLAGE", `2` = "SUBDISTRICT", `3` = "UPT/SPT"))
+```
+
+
+Changing variable "R302A" - village/subdistrict council to factor variable. 1 means have and 2 means do not have. It will be changed to 1 as yes and 0 as no.
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R302A = recode_factor(as.vector(podes$R302A), `1` = 1, `2` = 0))
+```
+
+
+Changing variable "R303" - village/subdistrict map set by the governor(provincial level) or mayor (city level) to factor variable. 1 means have and 2 means do not have. It will be changed to 1 as yes and 0 as no.
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R303 = recode_factor(as.vector(podes$R303), `1` = 1, `2` = 0))
+```
+
+Changing variable "R304A" - presence of local units which are smaller level or units of administrative region, below village and subdistrict level. Changing this dbl type to factor type. 1 means have and 2 means do not have. It will be changed to 1 as yes and 0 as no.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R304A = recode_factor(as.vector(podes$R304A), `1` = 1, `2` = 0))
+```
+
+
+Changing variable "R305B" - topography of the village/subdistrict area to  factor variable. 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R305B = recode_factor(as.vector(podes$R305B), `1` = "SLOPE/PEAK", `2` = "VALLEY", `3` = "FLAT"))
+```
+
+Changing variable "R305C" - presence of residential areas in slope/peak to  factor variable. 1 means have and 2 means do not have. It will be changed to 1 as yes and 0 as no.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R305C = recode_factor(as.vector(podes$R305C), `1` = 1, `2` = 0))
+```
+
+
+
+Changing variable "R306A" - presence of village head office. 1 means have and 2 means do not have. It will be changed to 1 as yes and 0 as no.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R306A = recode_factor(as.vector(podes$R306A), `1` = 1, `2` = 0))
+```
+
+Changing variable "R306B" - status of village head office, whether they are an asset of the village or not. 1 means yes it's an asset and 2 means not an asset. It will be changed to "ASSET" and "NON-ASSET".
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R306B = recode_factor(as.vector(podes$R306B), `1` = "ASSET", `2` = "NON-ASSET"))
+```
+
+Changing variable "R306C" - condition of village head office, whether they are worthy to have run the office or not. 1 means yes it's deserving/worthy and 2 means not deserving/worthy. It will be changed to "WORTH" and "NOT WORTH".
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R306C = recode_factor(as.vector(podes$R306C), `1` = "WORTH" , `2` = "NOT WORTH"))
+```
+
+Changing variable "R306D" - location of village head office, whether it is located inside or outside the village/subdistrict. 1 means it's located inside the area and 2 means located outside the area. It will be changed to "INSIDE" and "OUTSIDE".
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R306D = recode_factor(as.vector(podes$R306D), `1` = "INSIDE" , `2` = "OUTSIDE"))
+```
+
+Changing variable "R307A" - where the governmental activities are executed mainly. 1 means activities are executed in village head office and 2 means activities are not executed in the head offices. It will be changed to 1 as yes and 0 as no.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R307A = recode_factor(as.vector(podes$R307A), `1` = 1 , `2` = 0))
+```
+
+
+Changing variable "R308A" - whether there are any villages/subdistricts that is directly adjacent to the sea. 1 means yes and 2 means no villages/subdistricts that is adjacent to the sea. It will be changed to 1 as yes and 0 as no.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R308A = recode_factor(as.vector(podes$R308A), `1` = 1 , `2` = 0))
+```
+
+Changing variable "R308B1A" - does the village/subdistrict adjacent to the sea have benefited in their fishing catches (includes all marine life). 1 means yes and 2 means no. It will be changed to 1 as yes and 0 as no.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R308B1A = recode_factor(as.vector(podes$R308B1A), `1` = 1 , `2` = 0))
+```
+
+Changing variable "R308B1B" - does the village/subdistrict adjacent to the sea have benefited in their fish farming/cultivation (includes all marine life). 3 means yes and 4 means no. It will be changed to 1 as yes and 0 as no.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R308B1B = recode_factor(as.vector(podes$R308B1B), `3` = 1 , `4` = 0))
+```
+
+Changing variable "R308B1C" - does the village/subdistrict adjacent to the sea have benefited in their salt evaporation pond. 5 means yes and 6 means no. It will be changed to 1 as yes and 0 as no.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R308B1C = recode_factor(as.vector(podes$R308B1C), `5` = 1 , `6` = 0))
+```
+
+Changing variable "R308B1D" - does the village/subdistrict adjacent to the sea have benefited in their marine tourism. 7 means yes and 8 means no. It will be changed to 1 as yes and 0 as no.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R308B1D = recode_factor(as.vector(podes$R308B1D), `7` = 1 , `8` = 0))
+```
+
+Changing variable "R308B1E" - does the village/subdistrict adjacent to the sea have benefited in improved public transportation. 1 means yes and 2 means no. It will be changed to 1 as yes and 0 as no.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R308B1E = recode_factor(as.vector(podes$R308B1E), `1` = 1 , `2` = 0))
+```
+
+Changing variable "R308B2" - presence of any types of mangrove trees. 1 means yes and 2 means no. It will be changed to 1 as yes and 0 as no.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R308B2 = recode_factor(as.vector(podes$R308B2), `1` = 1 , `2` = 0))
+```
+
+
+Changing variable "R308B3" - condition of mangrove trees. 1 means good, 2 means partly damaged and 3 means damaged. It will be changed to "GOOD", "BAD", "WORST".
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R308B3 = recode_factor(as.vector(podes$R308B3), `1` = "GOOD" , `2` = "BAD", `3` = "WORST"))
+```
+
+Changing variable "R309A" - village/subdistrict location in proximity to forested areas. 1 means it's located in forested areas, 2 means it's located at the edge or around the forested areas and 3 means it's located outside the area. It will be changed to "INSIDE", "AROUND", "OUTSIDE".
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R309A = recode_factor(as.vector(podes$R309A), `1` = "INSIDE" , `2` = "AROUND", `3` = "OUTSIDE"))
+```
+
+
+Changing variable "R309B" - forested areas' main function. 1 means conservation, 2 means protection and 3 means production. It will be changed to "CONSERVATION", "PROTECTION", "PRODUCTION".
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R309B = recode_factor(as.vector(podes$R309B), `1` = "CONSERVATION" , `2` = "PROTECTION", `3` = "PRODUCTION"))
+```
+
+Changing variable "R309C" - residents' dependency on the forested area. 1 means high dependency, 2 means medium/average dependency and 3 means low dependency. It will be changed to "HIGH", "MED", "LOW".
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R309C = recode_factor(as.vector(podes$R309C), `1` = "HIGH" , `2` = "MED", `3` = "LOW"))
+```
+
+
+- demographics & employment
+
+Changing variable "R402A" - if residents of villages/subdistricts are currently working as migrant workers abroad. 1 means have, 2 means do not have and 3 means do not know. It will be changed to "YES", "NO", "NOT SURE".
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R402A = recode_factor(as.vector(podes$R402A), `1` = "HI" , `2` = "NO", `3` = "NOT SURE"))
+```
+
+
+Changing variable "R402C" - presence of an agent who sends residents abroad to become migrant workers. These agents can be a person, a group or a company. 1 means yes and 2 means no. It will be changed to 1 for yes and 0 for no.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R402C = recode_factor(as.vector(podes$R402C), `1` = 1 , `2` = 0))
+```
+
+Changing variable "R403A" - source of main income for the majority of the population of the village/sub-district 
+From the reference,
+
+- 1 means agriculture
+
+- 2 means mining and excavation
+
+- 3 means manufacturing/processing of goods such as fabric/handicrafts
+
+- 4 means retail businesses/restaurants
+
+- 5 means transportation/storage/logistics
+
+- 6 means services (legal, moving, tax, electronic repair, salon)
+
+- 7 means Others/Miscellaneous
+
+It will be changed the character string of what the number represents.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R403A = recode_factor(as.vector(podes$R403A), `1` = "AGRICULTURE" , `2` = "MINING", `3` = "MANUFACTURING", `4` = "RETAIL/RESTAURANTS", `5` = "LOGISTICS", `6` = "SERVICES", `7` = "OTHERS"))
+head(podes)
+```
+
+Changing variable "R403B" - Type of commodities for majority of village/sub-district 
+
+From the reference,
+
+- 1 means rice
+
+- 2 means secondary staple crop (corn, beans, potatoes, cassava, root vegetables)
+
+- 3 means horticulture (fruits, vegetables, decorative flowers, plant medicine)
+
+- 4 means rubber
+
+- 5 means palm oil
+
+- 6 means coffee
+
+- 7 means cacao
+
+- 8 means coconut
+
+- 9 means pepper
+
+- 10 means clove
+
+- 11 means tobacco
+
+- 12 means sugarcane
+
+- 13 means livestock
+
+- 14 means caught fishes
+
+- 15 means farmed fishes
+
+- 16 means forest resources (such as bamboo, tak and mahogany)
+
+- 17 means forest products (such as honey, fruits and firewood)
+
+- 18 means wild animals (pigs, wild chickens and deer)
+
+- 19 means captive bred animals/plants (crocodile, orchid, arowana fish)
+
+- 20 means farming services (renting machineries or seeding)
+
+It will be changed the character string of what the number represents.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R403B = recode_factor(as.vector(podes$R403B), `1` = "RICE" , `2` = "SECONDARY STAPLE CROP", `3` = "HORTICULTURE", `4` = "RUBBER", `5` = "PALMOIL", `6` = "COFFEE", `7` = "CACAO", `8` = "COCONUT", `9` = "PEPPER", `10` = "CLOVE", `11` = "TOBACCO", `12` = "SUGARCANE", `13` = "LIVESTOCK", `14` = "CAUGHT FISH", `15` = "FARMED FISH", `16` = "FOREST RESOURCES", `17` = "FOREST PRODUCTS", `18` = "WILD ANIMALS", `19` = "CAPTIVE BRED ANIMALS", `20` = "FARMING SERVICES"))
+```
+
+
+Changing variable "R403C1" - type of available infrastructure from/to the local central production place in the village/sub-district
+
+From the reference,
+
+- 1 means asphalt/concrete
+
+- 2 means hardened rocks (gravel,rocks,etc.)
+
+- 3 means land
+
+- 4 means water
+
+- 5 means others
+
+It will be changed the character string of what the number represents.
+
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R403C1 = recode_factor(as.vector(podes$R403C1), `1` = "CONCRETE" , `2` = "ROCKS", `3` = "LAND", `4` = "WATER", `5` = "OTHERS"))
+```
+
+Changing variable "R403C2" - road from/to the local central production place to main road of village/sub-district can be accessed by 4-wheel vehicles
+
+- 1 means accessible all year around
+
+- 2 means accessible all year around except conditions such as heavy rain or currents
+
+- 3 means accessible during dry season only
+
+- 4 means not accessible all year around
+
+
+It will be changed the character string of what the number represents.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R403C2 = recode_factor(as.vector(podes$R403C2), `1` = "YES" , `2` = "NO DURING EXTREME WEATHER CONDITIONS",`3` = "DRY SEASON ONLY", `4` = "NO"))
+head(podes)
+```
+
+Changing variable "R404A" - presence of unique/main product of the village/sub-district. 1 means Yes and 2 means No, we will change yes to 1 and no to 0
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R404A = recode_factor(as.vector(podes$R404A), `1` = 1 , `2` = 0))
+```
+
+
+Changing variable "R404C" - how many unique products are being exported overseas, there's no specific measure for this. 1 means yes, to a large extent. 2 means yes, to a small extent and 3 means no. 
+
+We will change this into character string to better understand it.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R404C = recode_factor(as.vector(podes$R404C), `1` = "MANY" , `2` = "LITTLE", `3` = "NONE"))
+```
+
+
+- housing & living environment
+
+Changing variable "R502A" - presence of street lighting on the main road of the village/sub-district. 1 means majority has street lighting, 2 means small part and 3 means no lighting.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R502A = recode_factor(as.vector(podes$R502A), `1` = "MAJORITY" , `2` = "MINORITY", `3` = "NONE"))
+```
+
+Changing variable "R502B" - type of street lighting on the main road of the village/sub-district. 1 means government provided electricity, 2 means non-public provided electricity and 3 means no electricity
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R502B = recode_factor(as.vector(podes$R502B), `1` = "GOVT" , `2` = "NON GOVT", `3` = "NO ELECTRICITY"))
+```
+
+
+Changing variable "R503A" - type of fuel used for cooking by households
+
+R503A1 variable - natural gas pipes
+
+R503A2 varible - liquefied petroleum gas (LGP) 3 kg
+
+R503A3 varible - liquefied petroleum gas (LGP) > 3kg
+ 
+R503A4 varible - kerosene
+
+R503A5 varible - firewood
+
+R503A6 varible - others (charcoal, coal, etc.)
+
+From the reference, we will change yes to value of 1 and no to 0.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% 
+  mutate(R503A1 = recode_factor(as.vector(podes$R503A1), `1` = 1 , `2` = 0)) %>%
+  mutate(R503A2 = recode_factor(as.vector(podes$R503A2), `3` = 1 , `4` = 0)) %>%
+  mutate(R503A3 = recode_factor(as.vector(podes$R503A3), `5` = 1 , `6` = 0)) %>%
+  mutate(R503A4 = recode_factor(as.vector(podes$R503A4), `7` = 1 , `8` = 0)) %>%
+  mutate(R503A5 = recode_factor(as.vector(podes$R503A5), `1` = 1 , `2` = 0)) %>%
+  mutate(R503A6 = recode_factor(as.vector(podes$R503A6), `3` = 1 , `4` = 0)) 
+```
+
+
+Changing variable "R503B" - the type of fuel that is most often used (pick one from the previous variable that is 1 (Yes))
+ 
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% 
+  mutate(R503B = recode_factor(as.vector(podes$R503B), `1` = "GAS PIPES" , `2` = "LPG 3KG", `3` = "LPG >3KG", `4` = "KEROSENE", `5` = "FIREWOOD", `6` = "OTHERS"))
+```
+
+
+For variable "R503C", it's how the households obtain firewood if their most often used fuel is firewood. The choices are: 1 for bought, 2 for forest, 3 for outside forest, 4 for others.
+
+We can just delete this variable since it's not that significant to our research.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>%
+  select(-R503C)
+```
+
+Changing variable "R504" - where families throw their trash
+
+R504A1 variable - trash bin, which will be collected
+
+R504A2 varible - inside a hole or burned
+
+R504A3 varible - river/lake/sea/irrigation channel
+ 
+R504A4 varible - drainage (sewer)
+
+R504A5 varible - others
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% 
+  mutate(R504A1 = recode_factor(as.vector(podes$R504A1), `1` = 1, `2` = 0)) %>%
+  mutate(R504A2 = recode_factor(as.vector(podes$R504A2), `3` = 1, `4` = 0)) %>%
+  mutate(R504A3 = recode_factor(as.vector(podes$R504A3), `5` = 1, `6` = 0)) %>%
+  mutate(R504A4 = recode_factor(as.vector(podes$R504A4), `7` = 1, `8` = 0)) %>%
+  mutate(R504A5 = recode_factor(as.vector(podes$R504A5), `1` = 1, `2` = 0))
+```
+
+Changing variable "R504B" - trash dump/system used most often for the village/sub-district
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% 
+  mutate(R504B = recode_factor(as.vector(podes$R504B), `1` = "TRASH CAN" , `2` = "BURNED", `3` = "WATER BODY", `4` = "DRAINAGE", `5` = "OTHERS"))
+```
+
+Changing variable "R504C" - presence and use of temporary garbage/trash dump/system used to store the garbage before being taken away to a facility processing center 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% 
+  mutate(R504C = recode_factor(as.vector(podes$R504C), `1` = "YES, USED" , `2` = "YES, NOT USED", `3` = "NO"))
+```
+
+Changing variable "R505A" - use of toilet facilities for families in villages/sub-districts
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% 
+  mutate(R505A = recode_factor(as.vector(podes$R505A), `1` = "OWN TOILET" , `2` = "SHARED TOILET", `3` = "PUBLIC TOILET", `4` = "NOT TOILET"))
+```
+
+Changing variable "R505B" - the final disposal site of the toilet
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% 
+  mutate(R505B = recode_factor(as.vector(podes$R505B), `1` = "WASTEWATER TREATMENT TANKS" , `2` = "NATURE", `3` = "GROUND HOLE", `4` = "OTHERS"))
+```
+
+Changing variable "R506" - the place/channel for liquid sewage disposal from bath/washed water
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% 
+  mutate(R506 = recode_factor(as.vector(podes$R506), `1` = "INFILTRATION HOLES" , `2` = "DRAINAGE", `3` = "WATERBODY", `4` = "OPEN GROUND", `5` = "OTHERS"))
+```
+
+Changing variable "R507A" - source of drinking water for the families
+
+Changing variable "R507B" - souce of water for purpose of bathing and washing for the families
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% 
+  mutate(R507A = recode_factor(as.vector(podes$R507A), `1` = "BRANDED BOTTLED WATER" , `2` = "REFILLABLE DISPENSER WATER", `3` = "TAP WITH METER", `4` = "TAP W/O METER", `5` = "PUMP", `6` = "WELL", `7` = "WATER SPRING", `8` = "WATER RESERVOIR", `9` = "RAIN WATER", `10` = "OTHERS")) %>%
+  mutate(R507B = recode_factor(as.vector(podes$R507B), `1` = "BRANDED BOTTLED WATER" , `2` = "REFILLABLE DISPENSER WATER", `3` = "TAP WITH METER", `4` = "TAP W/O METER", `5` = "PUMP", `6` = "WELL", `7` = "WATER SPRING", `8` = "WATER RESERVOIR", `9` = "RAIN WATER", `10` = "OTHERS"))
+```
+
+
+Changing variable "R508A" -  whether the village is passed through by the Extra High Voltage Power Line (SUTET), the High Voltage Power Line (SUTT),
+High Voltage Power Line with direct current (SUTTAS)
+
+Changing variable "R508B" - presence of settlement under the power lines (SUTET, SUTT, SUTTAS)
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% 
+  mutate(R508A = recode_factor(as.vector(podes$R508A), `1` = 1 , `2` = 0)) %>%
+  mutate(R508B = recode_factor(as.vector(podes$R508B), `1` = 1 , `2` = 0))
+```
+
+Changing variable "R509A" - presence of river, irrigation channel, lake, dam, reservoir, and retention basin
+
+R509AK2 variable - presence of river
+
+R509AK3 variable - presence of irrigation channel
+
+R509AK4 variable - presence of lake/reservoir/dam
+
+R509AK5 variable - presence of retention basin
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% 
+  mutate(R509AK2 = recode_factor(as.vector(podes$R509AK2), `1` = 1 , `2` = 0)) %>%
+  mutate(R509AK3 = recode_factor(as.vector(podes$R509AK3), `1` = 1 , `2` = 0)) %>%
+  mutate(R509AK4 = recode_factor(as.vector(podes$R509AK4), `1` = 1 , `2` = 0)) %>%
+  mutate(R509AK5 = recode_factor(as.vector(podes$R509AK5), `1` = 1 , `2` = 0))
+```
+
+
+Changing variable "R509B1" - presence of different water bodies for the purpose of **bathing and washing**
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% 
+  mutate(R509B1K2 = recode_factor(as.vector(podes$R509B1K2), `1` = 1 , `2` = 0)) %>%
+  mutate(R509B1K3 = recode_factor(as.vector(podes$R509B1K3), `1` = 1 , `2` = 0)) %>%
+  mutate(R509B1K4 = recode_factor(as.vector(podes$R509B1K4), `1` = 1 , `2` = 0)) %>%
+  mutate(R509B1K5 = recode_factor(as.vector(podes$R509B1K5), `1` = 1 , `2` = 0))
+```
+
+
+Changing variable "R509B2" - presence of different water bodies for the purpose of **drinking water and cooking**
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% 
+  mutate(R509B2K2 = recode_factor(as.vector(podes$R509B2K2), `1` = 1 , `2` = 0)) %>%
+  mutate(R509B2K3 = recode_factor(as.vector(podes$R509B2K3), `1` = 1 , `2` = 0)) %>%
+  mutate(R509B2K4 = recode_factor(as.vector(podes$R509B2K4), `1` = 1 , `2` = 0)) %>%
+  mutate(R509B2K5 = recode_factor(as.vector(podes$R509B2K5), `1` = 1 , `2` = 0))
+```
+
+
+Changing variable "R509B3" - presence of different water bodies for the purpose of **raw drinking water**
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% 
+  mutate(R509B3K2 = recode_factor(as.vector(podes$R509B3K2), `1` = 1 , `2` = 0)) %>%
+  mutate(R509B3K3 = recode_factor(as.vector(podes$R509B3K3), `1` = 1 , `2` = 0)) %>%
+  mutate(R509B3K4 = recode_factor(as.vector(podes$R509B3K4), `1` = 1 , `2` = 0)) %>%
+  mutate(R509B3K5 = recode_factor(as.vector(podes$R509B3K5), `1` = 1 , `2` = 0))
+```
+
+
+Changing variable "R509B4" - presence of different water bodies for the purpose of **irrigation**
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% 
+  mutate(R509B4K2 = recode_factor(as.vector(podes$R509B4K2), `1` = 1 , `2` = 0)) %>%
+  mutate(R509B4K3 = recode_factor(as.vector(podes$R509B4K3), `1` = 1 , `2` = 0)) %>%
+  mutate(R509B4K4 = recode_factor(as.vector(podes$R509B4K4), `1` = 1 , `2` = 0)) %>%
+  mutate(R509B4K5 = recode_factor(as.vector(podes$R509B4K5), `1` = 1 , `2` = 0))
+```
+
+
+Changing variable "R509B5" - presence of different water bodies for the purpose of **tourism (commercial)**
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% 
+  mutate(R509B5K2 = recode_factor(as.vector(podes$R509B5K2), `1` = 1 , `2` = 0)) %>%
+  mutate(R509B5K3 = recode_factor(as.vector(podes$R509B5K3), `1` = 1 , `2` = 0)) %>%
+  mutate(R509B5K4 = recode_factor(as.vector(podes$R509B5K4), `1` = 1 , `2` = 0)) %>%
+  mutate(R509B5K5 = recode_factor(as.vector(podes$R509B5K5), `1` = 1 , `2` = 0))
+```
+
+Changing variable "R509B6" - presence of different water bodies for the purpose of **fishing/fishery**
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% 
+  mutate(R509B6K2 = recode_factor(as.vector(podes$R509B6K2), `1` = 1 , `2` = 0)) %>%
+  mutate(R509B6K3 = recode_factor(as.vector(podes$R509B6K3), `1` = 1 , `2` = 0)) %>%
+  mutate(R509B6K4 = recode_factor(as.vector(podes$R509B6K4), `1` = 1 , `2` = 0)) %>%
+  mutate(R509B6K5 = recode_factor(as.vector(podes$R509B6K5), `1` = 1 , `2` = 0))
+```
+
+Changing variable "R509B7" - presence of different water bodies for the purpose of **transportation**
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% 
+  mutate(R509B7K2 = recode_factor(as.vector(podes$R509B7K2), `1` = 1 , `2` = 0)) %>%
+  mutate(R509B7K3 = recode_factor(as.vector(podes$R509B7K3), `1` = 1 , `2` = 0)) %>%
+  mutate(R509B7K4 = recode_factor(as.vector(podes$R509B7K4), `1` = 1 , `2` = 0))
+```
+
+Changing variable "R509B8" - presence of different water bodies for the purpose of **power plants**
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% 
+  mutate(R509B8K2 = recode_factor(as.vector(podes$R509B8K2), `1` = 1 , `2` = 0)) %>%
+  mutate(R509B8K3 = recode_factor(as.vector(podes$R509B8K3), `1` = 1 , `2` = 0)) %>%
+  mutate(R509B8K4 = recode_factor(as.vector(podes$R509B8K4), `1` = 1 , `2` = 0)) %>%
+  mutate(R509B8K5 = recode_factor(as.vector(podes$R509B8K5), `1` = 1 , `2` = 0))
+```
+
+Changing variable "R509B9" - presence of different water bodies for the purpose of **industrial factories**
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% 
+  mutate(R509B9K2 = recode_factor(as.vector(podes$R509B9K2), `1` = 1 , `2` = 0)) %>%
+  mutate(R509B9K4 = recode_factor(as.vector(podes$R509B9K4), `1` = 1 , `2` = 0)) %>%
+  mutate(R509B9K5 = recode_factor(as.vector(podes$R509B9K5), `1` = 1 , `2` = 0))
+```
+
+Changing variable "R509B10" - presence of different water bodies for the purpose of **other matters**
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% 
+  mutate(R509B10K2 = recode_factor(as.vector(podes$R509B10K2), `1` = 1 , `2` = 0)) %>%
+  mutate(R509B10K4 = recode_factor(as.vector(podes$R509B10K4), `1` = 1 , `2` = 0)) %>%
+  mutate(R509B10K5 = recode_factor(as.vector(podes$R509B10K5), `1` = 1 , `2` = 0))
+```
+Changing variable "R510B" - presence of settlements in river banks
+
+1 means yes and 2 means no so we will change it to 1 means yes and 0 means no
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% 
+  mutate(R510B = recode_factor(as.vector(podes$R510B), `1` = 1 , `2` = 0))
+```
+
+
+Changing variable "R510D1" - whether the river water is contaminated with waste
+
+1 means yes and 2 means no so we will change it to 1 means yes and 0 means no
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% 
+  mutate(R510D1 = recode_factor(as.vector(podes$R510D1), `1` = 1 , `2` = 0))
+```
+
+Changing variable "R510D2" - where does the waste that contaminated the river come from
+
+R510D2A variable - industrial 
+
+R510D2B variable - household 
+
+R510D2C variable - others
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% 
+  mutate(R510D2A = recode_factor(as.vector(podes$R510D2A), `1` = 1 , `2` = 0)) %>%
+  mutate(R510D2B = recode_factor(as.vector(podes$R510D2B), `3` = 1 , `4` = 0)) %>%
+  mutate(R510D2C = recode_factor(as.vector(podes$R510D2C), `5` = 1 , `6` = 0))
+```
+
+Changing variable "R510D3" - where is the source of waste located
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% 
+  mutate(R510D3 = recode_factor(as.vector(podes$R510D3), `1` = "INSIDE VILLAGE" , `2` = "OUTSIDE VILLAGE", `3` = "INSIDE & OUTSIDE VILLAGE"))
+```
+
+
+Changing variable "R511A" - the presence of water springs in the village/sub-district
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% 
+  mutate(R511A = recode_factor(as.vector(podes$R511A), `1` = "YES, MANAGED" , `2` = "YES, NOT MANAGED", `3` = "NO"))
+```
+
+
+Changing variable "R512A" - presence of slums (unsanitary environment, dense buildings, etc.)
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% 
+  mutate(R512A = recode_factor(as.vector(podes$R512A), `1` = 1 , `2` = 0))
+```
+
+Changing variable "R513A" - environmental **water pollution** in the village/sub-district last year
+
+R513AK2 variable - incident of water pollution
+
+R513AK3 variable - If there's an incident, the source of the water pollution
+
+R513AK4 variable - complaint filed to the village head
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>%
+  mutate(R513AK2 = recode_factor(as.vector(podes$R513AK2), `1` = 1, `2` =0)) %>%
+  mutate(R513AK3 = recode_factor(as.vector(podes$R513AK3), `1` = "HOUSEHOLD", `2` ="INDUSTRIAL", `3` = "OTHERS")) %>%
+  mutate(R513AK4 = recode_factor(as.vector(podes$R513AK4), `1` = 1, `2` = 0))
+```
+
+Changing variable "R513B" - environmental **land pollution** in the village/sub-district last year, the variables are the same as R513A above
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>%
+  mutate(R513BK2 = recode_factor(as.vector(podes$R513BK2), `1` = 1, `2` =0)) %>%
+  mutate(R513BK3 = recode_factor(as.vector(podes$R513BK3), `1` = "HOUSEHOLD", `2` ="INDUSTRIAL", `3` = "OTHERS")) %>%
+  mutate(R513BK4 = recode_factor(as.vector(podes$R513BK4), `1` = 1, `2` = 0))
+```
+
+
+Changing variable "R513C" - environmental **air pollution** in the village/sub-district last year, the variables are the same as R513A above
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>%
+  mutate(R513CK2 = recode_factor(as.vector(podes$R513CK2), `1` = 1, `2` =0)) %>%
+  mutate(R513CK3 = recode_factor(as.vector(podes$R513CK3), `1` = "HOUSEHOLD", `2` ="INDUSTRIAL", `3` = "OTHERS")) %>%
+  mutate(R513CK4 = recode_factor(as.vector(podes$R513CK4), `1` = 1, `2` = 0))
+```
+
+Changing variable "R514" - presence of environmental conservation and waste processing activities over the last 3 years
+
+R514A variable - planting of trees, mangrove plantation, etc.
+
+R514B variable - processing/recycling waste
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>%
+  mutate(R514A = recode_factor(as.vector(podes$R514A), `1` = "YES WITH CITIZENS", `2` = "YES W/O CITIZENS", `3` = "NO")) %>%
+  mutate(R514B = recode_factor(as.vector(podes$R514B), `1` = "YES WITH CITIZENS", `2` = "YES W/O CITIZENS", `3` = "NO"))
+```
+
+Changing variable "R515" - the tendency/habits of citizens to slash and burn the land/forest for farming
+
+we will be deselecting/removing variable R516 because it is not relevant
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>%
+  mutate(R515 = recode_factor(as.vector(podes$R515), `1` = 1, `2` =0)) %>%
+  select(-R516)
+```
+
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+head(podes)
+```
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+var_meaning1 = c("SHAPE", "PROVINCE_ID", "PROVINCE", "CITY_ID", "CITY", "DISTRICT_ID", "DISTRICT", "VILLAGE_ID", "VILLAGE", "VILLAGE/SUBDISTRICT", "PRESENCE_VILLAGE/SUBDISTRICT_COUNCIL", "COUNCIL_MEMBER_NO", "COUNCIL_ACTIVITY_2017", "VILLAGE/SUBDISTRICT_MAP", "PRESENCE_LOCAL_UNITS", "LOCAL_UNITS_LEVEL", "LOCAL_UNITS_NO", "VILLAGE/SUBDISTRICT_BY_AREA_IN_ISLAND", "VILLAGE/SUBDISTRICT_BY_TOPOGRAPHY", "PRESENCE_RESIDENTIALAREAS_IN_SLOPE/PEAK", "PRESENCE_VILLAGE_HEAD_OFFICE", "STATUS_HEAD_OFFICE", "CONDITION_HEAD_OFFICE", "LOCATION_HEAD_OFFICE", "ACTIVITY_EXECUTION_IN_HEAD_OFFICE", "VILLAGE_ADJACENT_TO_SEA", "SEA_BENEFIT_FISHING", "SEA_BENEFIT_FISH_FARMING", "SEA_BENEFIT_SALTPOND", "SEA_BENEFIT_MARINE_TOURISM", "SEA_BENEFIT_PUBLIC_TRANSPORTATION", "PRESENCE_MANGROVE_TREES", "CONDITION_MANGROVE_TREES", "VILLAGE_LOCATION_TO_FOREST", "FOREST_FUNCTION", "DEPENDENCY_ON_FOREST", "VILLAGERS_MIGRANT_WORKERS(TKI)", "PRESENCE_MIGRANT_WORKERS_AGENT", "VILLAGE_MAIN_INCOME", "TYPE_OF_COMMODITIES", "INFRASTRUCTURE_FROM_PRODUCTION_PLACE_TO_VILLAGE", "ACCESSIBLE_ROAD_FROM_PRODUCTION_PLACE_TO_VILLAGE", "UNIQUE_PRODUCT_VILLAGE", "FOOD_UNIQUE_PRODUCT", "NON_FOOD_UNIQUE_PRODUCT", "UNIQUE_PRODUCTS_EXPORTED", "HOUSEHOLDS_PLN_ELECTRICITY", "HOUSEHOLDS_NONPLN_ELECTRICITY", "HOUSEHOLDS_NO_ELECTRICITY", "STREET_LIGHTING", "ELECTRICTY_PROVIDER", "FUEL_GAS_PIPES", "FUEL_LPG3KG", "FUEL_LPG>3KG", "FUEL_KEROSENE", "FUEL_FIREWOOD", "FUEL_OTHERS", "FUEL_USED_OFTEN", "TRASH_BIN", "TRASH_BURNED", "TRASH_DUMPED_WATERBODY", "TRASH_DRAINAGE", "TRASH_OTHERS", "TRASH_DUMP_USED_OFTEN", "PRESENCE_GARBAGE_DUMP", "TOILET_FACILITIES", "TOILET_DISPOSAL_SITE", "LIQUID_SEWAGE_CHANNEL", "SOURCE_DRINKING_WATER", "SOURCE_BATH_WATER", "PRESENCE_POWER_LINES", "SETTLEMENT_UNDER_POWER_LINES", "NO_OF_POWER_LINES", "NO_OF_BUILDINGS", "NO_OF_FAMILIES", "PRESENCE_RIVER", "PRESENCE_IRRIGATIONCHANNEL", "PRESENCE_RESERVOIR", "PRESENCE_BASIN", "RIVER_BATH_WATER", "IRGN_BATH_WATER", "RSRV_BATH_WATER", "BASIN_BATH_WATER", "RIVER_DRINK_WATER", "IRGN_DRINK_WATER", "RSRV_DRINK_WATER", "BASIN_DRINK_WATER", "RIVER_RAW_WATER", "IRGN_RAW_WATER", "RSRV_RAW_WATER", "BASIN_RAW_WATER", "RIVER_IRRIGATION_WATER", "IRGN_IRRIGATION_WATER", "RSRV_IRRIGATION_WATER", "BASIN_IRRIGATION_WATER", "RIVER_TOURISM", "IRGN_TOURISM", "RSRV_TOURISM", "BASIN_TOURSIM", "RIVER_FISHING", "IRGN_FISHING", "RSRV_FISHING", "BASIN_FISHING", "RIVER_TRANSPORTATION", "IRGN_TRANSPORTATION", "RSRV_TRANSPORTATION",  "RIVER_POWERPLANT", "IRGN_POWERPLANT", "RSRV_POWERPLANT", "BASIN_POWERPLANT", "RIVER_INDUSTRIAL", "RSRV_INDUSTRIAL", "BASIN_INDUSTRIAL", "RIVER_OTHERS", "RSRV_OTHERS", "BASIN_OTHERS", "SETTLEMENT_IN_RIVERBANKS", "RIVER_POLLUTED", "RIVER_INDUSTRIAL_POLLUTION", "RIVER_HOUSEHOLD_POLLUTION", "RIVER_OTHER_POLLUTION", "SOURCE_RIVER_WASTE", "PRESENCE_WATERSPRINGS", "NO_OF_BASIN", "PRESENCE_SLUMS", "NO_OF_LOCATION_SLUMS", "NO_OF_BUILDING_SLUMS", "NO_OF_FAMILYMEMBER_SLUMS", "WATER_POLUTTION", "SOUCE_WATER_POLLUTION", "WATER_POLLUTION_COMPLAINT", "LAND_POLLUTION", "SOURCE_LAND_POLLUTION", "LAND_POLLUTION_COMPLAINT", "AIR_POLLUTION", "SOURCE_AIR_POLLUTION", "AIR_POLLUTION_COMPLAINT", "PLANTING_ENVIRONMENTAL_CONSERVATION", "RECYCLE_ENVIRONMENTAL_CONSERVATION", "SLASH_AND_BURN")
+```
+
+variables chosen:
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+var_chosen1 = c("SHAPE", "PROVINCE_ID", "PROVINCE", "CITY_ID", "CITY", "DISTRICT_ID", "DISTRICT", "VILLAGE_ID", "VILLAGE", "VILLAGE/SUBDISTRICT", "PRESENCE_VILLAGE/SUBDISTRICT_COUNCIL", "COUNCIL_MEMBER_NO", "PRESENCE_VILLAGE_HEAD_OFFICE", "STATUS_HEAD_OFFICE", "CONDITION_HEAD_OFFICE", "VILLAGE/SUBDISTRICT_BY_AREA_IN_ISLAND", "VILLAGE/SUBDISTRICT_BY_TOPOGRAPHY", "VILLAGE_ADJACENT_TO_SEA", "SEA_BENEFIT_FISHING", "SEA_BENEFIT_FISH_FARMING", "SEA_BENEFIT_SALTPOND", "SEA_BENEFIT_MARINE_TOURISM", "SEA_BENEFIT_PUBLIC_TRANSPORTATION", "PRESENCE_MANGROVE_TREES", "CONDITION_MANGROVE_TREES", "VILLAGE_LOCATION_TO_FOREST", "FOREST_FUNCTION", "DEPENDENCY_ON_FOREST", "VILLAGE_MAIN_INCOME", "STREET_LIGHTING", "ELECTRICTY_PROVIDER", "FUEL_USED_OFTEN", "TRASH_DUMP_USED_OFTEN", "TOILET_FACILITIES", "TOILET_DISPOSAL_SITE", "PRESENCE_POWER_LINES", "PRESENCE_RIVER", "PRESENCE_IRRIGATIONCHANNEL", "PRESENCE_RESERVOIR", "PRESENCE_BASIN", "PRESENCE_SLUMS", "NO_OF_LOCATION_SLUMS", "WATER_POLUTTION", "SOUCE_WATER_POLLUTION", "LAND_POLLUTION", "SOURCE_LAND_POLLUTION", "AIR_POLLUTION", "SOURCE_AIR_POLLUTION", "SLASH_AND_BURN")
+```
+
+Now, let's rename the column names of podes with the column names vector `var_meaning1`.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+
+```
+
+
+### 3.6.2 PODES 2018 part 2 (...)
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+var_meaning2 = c("")
+```
+
+
+### 3.6.3 PODES 2018 part 3 (...)
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+var_meaning3 = c("")
+```
+
+### 3.6.4 PODES 2018 part 4 (...)
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+var_meaning4 = c("")
+```
+
+
+
+
+################################
+
+- 13 Security
+Since the data on security aspect is found in podes4 dataframe, we shall conduct some descriptive statistics on the dataframe to find out more about the data distribution. 
+
+First, we will find out the distribution of records using *summary()* function
+```{r}
+summary(podes4)
+```
+It is noted that there are a lot of columns with excessive amount of null value ("NA"), thus the code chunks below allow us to find which column contains NA value and return the count of NA in each column
+```{r}
+podes4%>% 
+  select_if(function(x) any(is.na(x))) %>% 
+  summarise_each(funs(sum(is.na(.)))) -> NA_column
+
+NA_column
+```
+```{r}
+NA_df <- as.data.frame(t(NA_column))
+NA_df
+```
+
+```{r}
+NA_df %>%
+  arrange(desc(V1)) #%>%
+  #filter(V1 >192)
+```
+
+
+
+
+Changing variable "R1301A" - Massive Fighting Incident in the village/sub-district during the last year. 1 means Yes and 2 means No, we will change yes to 1 and no to 0
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1301A = recode_factor(as.vector(podes$R1301A), `1` = 1 , `2` = 0 ))
+```
+
+
+
+
+Changing variable "R1301B1K3" - If Massive Fighting Incident happened among the Community Groups and there are **casualty (Died)** . 1 means Yes and 2 means No, we will change yes to 1 and no to 0
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1301B1K3 = recode_factor(as.vector(podes$R1301B1K3), `1` = 1 , `2` = 0 ))
+```
+
+Changing variable "R1301B1K4" - If Massive Fighting Incident happened among the Community Groups and there are **casualty (Injured)** . 1 means Yes and 2 means No, we will change yes to 1 and no to 0
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1301B1K4 = recode_factor(as.vector(podes$R1301B1K4), `1` = 1 , `2` = 0 ))
+```
+
+Changing variable "R1301B1K5" - *Cause* of different types of Massive Fighting Incident. 
+This can be multiple entry. 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1301B1K5 = recode_factor(as.vector(podes$R1301B1K5), `1` = "PROPERTY" , `2` = "POWER", `4` = "LOVE", `8` = "IDEOLOGY/FAITH", `16` = " SPORTS/ENTERTAINMENT/OTHERS", `32` = "DISSATISFACTION OVER POLICY/SERVICE", `64` = "OTHERS" ))
+```
+
+
+
+
+Changing variable "R1301B2K3" - If Massive Fighting Incident happened among the Between Rural Communities and there are **casualty (Died)** . 1 means Yes and 2 means No, we will change yes to 1 and no to 0
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1301B2K3 = recode_factor(as.vector(podes$R1301B2K3), `1` = 1 , `2` = 0 ))
+```
+
+Changing variable "R1301B2K4" - If Massive Fighting Incident happened among the Between Rural Communities and there are **casualty (Injured)** . 1 means Yes and 2 means No, we will change yes to 1 and no to 0
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1301B2K4 = recode_factor(as.vector(podes$R1301B2K4), `1` = 1 , `2` = 0 ))
+```
+
+Changing variable "R1301B2K5" - *Cause* of different types of Massive Fighting Incident. 
+This can be multiple entry. 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1301B2K5 = recode_factor(as.vector(podes$R1301B2K5), `1` = "PROPERTY" , `2` = "POWER", `4` = "LOVE", `8` = "IDEOLOGY/FAITH", `16` = " SPORTS/ENTERTAINMENT/OTHERS", `32` = "DISSATISFACTION OVER POLICY/SERVICE", `64` = "OTHERS" ))
+```
+
+
+Variables "R1301B3K3", "R1301B3K4", "R1301B3K5" are not included as all rows are registered as NA. 
+
+
+
+
+Changing variable "R1301B4K3" - If Massive Fighting Incident happened among the society and Government officials and there are **casualty (Died)** . 
+
+
+Changing variable "R1301B4K4" - If Massive Fighting Incident happened among the society and Government officials and there are **casualty (Injured)** . 1 means Yes and 2 means No, we will change yes to 1 and no to 0
+
+
+
+Changing variable "R1301B4K5" - *Cause* of different types of Massive Fighting Incident. 
+This can be multiple entry. 
+
+
+
+
+Changing variable "R1301B5K3" - If Massive Fighting Incident happened among students and there are **casualty (Died)** . 1 means Yes and 2 means No, we will change yes to 1 and no to 0
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1301B5K3 = recode_factor(as.vector(podes$R1301B5K3), `1` = 1 , `2` = 0 ))
+```
+
+Changing variable "R1301B5K4" - If Massive Fighting Incident happened among students and there are **casualty (Injured)** . 1 means Yes and 2 means No, we will change yes to 1 and no to 0
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1301B5K4 = recode_factor(as.vector(podes$R1301B5K4), `1` = 1 , `2` = 0 ))
+```
+
+Changing variable "R1301B5K5" - *Cause* of different types of Massive Fighting Incident. 
+This can be multiple entry. 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1301B5K5 = recode_factor(as.vector(podes$R1301B5K5), `1` = "PROPERTY" , `2` = "POWER", `4` = "LOVE", `8` = "IDEOLOGY/FAITH", `16` = " SPORTS/ENTERTAINMENT/OTHERS", `32` = "DISSATISFACTION OVER POLICY/SERVICE", `64` = "OTHERS" ))
+```
+
+
+
+Changing variable "R1301B6K3" - If Massive Fighting Incident happened among ethnic group and there are **casualty (Died)** . 1 means Yes and 2 means No, we will change yes to 1 and no to 0
+
+
+
+Changing variable "R1301B6K4" - If Massive Fighting Incident happened among ethnic group and there are **casualty (Injured)** . 1 means Yes and 2 means No, we will change yes to 1 and no to 0
+
+
+Changing variable "R1301B6K5" - *Cause* of different types of Massive Fighting Incident. 
+This can be multiple entry. 
+
+
+
+
+Changing variable "R1301B7K3" - If Massive Fighting Incident of others type happened and there are **casualty (Died)** . 1 means Yes and 2 means No, we will change yes to 1 and no to 0
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1301B7K3 = recode_factor(as.vector(podes$R1301B7K3), `1` = 1 , `2` = 0 ))
+```
+
+Changing variable "R1301B7K4" - If Massive Fighting Incident of others type happened and there are **casualty (Injured)** . 1 means Yes and 2 means No, we will change yes to 1 and no to 0
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1301B7K4 = recode_factor(as.vector(podes$R1301B7K4), `1` = 1 , `2` = 0 ))
+```
+
+Changing variable "R1301B7K5" - *Cause* of different types of Massive Fighting Incident. 
+This can be multiple entry. 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1301B7K5 = recode_factor(as.vector(podes$R1301B7K5), `1` = "PROPERTY" , `2` = "POWER", `4` = "LOVE", `8` = "IDEOLOGY/FAITH", `16` = " SPORTS/ENTERTAINMENT/OTHERS", `32` = "DISSATISFACTION OVER POLICY/SERVICE", `64` = "OTHERS" ))
+```
+
+Changing variable "R1302A" - The most frequently occurring Mass Fighting Incident (based on the highest occurrence of fighting incident type) and how well are they being dealt with. 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1302A = recode_factor(as.vector(podes$R1302A), `1` = "YES ALL OF THEM" , `2` = "YES A FEW OF THEM", `3` = "NO" ))
+```
+
+
+Changing variable "R1302B" - The effort to resolve the mass fighting incident is dealt by: (may choose more than one)
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1302B = recode_factor(as.vector(podes$R1302B), `1` = "SECURITY FORCE", `2` = "GOVERNMENT OFFICIAL", `4` = "COMMUNITY FIGURE", `8` = "RELIGIOUS FIGURE", `16` = "OTHERS", `32` = "NONE" ))
+```
+
+
+
+
+Changing variable "R1303A01K3" - Crime type that happened in the village that Most Often Occur Within Last Year (Theft).  1 means Yes and 2 means No, we will change yes to 1 and no to 0
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1303A01K3 = recode_factor(as.vector(podes$R1303A01K3), `1` = 1 , `2` = 0 ))
+```
+
+Changing variable "R1303A01K4" - If there is Theft, what is the trend of the crime compared to a year ago. 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1303A01K4 = recode_factor(as.vector(podes$R1303A01K4), `1` = "REDUCING" , `2` = "SAME", `3` = "INCREASING" ))
+```
+
+
+
+Changing variable "R1303A02K3" - Crime type that happened in the village that Most Often Occur Within Last Year (Robbery).  1 means Yes and 2 means No, we will change yes to 1 and no to 0
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1303A02K3 = recode_factor(as.vector(podes$R1303A02K3), `1` = 1 , `2` = 0 ))
+```
+
+Changing variable "R1303A02K4" - If there is Robbery, what is the trend of the crime compared to a year ago. 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1303A02K4 = recode_factor(as.vector(podes$R1303A02K4), `1` = "REDUCING" , `2` = "SAME", `3` = "INCREASING" ))
+```
+
+
+Changing variable "R1303A03K3" - Crime type that happened in the village that Most Often Occur Within Last Year (Fraud/Embezzlement).  1 means Yes and 2 means No, we will change yes to 1 and no to 0
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1303A03K3 = recode_factor(as.vector(podes$R1303A03K3), `1` = 1 , `2` = 0 ))
+```
+
+Changing variable "R1303A03K4" - If there is Fraud/Embezzlement, what is the trend of the crime compared to a year ago. 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1303A03K4 = recode_factor(as.vector(podes$R1303A03K4), `1` = "REDUCING" , `2` = "SAME", `3` = "INCREASING" ))
+```
+
+
+
+Changing variable "R1303A04K3" - Crime type that happened in the village that Most Often Occur Within Last Year (Persecution).  1 means Yes and 2 means No, we will change yes to 1 and no to 0
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1303A04K3 = recode_factor(as.vector(podes$R1303A04K3), `1` = 1 , `2` = 0 ))
+```
+
+Changing variable "R1303A04K4" - If there is Persecution, what is the trend of the crime compared to a year ago. 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1303A04K4 = recode_factor(as.vector(podes$R1303A04K4), `1` = "REDUCING" , `2` = "SAME", `3` = "INCREASING" ))
+```
+
+
+
+
+Changing variable "R1303A05K3" - Crime type that happened in the village that Most Often Occur Within Last Year (Arson).  1 means Yes and 2 means No, we will change yes to 1 and no to 0
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1303A05K3 = recode_factor(as.vector(podes$R1303A05K3), `1` = 1 , `2` = 0 ))
+```
+
+Changing variable "R1303A05K4" - If there is Arson, what is the trend of the crime compared to a year ago. 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1303A05K4 = recode_factor(as.vector(podes$R1303A05K4), `1` = "REDUCING" , `2` = "SAME", `3` = "INCREASING" ))
+```
+
+
+
+
+Changing variable "R1303A06K3" - Crime type that happened in the village that Most Often Occur Within Last Year (Rape/Crime Against Decency).  1 means Yes and 2 means No, we will change yes to 1 and no to 0
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1303A06K3 = recode_factor(as.vector(podes$R1303A06K3), `1` = 1 , `2` = 0 ))
+```
+
+Changing variable "R1303A06K4" - If there is Rape/Crime Against Decency, what is the trend of the crime compared to a year ago. 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1303A06K4 = recode_factor(as.vector(podes$R1303A06K4), `1` = "REDUCING" , `2` = "SAME", `3` = "INCREASING" ))
+```
+
+
+
+Changing variable "R1303A07K3" - Crime type that happened in the village that Most Often Occur Within Last Year (Drug Abuse/Drug Trafficking).  1 means Yes and 2 means No, we will change yes to 1 and no to 0
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1303A07K3 = recode_factor(as.vector(podes$R1303A07K3), `1` = 1 , `2` = 0 ))
+```
+
+Changing variable "R1303A07K4" - If there is Drug Abuse/Drug Trafficking, what is the trend of the crime compared to a year ago. 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1303A07K4 = recode_factor(as.vector(podes$R1303A07K4), `1` = "REDUCING" , `2` = "SAME", `3` = "INCREASING" ))
+```
+
+
+
+Changing variable "R1303A08K3" - Crime type that happened in the village that Most Often Occur Within Last Year (Gambling).  1 means Yes and 2 means No, we will change yes to 1 and no to 0
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1303A08K3 = recode_factor(as.vector(podes$R1303A08K3), `1` = 1 , `2` = 0 ))
+```
+
+Changing variable "R1303A08K4" - If there is Gambling, what is the trend of the crime compared to a year ago. 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1303A08K4 = recode_factor(as.vector(podes$R1303A08K4), `1` = "REDUCING" , `2` = "SAME", `3` = "INCREASING" ))
+```
+
+
+
+Changing variable "R1303A09K3" - Crime type that happened in the village that Most Often Occur Within Last Year (Murder).  1 means Yes and 2 means No, we will change yes to 1 and no to 0
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1303A09K3 = recode_factor(as.vector(podes$R1303A09K3), `1` = 1 , `2` = 0 ))
+```
+
+Changing variable "R1303A09K4" - If there is Murder, what is the trend of the crime compared to a year ago. 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1303A09K4 = recode_factor(as.vector(podes$R1303A09K4), `1` = "REDUCING" , `2` = "SAME", `3` = "INCREASING" ))
+```
+
+
+
+Changing variable "R1303A10K3" - Crime type that happened in the village that Most Often Occur Within Last Year (Trafficking).  1 means Yes and 2 means No, we will change yes to 1 and no to 0
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1303A10K3 = recode_factor(as.vector(podes$R1303A10K3), `1` = 1 , `2` = 0 ))
+```
+
+Changing variable "R1303A10K4" - If there is Trafficking, what is the trend of the crime compared to a year ago. 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1303A10K4 = recode_factor(as.vector(podes$R1303A10K4), `1` = "REDUCING" , `2` = "SAME", `3` = "INCREASING" ))
+```
+
+
+
+Changing variable "R1303A11K3" - Crime type that happened in the village that Most Often Occur Within Last Year (Corruption).  1 means Yes and 2 means No, we will change yes to 1 and no to 0
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1303A11K3 = recode_factor(as.vector(podes$R1303A11K3), `1` = 1 , `2` = 0 ))
+```
+
+Changing variable "R1303A11K4" - If there is Corruption, what is the trend of the crime compared to a year ago. 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1303A11K4 = recode_factor(as.vector(podes$R1303A11K4), `1` = "REDUCING" , `2` = "SAME", `3` = "INCREASING" ))
+```
+
+
+
+
+Changing variable "R1303B" - Highest number of crime (type)
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1303B = recode_factor(as.vector(podes$R1303B), `1` = "THEFT" , `2` = "ROBBERY", `3` = "FRAUD_EMBEZZLEMENT", `4` = "PERSECUTION", `5` = "ARSON", `6` = "RAPE_CRIME_AGAINST_DECENCY", `7` = "DRUG_ABUSE_TRAFFICKING", `8` = "GAMBLING", `9` = "MURDER", `10` = "TRAFFICKING", `11` = "CORRUPTION"))
+```
+
+
+
+
+Changing variable "R1304A" - Villagers activity (BUILDING_MAINTENANCE_SECURITY_POST) in maintaining the security community in the village within last year. 1 means Yes and 2 means No, we will change yes to 1 and no to 0
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1304A = recode_factor(as.vector(podes$R1304A), `1` = 1 , `2` = 0 ))
+```
+
+
+Changing variable "R1304B" - Villagers activity (ESTABLISHING_SECURITY_GUARD) in maintaining the security community in the village within last year. 1 means Yes and 2 means No, we will change yes to 1 and no to 0
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1304B = recode_factor(as.vector(podes$R1304B), `3` = 1 , `4` = 0 ))
+```
+
+
+Changing variable "R1304C" - Villagers activity (RAISING_CIVIL_DEFENSE) in maintaining the security community in the village within last year. 1 means Yes and 2 means No, we will change yes to 1 and no to 0
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1304C = recode_factor(as.vector(podes$R1304C), `5` = 1 , `6` = 0 ))
+```
+
+
+Changing variable "R1304D" - Villagers activity (REPORTING_GUEST_STAY_MORE_THAN_24_HOURS) in maintaining the security community in the village within last year. 1 means Yes and 2 means No, we will change yes to 1 and no to 0
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1304D = recode_factor(as.vector(podes$R1304D), `7` = 1 , `8` = 0 ))
+```
+
+
+
+Changing variable "R1304E" - Villagers activity ("ACTIVATION_OF_SECURITY_SYSTEM_FROM_CITIZEN_INITIATIVE"
+) in maintaining the security community in the village within last year. 1 means Yes and 2 means No, we will change yes to 1 and no to 0
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1304E = recode_factor(as.vector(podes$R1304E), `1` = 1 , `2` = 0 ))
+```
+
+
+Changing variable "R1306A" - Existence of police station (police office) in the village. 1 means Yes and 2 means No, we will change yes to 1 and no to 0
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1306A = recode_factor(as.vector(podes$R1306A), `1` = 1 , `2` = 0 ))
+```
+
+
+ 
+Changing variable "R1306C2" - Convenience to reach the nearest police station. 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1306C2 = recode_factor(as.vector(podes$R1306C2), `1` = "VERY EASY" , `2` = "EASY", `3` = "DIFFICULT", `4` = "VERY DIFFICULT" ))
+```
+
+
+
+Changing variable "R1308A" - Convenience to location of street children gathered/hangout in village
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1308A = recode_factor(as.vector(podes$R1308A), `1` = 1 , `2` = 0))
+```
+
+
+
+Changing variable "R1308B" - Convenience to hangout places for the homeless/beggar in village
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1308B = recode_factor(as.vector(podes$R1308B), `3` = 1 , `4` = 0))
+```
+
+
+Changing variable "R1309" - Convenience to Localization/Location of Commercial Sex
+Workers
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1309 = recode_factor(as.vector(podes$R1309), `1` = 1 , `2` = 0))
+```
+
+
+Changing variable "R1403A" - Availability of village information
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1403A = recode_factor(as.vector(podes$R1403A), `1` = "YES RENEWED" , `2` = "YES NOT RENEWED", `3` = "NONE"))
+```
+
+
+Changing variable "R1403B" - Usage of village financial system
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1403B = recode_factor(as.vector(podes$R1403B), `1` = "YES RENEWED" , `2` = "YES NOT RENEWED", `3` = "NONE"))
+```
+
+
+Changing variable "R1404B" - Village Owned Enterprise, village land;
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1404B = recode_factor(as.vector(podes$R1404B), `1` = 1 , `2` = 0))
+```
+
+Changing variable "R1404C" - VILLAGE BUILDINGS (VILLAGE HALL)
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1404C = recode_factor(as.vector(podes$R1404C), `1` = "YES IN USE" , `2` = "YES NOT IN USE", `3` = "NO"))
+```
+
+
+Changing variable "R1404D" - VILLAGE MARKET(ANIMAL MARKET, FISH AUCTION, AGRICULTURAL PRODUCTS AUCTIONS, ETC)
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1404D = recode_factor(as.vector(podes$R1404D), `1` = "YES FUNCTIONAL" , `2` = "YES NOT FUNCTIONAL", `3` = "NO"))
+```
+
+
+
+Changing variable "R1404E" - OTHER VILLAGE ASSETS
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1404E = recode_factor(as.vector(podes$R1404E), `1` = 1 , `2` = 0))
+```
+
+
+Changing variable "R1405A1" - VILLAGE
+MEDIUM-TERM DEVELOPMENT PLAN (RPJM) THAT HAPPENED
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1405A1 = recode_factor(as.vector(podes$R1405A1), `1` = 1 , `2` = 0))
+```
+
+
+Changing variable "R1405B" - Village Government Work Plan 2018
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1405B = recode_factor(as.vector(podes$R1405B), `3` = 1 , `4` = 0))
+```
+
+
+
+Changing variable "R1406A" - AVAILABILITY OF
+VILLAGE COOPERATION BETWEEN VILLAGES IN 2018
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1406A = recode_factor(as.vector(podes$R1406A), `1` = 1 , `2` = 0))
+```
+
+
+Changing variable "R1406B" - AVAILABILITY OF
+VILLAGE COOPERATION WITH THIRD PARTIES IN 2018
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1406B = recode_factor(as.vector(podes$R1406B), `3` = 1 , `4` = 0))
+```
+
+
+Changing variable "R1407" - AVAILABILITY OF VILLAGE ASSISTANCE
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1407 = recode_factor(as.vector(podes$R1407), `1` = "YES ACTIVE" , `2` = "YES NOT ACTIVE", `3` = "NO"))
+```
+
+- DEVELOPMENT AND EMPOWERMENT OF VILLAGE COMMUNITY
+
+1) 
+Changing variable "R1601A1K2" - TRANSPORTATION INFRASTRUCTURE DEVELOPMENT
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601A1K2 = recode_factor(as.vector(podes$R1601A1K2), `1` = 1 , `2` = 0))
+```
+
+
+Changing variable "R1601A1K3" - "SOURCE_OF_FUND" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601A1K3 = recode_factor(as.vector(podes$R1601A1K3), `1` = "PROVINCIAL REGENCY MUNICIPALITY BUDGET", `2` = "VILLAGE GENERATED REVENUE", `4` = "COMMUNITY", `8` = "OTHERS" ))
+```
+
+Changing variable "R1601A1K4" - "ADMINISTRATOR" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601A1K4 = recode_factor(as.vector(podes$R1601A1K4), `1` = "POOR POPULATION", `2` = "FARMERS FISHERMAN", `4` = "COMMUNITY BUSINESS GROUP", `8` = "MAJORITY CITIZENS", `16` = "PRIVATE", `32` = "OTHERS" ))
+```
+
+Changing variable "R1601A1K5" - "DIRECT_BENEFIT_RECEIVER" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601A1K5 = recode_factor(as.vector(podes$R1601A1K5), `1` = "POOR POPULATION", `2` = "FARMERS FISHERMAN", `4` = "COMMUNITY BUSINESS GROUP", `8` = "MAJORITY CITIZENS", `16` = "PRIVATE", `32` = "OTHERS" ))
+```
+
+2)
+Changing variable "R1601A2K2" - ENERGY INFRASTRUCTURE
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601A2K2 = recode_factor(as.vector(podes$R1601A2K2), `1` = 1 , `2` = 0))
+```
+
+
+Changing variable "R1601A2K3" - "SOURCE_OF_FUND" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601A2K3 = recode_factor(as.vector(podes$R1601A2K3), `1` = "PROVINCIAL REGENCY MUNICIPALITY BUDGET", `2` = "VILLAGE GENERATED REVENUE", `4` = "COMMUNITY", `8` = "OTHERS" ))
+```
+
+Changing variable "R1601A2K4" - "ADMINISTRATOR" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601A2K4 = recode_factor(as.vector(podes$R1601A2K4), `1` = "POOR POPULATION", `2` = "FARMERS FISHERMAN", `4` = "COMMUNITY BUSINESS GROUP", `8` = "MAJORITY CITIZENS", `16` = "PRIVATE", `32` = "OTHERS" ))
+```
+
+Changing variable "R1601A2K5" - "DIRECT_BENEFIT_RECEIVER" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601A2K5 = recode_factor(as.vector(podes$R1601A2K5), `1` = "POOR POPULATION", `2` = "FARMERS FISHERMAN", `4` = "COMMUNITY BUSINESS GROUP", `8` = "MAJORITY CITIZENS", `16` = "PRIVATE", `32` = "OTHERS" ))
+```
+
+3) 
+Changing variable "R1601A3K2" - "INFORMATION_COMMUNICATION_INFRASTRUCTURE"
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601A2K2 = recode_factor(as.vector(podes$R1601A2K2), `1` = 1 , `2` = 0))
+```
+
+
+Changing variable "R1601A3K3" - "SOURCE_OF_FUND" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601A2K3 = recode_factor(as.vector(podes$R1601A2K3), `1` = "PROVINCIAL REGENCY MUNICIPALITY BUDGET", `2` = "VILLAGE GENERATED REVENUE", `4` = "COMMUNITY", `8` = "OTHERS" ))
+```
+
+Changing variable "R1601A3K4" - "ADMINISTRATOR" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601A2K4 = recode_factor(as.vector(podes$R1601A2K4), `1` = "POOR POPULATION", `2` = "FARMERS FISHERMAN", `4` = "COMMUNITY BUSINESS GROUP", `8` = "MAJORITY CITIZENS", `16` = "PRIVATE", `32` = "OTHERS" ))
+```
+
+Changing variable "R1601A3K5" - "DIRECT_BENEFIT_RECEIVER" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601A2K5 = recode_factor(as.vector(podes$R1601A2K5), `1` = "POOR POPULATION", `2` = "FARMERS FISHERMAN", `4` = "COMMUNITY BUSINESS GROUP", `8` = "MAJORITY CITIZENS", `16` = "PRIVATE", `32` = "OTHERS" ))
+```
+
+4)
+Changing variable "R1601A4K2" - "SANITATION_INFRASTRUCTURE"
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601A4K2 = recode_factor(as.vector(podes$R1601A4K2), `1` = 1 , `2` = 0))
+```
+
+
+Changing variable "R1601A4K3" - "SOURCE_OF_FUND" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601A4K3 = recode_factor(as.vector(podes$R1601A4K3), `1` = "PROVINCIAL REGENCY MUNICIPALITY BUDGET", `2` = "VILLAGE GENERATED REVENUE", `4` = "COMMUNITY", `8` = "OTHERS" ))
+```
+
+Changing variable "R1601A4K4" - "ADMINISTRATOR" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601A4K4 = recode_factor(as.vector(podes$R1601A4K4), `1` = "POOR POPULATION", `2` = "FARMERS FISHERMAN", `4` = "COMMUNITY BUSINESS GROUP", `8` = "MAJORITY CITIZENS", `16` = "PRIVATE", `32` = "OTHERS" ))
+```
+
+Changing variable "R1601A4K5" - "DIRECT_BENEFIT_RECEIVER" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601A4K5 = recode_factor(as.vector(podes$R1601A4K5), `1` = "POOR POPULATION", `2` = "FARMERS FISHERMAN", `4` = "COMMUNITY BUSINESS GROUP", `8` = "MAJORITY CITIZENS", `16` = "PRIVATE", `32` = "OTHERS" ))
+```
+
+5)
+Changing variable "R1601A5K2" - "EDUCATION_CULTURE_HEALTH_INFRASTRUCTURE"
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601A5K2 = recode_factor(as.vector(podes$R1601A5K2), `1` = 1 , `2` = 0))
+```
+
+
+Changing variable "R1601A5K3" - "SOURCE_OF_FUND" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601A5K3 = recode_factor(as.vector(podes$R1601A5K3), `1` = "PROVINCIAL REGENCY MUNICIPALITY BUDGET", `2` = "VILLAGE GENERATED REVENUE", `4` = "COMMUNITY", `8` = "OTHERS" ))
+```
+
+Changing variable "R1601A5K4" - "ADMINISTRATOR" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601A5K4 = recode_factor(as.vector(podes$R1601A5K4), `1` = "POOR POPULATION", `2` = "FARMERS FISHERMAN", `4` = "COMMUNITY BUSINESS GROUP", `8` = "MAJORITY CITIZENS", `16` = "PRIVATE", `32` = "OTHERS" ))
+```
+
+Changing variable "R1601A5K5" - "DIRECT_BENEFIT_RECEIVER" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601A5K5 = recode_factor(as.vector(podes$R1601A5K5), `1` = "POOR POPULATION", `2` = "FARMERS FISHERMAN", `4` = "COMMUNITY BUSINESS GROUP", `8` = "MAJORITY CITIZENS", `16` = "PRIVATE", `32` = "OTHERS" ))
+```
+
+
+6)
+Changing variable "R1601A6K2" - "TRADING_SERVICES_INFRASTRUCTURE"
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601A6K2 = recode_factor(as.vector(podes$R1601A6K2), `1` = 1 , `2` = 0))
+```
+
+
+Changing variable "R1601A6K3" - "SOURCE_OF_FUND" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601A6K3 = recode_factor(as.vector(podes$R1601A6K3), `1` = "PROVINCIAL REGENCY MUNICIPALITY BUDGET", `2` = "VILLAGE GENERATED REVENUE", `4` = "COMMUNITY", `8` = "OTHERS" ))
+```
+
+Changing variable "R1601A6K4" - "ADMINISTRATOR" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601A6K4 = recode_factor(as.vector(podes$R1601A6K4), `1` = "POOR POPULATION", `2` = "FARMERS FISHERMAN", `4` = "COMMUNITY BUSINESS GROUP", `8` = "MAJORITY CITIZENS", `16` = "PRIVATE", `32` = "OTHERS" ))
+```
+
+Changing variable "R1601A6K5" - "DIRECT_BENEFIT_RECEIVER" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601A6K5 = recode_factor(as.vector(podes$R1601A6K5), `1` = "POOR POPULATION", `2` = "FARMERS FISHERMAN", `4` = "COMMUNITY BUSINESS GROUP", `8` = "MAJORITY CITIZENS", `16` = "PRIVATE", `32` = "OTHERS" ))
+```
+
+
+7)
+Changing variable "R1601A7K2" - "FARMING_PRODUCTION_VILLAGE_SMALL_INDUSTRY_INFRASTRUCTURE"
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601A7K2 = recode_factor(as.vector(podes$R1601A7K2), `1` = 1 , `2` = 0))
+```
+
+
+Changing variable "R1601A7K3" - "SOURCE_OF_FUND" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601A7K3 = recode_factor(as.vector(podes$R1601A7K3), `1` = "PROVINCIAL REGENCY MUNICIPALITY BUDGET", `2` = "VILLAGE GENERATED REVENUE", `4` = "COMMUNITY", `8` = "OTHERS" ))
+```
+
+Changing variable "R1601A7K4" - "ADMINISTRATOR" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601A7K4 = recode_factor(as.vector(podes$R1601A7K4), `1` = "POOR POPULATION", `2` = "FARMERS FISHERMAN", `4` = "COMMUNITY BUSINESS GROUP", `8` = "MAJORITY CITIZENS", `16` = "PRIVATE", `32` = "OTHERS" ))
+```
+
+Changing variable "R1601A7K5" - "DIRECT_BENEFIT_RECEIVER" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601A7K5 = recode_factor(as.vector(podes$R1601A7K5), `1` = "POOR POPULATION", `2` = "FARMERS FISHERMAN", `4` = "COMMUNITY BUSINESS GROUP", `8` = "MAJORITY CITIZENS", `16` = "PRIVATE", `32` = "OTHERS" ))
+```
+
+8) 
+Changing variable "R1601A8K2" - "RECREATION_TOURISM_INFRASTRUCTURE"
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601A8K2 = recode_factor(as.vector(podes$R1601A8K2), `1` = 1 , `2` = 0))
+```
+
+
+Changing variable "R1601A8K3" - "SOURCE_OF_FUND" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601A8K3 = recode_factor(as.vector(podes$R1601A8K3), `1` = "PROVINCIAL REGENCY MUNICIPALITY BUDGET", `2` = "VILLAGE GENERATED REVENUE", `4` = "COMMUNITY", `8` = "OTHERS" ))
+```
+
+Changing variable "R1601A8K4" - "ADMINISTRATOR" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601A8K4 = recode_factor(as.vector(podes$R1601A8K4), `1` = "POOR POPULATION", `2` = "FARMERS FISHERMAN", `4` = "COMMUNITY BUSINESS GROUP", `8` = "MAJORITY CITIZENS", `16` = "PRIVATE", `32` = "OTHERS" ))
+```
+
+Changing variable "R1601A8K5" - "DIRECT_BENEFIT_RECEIVER" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601A8K5 = recode_factor(as.vector(podes$R1601A8K5), `1` = "POOR POPULATION", `2` = "FARMERS FISHERMAN", `4` = "COMMUNITY BUSINESS GROUP", `8` = "MAJORITY CITIZENS", `16` = "PRIVATE", `32` = "OTHERS" ))
+```
+
+9) 
+Changing variable "R1601A9K2" - "DISASTER_MGMT_ENV_CONSERVATION_INFRASTRUCTURE"
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601A9K2 = recode_factor(as.vector(podes$R1601A9K2), `1` = 1 , `2` = 0))
+```
+
+
+Changing variable "R1601A9K3" - "SOURCE_OF_FUND" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601A9K3 = recode_factor(as.vector(podes$R1601A9K3), `1` = "PROVINCIAL REGENCY MUNICIPALITY BUDGET", `2` = "VILLAGE GENERATED REVENUE", `4` = "COMMUNITY", `8` = "OTHERS" ))
+```
+
+Changing variable "R1601A9K4" - "ADMINISTRATOR" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601A9K4 = recode_factor(as.vector(podes$R1601A9K4), `1` = "POOR POPULATION", `2` = "FARMERS FISHERMAN", `4` = "COMMUNITY BUSINESS GROUP", `8` = "MAJORITY CITIZENS", `16` = "PRIVATE", `32` = "OTHERS" ))
+```
+
+Changing variable "R1601A9K5" - "DIRECT_BENEFIT_RECEIVER" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601A9K5 = recode_factor(as.vector(podes$R1601A9K5), `1` = "POOR POPULATION", `2` = "FARMERS FISHERMAN", `4` = "COMMUNITY BUSINESS GROUP", `8` = "MAJORITY CITIZENS", `16` = "PRIVATE", `32` = "OTHERS" ))
+```
+
+10)
+Changing variable "R1601A10K2" - "GOV_SUPPORT_INFRASTRUCTURE"
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601A10K2 = recode_factor(as.vector(podes$R1601A10K2), `1` = 1 , `2` = 0))
+```
+
+
+Changing variable "R1601A10K3" - "SOURCE_OF_FUND" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601A10K3 = recode_factor(as.vector(podes$R1601A10K3), `1` = "PROVINCIAL REGENCY MUNICIPALITY BUDGET", `2` = "VILLAGE GENERATED REVENUE", `4` = "COMMUNITY", `8` = "OTHERS" ))
+```
+
+Changing variable "R1601A10K4" - "ADMINISTRATOR" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601A10K4 = recode_factor(as.vector(podes$R1601A10K4), `1` = "POOR POPULATION", `2` = "FARMERS FISHERMAN", `4` = "COMMUNITY BUSINESS GROUP", `8` = "MAJORITY CITIZENS", `16` = "PRIVATE", `32` = "OTHERS" ))
+```
+
+Changing variable "R1601A10K5" - "DIRECT_BENEFIT_RECEIVER" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601A10K5 = recode_factor(as.vector(podes$R1601A10K5), `1` = "POOR POPULATION", `2` = "FARMERS FISHERMAN", `4` = "COMMUNITY BUSINESS GROUP", `8` = "MAJORITY CITIZENS", `16` = "PRIVATE", `32` = "OTHERS" ))
+```
+
+
+  - EMPOWERMENT
+  
+1) 
+Changing variable "R1601B1K2" - "EDU_HEALTH_PUBLIC_CULTURE_EMPOWERMENT"
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601B1K2 = recode_factor(as.vector(podes$R1601B1K2), `1` = 1 , `2` = 0))
+```
+
+
+Changing variable "R1601B1K3" - "SOURCE_OF_FUND" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601B1K3 = recode_factor(as.vector(podes$R1601B1K3), `1` = "PROVINCIAL REGENCY MUNICIPALITY BUDGET", `2` = "VILLAGE GENERATED REVENUE", `4` = "COMMUNITY", `8` = "OTHERS" ))
+```
+
+Changing variable "R1601B1K4" - "ADMINISTRATOR" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601B1K4 = recode_factor(as.vector(podes$R1601B1K4), `1` = "POOR POPULATION", `2` = "FARMERS FISHERMAN", `4` = "COMMUNITY BUSINESS GROUP", `8` = "MAJORITY CITIZENS", `16` = "PRIVATE", `32` = "OTHERS" ))
+```
+
+Changing variable "R1601B1K5" - "DIRECT_BENEFIT_RECEIVER" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601B1K5 = recode_factor(as.vector(podes$R1601B1K5), `1` = "POOR POPULATION", `2` = "FARMERS FISHERMAN", `4` = "COMMUNITY BUSINESS GROUP", `8` = "MAJORITY CITIZENS", `16` = "PRIVATE", `32` = "OTHERS" ))
+```
+
+2)
+Changing variable "R1601B2K2" - "VILLAGE_RESIDENTIAL_NEIGHBOURHOOD_MGMT_EMPOWERMENT"
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601B2K2 = recode_factor(as.vector(podes$R1601B2K2), `1` = 1 , `2` = 0))
+```
+
+
+Changing variable "R1601B2K3" - "SOURCE_OF_FUND" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601B2K3 = recode_factor(as.vector(podes$R1601B2K3), `1` = "PROVINCIAL REGENCY MUNICIPALITY BUDGET", `2` = "VILLAGE GENERATED REVENUE", `4` = "COMMUNITY", `8` = "OTHERS" ))
+```
+
+Changing variable "R1601B2K4" - "ADMINISTRATOR" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601B2K4 = recode_factor(as.vector(podes$R1601B2K4), `1` = "POOR POPULATION", `2` = "FARMERS FISHERMAN", `4` = "COMMUNITY BUSINESS GROUP", `8` = "MAJORITY CITIZENS", `16` = "PRIVATE", `32` = "OTHERS" ))
+```
+
+Changing variable "R1601B2K5" - "DIRECT_BENEFIT_RECEIVER" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601B2K5 = recode_factor(as.vector(podes$R1601B2K5), `1` = "POOR POPULATION", `2` = "FARMERS FISHERMAN", `4` = "COMMUNITY BUSINESS GROUP", `8` = "MAJORITY CITIZENS", `16` = "PRIVATE", `32` = "OTHERS" ))
+```
+
+3) 
+Changing variable "R1601B3K2" - "VILLAGE_TRANSPORTATION_MGMT_EMPOWERMENT"
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601B3K2 = recode_factor(as.vector(podes$R1601B3K2), `1` = 1 , `2` = 0))
+```
+
+
+Changing variable "R1601B3K3" - "SOURCE_OF_FUND" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601B3K3 = recode_factor(as.vector(podes$R1601B3K3), `1` = "PROVINCIAL REGENCY MUNICIPALITY BUDGET", `2` = "VILLAGE GENERATED REVENUE", `4` = "COMMUNITY", `8` = "OTHERS" ))
+```
+
+Changing variable "R1601B3K4" - "ADMINISTRATOR" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601B3K4 = recode_factor(as.vector(podes$R1601B3K4), `1` = "POOR POPULATION", `2` = "FARMERS FISHERMAN", `4` = "COMMUNITY BUSINESS GROUP", `8` = "MAJORITY CITIZENS", `16` = "PRIVATE", `32` = "OTHERS" ))
+```
+
+Changing variable "R1601B3K5" - "DIRECT_BENEFIT_RECEIVER" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601B3K5 = recode_factor(as.vector(podes$R1601B3K5), `1` = "POOR POPULATION", `2` = "FARMERS FISHERMAN", `4` = "COMMUNITY BUSINESS GROUP", `8` = "MAJORITY CITIZENS", `16` = "PRIVATE", `32` = "OTHERS" ))
+```
+
+4)
+Changing variable "R1601B4K2" - "RENEWABLE_ENERGY_DEVELOPMENT_EMPOWERMENT"
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601B4K2 = recode_factor(as.vector(podes$R1601B4K2), `1` = 1 , `2` = 0))
+```
+
+
+Changing variable "R1601B4K3" - "SOURCE_OF_FUND" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601B4K3 = recode_factor(as.vector(podes$R1601B4K3), `1` = "PROVINCIAL REGENCY MUNICIPALITY BUDGET", `2` = "VILLAGE GENERATED REVENUE", `4` = "COMMUNITY", `8` = "OTHERS" ))
+```
+
+Changing variable "R1601B4K4" - "ADMINISTRATOR" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601B4K4 = recode_factor(as.vector(podes$R1601B4K4), `1` = "POOR POPULATION", `2` = "FARMERS FISHERMAN", `4` = "COMMUNITY BUSINESS GROUP", `8` = "MAJORITY CITIZENS", `16` = "PRIVATE", `32` = "OTHERS" ))
+```
+
+Changing variable "R1601B4K5" - "DIRECT_BENEFIT_RECEIVER" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601B4K5 = recode_factor(as.vector(podes$R1601B4K5), `1` = "POOR POPULATION", `2` = "FARMERS FISHERMAN", `4` = "COMMUNITY BUSINESS GROUP", `8` = "MAJORITY CITIZENS", `16` = "PRIVATE", `32` = "OTHERS" ))
+```
+
+5)
+Changing variable "R1601B5K2" - "INFORMATION_COMMUNICATION_MGMT_EMPOWERMENT"
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601B5K2 = recode_factor(as.vector(podes$R1601B5K2), `1` = 1 , `2` = 0))
+```
+
+
+Changing variable "R1601B5K3" - "SOURCE_OF_FUND" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601B5K3 = recode_factor(as.vector(podes$R1601B5K3), `1` = "PROVINCIAL REGENCY MUNICIPALITY BUDGET", `2` = "VILLAGE GENERATED REVENUE", `4` = "COMMUNITY", `8` = "OTHERS" ))
+```
+
+Changing variable "R1601B5K4" - "ADMINISTRATOR" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601B5K4 = recode_factor(as.vector(podes$R1601B5K4), `1` = "POOR POPULATION", `2` = "FARMERS FISHERMAN", `4` = "COMMUNITY BUSINESS GROUP", `8` = "MAJORITY CITIZENS", `16` = "PRIVATE", `32` = "OTHERS" ))
+```
+
+Changing variable "R1601B5K5" - "DIRECT_BENEFIT_RECEIVER" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601B5K5 = recode_factor(as.vector(podes$R1601B5K5), `1` = "POOR POPULATION", `2` = "FARMERS FISHERMAN", `4` = "COMMUNITY BUSINESS GROUP", `8` = "MAJORITY CITIZENS", `16` = "PRIVATE", `32` = "OTHERS" ))
+```
+
+6)
+Changing variable "R1601B6K2" - "AGRI_BASED_PRODUCTIVE_BUSI_NON_AGRI_VILLAGE_SMALL_BUSI_MGMT_EMPOWERMENT"
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601B6K2 = recode_factor(as.vector(podes$R1601B6K2), `1` = 1 , `2` = 0))
+```
+
+
+Changing variable "R1601B6K3" - "SOURCE_OF_FUND" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601B6K3 = recode_factor(as.vector(podes$R1601B6K3), `1` = "PROVINCIAL REGENCY MUNICIPALITY BUDGET", `2` = "VILLAGE GENERATED REVENUE", `4` = "COMMUNITY", `8` = "OTHERS" ))
+```
+
+Changing variable "R1601B6K4" - "ADMINISTRATOR" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601B6K4 = recode_factor(as.vector(podes$R1601B6K4), `1` = "POOR POPULATION", `2` = "FARMERS FISHERMAN", `4` = "COMMUNITY BUSINESS GROUP", `8` = "MAJORITY CITIZENS", `16` = "PRIVATE", `32` = "OTHERS" ))
+```
+
+Changing variable "R1601B6K5" - "DIRECT_BENEFIT_RECEIVER" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601B6K5 = recode_factor(as.vector(podes$R1601B6K5), `1` = "POOR POPULATION", `2` = "FARMERS FISHERMAN", `4` = "COMMUNITY BUSINESS GROUP", `8` = "MAJORITY CITIZENS", `16` = "PRIVATE", `32` = "OTHERS" ))
+```
+
+7)
+Changing variable "R1601B7K2" - "NATURE_CONSERVE_AWARENESS_DISASTER_MGMT_EMPOWERMENT"
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601B7K2 = recode_factor(as.vector(podes$R1601B7K2), `1` = 1 , `2` = 0))
+```
+
+
+Changing variable "R1601B7K3" - "SOURCE_OF_FUND" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601B7K3 = recode_factor(as.vector(podes$R1601B7K3), `1` = "PROVINCIAL REGENCY MUNICIPALITY BUDGET", `2` = "VILLAGE GENERATED REVENUE", `4` = "COMMUNITY", `8` = "OTHERS" ))
+```
+
+Changing variable "R1601B7K4" - "ADMINISTRATOR" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601B7K4 = recode_factor(as.vector(podes$R1601B7K4), `1` = "POOR POPULATION", `2` = "FARMERS FISHERMAN", `4` = "COMMUNITY BUSINESS GROUP", `8` = "MAJORITY CITIZENS", `16` = "PRIVATE", `32` = "OTHERS" ))
+```
+
+Changing variable "R1601B7K5" - "DIRECT_BENEFIT_RECEIVER" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601B7K5 = recode_factor(as.vector(podes$R1601B7K5), `1` = "POOR POPULATION", `2` = "FARMERS FISHERMAN", `4` = "COMMUNITY BUSINESS GROUP", `8` = "MAJORITY CITIZENS", `16` = "PRIVATE", `32` = "OTHERS" ))
+```
+
+8) 
+Changing variable "R1601B8K2" - "COMMUNITY_ROLE_IMPROVE_VILLAGE_GOVERNANCE_EMPOWERMENT"
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601B8K2 = recode_factor(as.vector(podes$R1601B8K2), `1` = 1 , `2` = 0))
+```
+
+
+Changing variable "R1601B8K3" - "SOURCE_OF_FUND" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601B8K3 = recode_factor(as.vector(podes$R1601B8K3), `1` = "PROVINCIAL REGENCY MUNICIPALITY BUDGET", `2` = "VILLAGE GENERATED REVENUE", `4` = "COMMUNITY", `8` = "OTHERS" ))
+```
+
+Changing variable "R1601B8K4" - "ADMINISTRATOR" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601B8K4 = recode_factor(as.vector(podes$R1601B8K4), `1` = "POOR POPULATION", `2` = "FARMERS FISHERMAN", `4` = "COMMUNITY BUSINESS GROUP", `8` = "MAJORITY CITIZENS", `16` = "PRIVATE", `32` = "OTHERS" ))
+```
+
+Changing variable "R1601B8K5" - "DIRECT_BENEFIT_RECEIVER" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601B8K5 = recode_factor(as.vector(podes$R1601B8K5), `1` = "POOR POPULATION", `2` = "FARMERS FISHERMAN", `4` = "COMMUNITY BUSINESS GROUP", `8` = "MAJORITY CITIZENS", `16` = "PRIVATE", `32` = "OTHERS" ))
+```
+
+9)
+Changing variable "R1601B9K2" - "QUALITY_CAPACITY_OF_VILLAGE_COMMUNITY_EMPOWERMENT"
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601B9K2 = recode_factor(as.vector(podes$R1601B9K2), `1` = 1 , `2` = 0))
+```
+
+
+Changing variable "R1601B9K3" - "SOURCE_OF_FUND" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601B9K3 = recode_factor(as.vector(podes$R1601B9K3), `1` = "PROVINCIAL REGENCY MUNICIPALITY BUDGET", `2` = "VILLAGE GENERATED REVENUE", `4` = "COMMUNITY", `8` = "OTHERS" ))
+```
+
+Changing variable "R1601B9K4" - "ADMINISTRATOR" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601B9K4 = recode_factor(as.vector(podes$R1601B9K4), `1` = "POOR POPULATION", `2` = "FARMERS FISHERMAN", `4` = "COMMUNITY BUSINESS GROUP", `8` = "MAJORITY CITIZENS", `16` = "PRIVATE", `32` = "OTHERS" ))
+```
+
+Changing variable "R1601B9K5" - "DIRECT_BENEFIT_RECEIVER" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601B9K5 = recode_factor(as.vector(podes$R1601B9K5), `1` = "POOR POPULATION", `2` = "FARMERS FISHERMAN", `4` = "COMMUNITY BUSINESS GROUP", `8` = "MAJORITY CITIZENS", `16` = "PRIVATE", `32` = "OTHERS" ))
+```
+
+10)
+Changing variable "R1601B10K2" - "ESTABLISHMENT_DEVELOPMENT_VILLAGE_GOV_ENTERPRISE_EMPOWERMENT"
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601B10K2 = recode_factor(as.vector(podes$R1601B10K2), `1` = 1 , `2` = 0))
+```
+
+
+Changing variable "R1601B10K3" - "SOURCE_OF_FUND" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601B10K3 = recode_factor(as.vector(podes$R1601B10K3), `1` = "PROVINCIAL REGENCY MUNICIPALITY BUDGET", `2` = "VILLAGE GENERATED REVENUE", `4` = "COMMUNITY", `8` = "OTHERS" ))
+```
+
+Changing variable "R1601B10K4" - "ADMINISTRATOR" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601B10K4 = recode_factor(as.vector(podes$R1601B10K4), `1` = "POOR POPULATION", `2` = "FARMERS FISHERMAN", `4` = "COMMUNITY BUSINESS GROUP", `8` = "MAJORITY CITIZENS", `16` = "PRIVATE", `32` = "OTHERS" ))
+```
+
+Changing variable "R1601B10K5" - "DIRECT_BENEFIT_RECEIVER" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1601B10K5 = recode_factor(as.vector(podes$R1601B10K5), `1` = "POOR POPULATION", `2` = "FARMERS FISHERMAN", `4` = "COMMUNITY BUSINESS GROUP", `8` = "MAJORITY CITIZENS", `16` = "PRIVATE", `32` = "OTHERS" ))
+```
+
+- INFORMATION OF VILLAGE GOVERNMENT AGENCY 
+
+EXISTENCE OF VILLAGE HEAD AND SECRETARY 
+
+
+Changing variable "R1701AK2" - "VILLAGE_HEAD_EXISTENCE" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1701AK2 = recode_factor(as.vector(podes$R1701AK2), `1` = 1 , `2` = 0 ))
+```
+
+
+Changing variable "R1701AK4" - "GENDER" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1701AK4 = recode_factor(as.vector(podes$R1701AK4), `1` = 1 , `2` = 0 ))
+```
+
+Changing variable "R1701AK5" - "DIRECT_BENEFIT_RECEIVER" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1701AK5 = recode_factor(as.vector(podes$R1701AK5), `1` = "NEVER SCHOOLED", `2` = "NEVER FINISHED ELEMENTARY SCHOOL", `3` = "FINISHED ELEMENTARY SCHOOL", `4` = "JUNIOR HIGH SCHOOL", `5` = "SENIOR HIGH SCHOOL", `6` = "ACADEMY ASSOCIATE DEGREE", `7` = "BACHELOR DEGREE UNDERGRADUATE", `8` = "GRADUATE", `9` = "POST GRADUATE" ))
+```
+
+
+Changing variable "R1701BK2" - "VILLAGE_SECRETARY_EXISTENCE" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1701BK2 = recode_factor(as.vector(podes$R1701BK2), `1` = 1 , `2` = 0 ))
+```
+
+
+Changing variable "R1701BK4" - "GENDER" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1701BK4 = recode_factor(as.vector(podes$R1701BK4), `1` = 1 , `2` = 0 ))
+```
+
+Changing variable "R1701BK5" - "DIRECT_BENEFIT_RECEIVER" 
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+podes <- podes %>% mutate(R1701BK5 = recode_factor(as.vector(podes$R1701BK5), `1` = "NEVER SCHOOLED", `2` = "NEVER FINISHED ELEMENTARY SCHOOL", `3` = "FINISHED ELEMENTARY SCHOOL", `4` = "JUNIOR HIGH SCHOOL", `5` = "SENIOR HIGH SCHOOL", `6` = "ACADEMY ASSOCIATE DEGREE", `7` = "BACHELOR DEGREE UNDERGRADUATE", `8` = "GRADUATE", `9` = "POST GRADUATE" ))
+```
+
+TOTAL NUMBER OF GOVERNMENT AGENCIES 
+
+
+```{r}
+podes4 <- podes4 %>%
+  rename(SHAPE = Shape,
+         PROVINCE_ID = R101,
+         PROVINCE = R101N,
+         CITY_ID = R102,
+         CITY = R102N,
+         DISTRICT_ID = R103,
+         DISTRICT = R103N,
+         VILLAGE_ID = R104,
+         VILLAGE = R104N,
+         FIGHTS_VILLAGE_SUBDISTRICT = R1301A,
+         TOTAL_FIGHT_COMMUNITY_GRP = R1301B1K2,
+         FIGHT_COMMUNITY_GRP_DIED = R1301B1K3,
+         FIGHT_COMMUNITY_GRP_INJURED = R1301B1K4,
+         CAUSE_OF_FIGHT_COMMUNITY_GRP = R1301B1K5,
+         TOTAL_FIGHT_RURAL_COMMUNITY = R1301B2K2,
+         FIGHT_RURAL_COMMUNITY_DIED = R1301B2K3,
+         FIGHT_RURAL_COMMUNITY_INJURED = R1301B2K4,
+         CAUSE_OF_FIGHT_RURAL_COMMUNITY = R1301B2K5,
+         TOTAL_FIGHT_COMMUNITY_SECURITY_FORCE = R1301B3K2,
+         FIGHT_RURAL_COMMUNITY_SECURITY_FORCE_DIED = R1301B3K3,
+         FIGHT_RURAL_COMMUNITY_SECURITY_FORCE_INJURED = R1301B3K4,
+         CAUSE_OF_FIGHT_RURAL_COMMUNITY_SECURITY_FORCE = R1301B3K5,
+         TOTAL_FIGHT_COMMUNITY_GOV_OFF = R1301B4K2,
+         FIGHT_RURAL_COMMUNITY_GOV_OFF_DIED = R1301B4K3,
+         FIGHT_RURAL_COMMUNITY_GOV_OFF_INJURED = R1301B4K4,
+         CAUSE_OF_FIGHT_RURAL_COMMUNITY_GOV_OFF = R1301B4K5,
+         TOTAL_FIGHT_STUDENT = R1301B5K2,
+         FIGHT_RURAL_STUDENT_DIED = R1301B5K3,
+         FIGHT_RURAL_STUDENT_INJURED = R1301B5K4,
+         CAUSE_OF_FIGHT_RURAL_STUDENT = R1301B5K5,
+         TOTAL_FIGHT_ETHNIC= R1301B6K2,
+         FIGHT_RURAL_ETHNIC_DIED = R1301B6K3,
+         FIGHT_RURAL_ETHNIC_INJURED = R1301B6K4,
+         CAUSE_OF_FIGHT_RURAL_ETHNIC = R1301B6K5,
+         TOTAL_FIGHT_OTHERS = R1301B7K2,
+         FIGHT_RURAL_OTHERS_DIED = R1301B7K3,
+         FIGHT_RURAL_OTHERS_INJURED = R1301B7K4,
+         CAUSE_OF_FIGHT_RURAL_OTHERS = R1301B7K5,
+         RESOLVED_FIGHT = R1302A,
+         RECONCILIATOR = R1302B,
+         THEFT = R1303A01K3,
+         TREND_THEFT= R1303A01K4,
+         ROBBERY= R1303A02K3,
+         TREND_ROBBERY = R1303A02K4,
+         FRAUD_EMBEZZLEMENT = R1303A03K3,
+         TREND_FRAUD_EMBEZZLEMENT = R1303A03K4,
+         PERSECUTION = R1303A04K3,
+         TREND_PERSECUTION = R1303A04K4,
+         ARSON = R1303A05K3,
+         TREND_ARSON= R1303A05K4,
+         RAPE_CRIME_AGAINST_DECENCY = R1303A06K3,
+         TREND_RAPE_CRIME_AGAINST_DECENCY = R1303A06K4,
+         DRUG_ABUSE_TRAFFICKING = R1303A07K3,
+         TREND_DRUG_ABUSE_TRAFFICKING = R1303A07K4,
+         GAMBLING = R1303A08K3,
+         TREND_GAMBLING = R1303A08K4,
+         MURDER= R1303A09K3,
+         TREND_MURDER= R1303A09K4,
+         TRAFFICKING= R1303A10K3,
+         TREND_TRAFFICKING= R1303A10K4,
+         CORRUPTION= R1303A11K3,
+         TREND_CORRUPTION= R1303A11K4,
+         TYPE_OF_CRIME_MOST= R1303B,
+         BUILDING_MAINTENANCE_SECURITY_POST= R1304A,
+         ESTABLISHING_SECURITY_GUARD= R1304B,
+         RAISING_CIVIL_DEFENSE= R1304C,
+         REPORTING_GUEST_STAY_MORE_THAN_24_HOURS= R1304D,
+         ACTIVATION_OF_SECURITY_SYSTEM_FROM_CITIZEN_INITIATIVE= R1304E,
+         NO_OF_CIVIL_DEFENSE_PROTECTION_PERSONNEL_IN_VILLAGE= R1305, 
+         EXISTENCE_OF_POLICE_STATION_OFFICE_VILLAGE= R1306A,
+         NUMBER_OF_POLICE_STATION_USED= R1306B1,
+         NUMBER_OF_POLICE_STATION_NOT_USED= R1306B2,
+         ESTIMATE_DISTANCE_TO_NEAREST_POLICE_STATION_KM= R1306C1,
+         CONVENIENCE_TO_REACH_NEAREST_POLICE_STATION= R1306C2,
+         NO_OF_SUICIDE_VICTIM_ATTEMPTED_SUICIDE_VILLAGE= R1307,
+         CONVENIENCE_TO_STREET_CHILDREN_HANGOUT_LOCATION= R1308A,  
+         CONVENIENCE_TO_HANGOUT_PLACES_HOMELESS_BEGGAR= R1308B, 
+         CONVENIENCE_TO_LOCATION_OF_COMMERCIAL_SEX_WORKERS= R1309,  
+         AVAILABILITY_OF_VILLAGE_INFORMATION= R1403A,  
+         USAGE_OF_VILLAGE_FINANCIAL_SYSTEM= R1403B,  
+         VILLAGE_OWNED_ENTERPRISE_LAND= R1404B,  
+         VILLAGE_BUILDINGS= R1404C,  
+         VILLAGE_MARKET= R1404D,  
+         OTHER_VILLAGE_ASSETS= R1404E,  
+         VILLAGE_MED_TERM_DEV_PLAN= R1405A1,
+         PERIOD_OF_RPJM_DEVELOP_YEAR_START= R1405A2K1,
+         PERIOD_OF_RPJM_DEVELOP_YEAR_END= R1405A2K2,
+         VILLAGE_GOV_WORK_PLAN_2018= R1405B,   
+         VILLAGE_REGULATION_NUMBER_2017= R1405C, 
+         NO_OF_HEADMAN_REGULATION_2017= R1405D, 
+         AVAILABILITY_OF_VILLAGE_COOPERATION_BETWEEN_VILLAGES_2018= R1406A,  
+         AVAILABILITY_OF_VILLAGE_COOPERATION_WITH_THIRD_PARTIES_2018= R1406B,  
+         AVAILABILITY_OF_VILLAGE_ASSISTANCE= R1407,   
+         TRANSPORTATION_INFRASTRUCTURE_DEVELOPMENT= R1601A1K2, 
+         SOURCE_OF_FUND1= R1601A1K3,
+         ADMINISTRATOR1= R1601A1K4,
+         DIRECT_BENEFIT_RECEIVER1= R1601A1K5,
+         ENERGY_INFRASTRUCTURE= R1601A2K2,
+         SOURCE_OF_FUND2= R1601A2K3,
+         ADMINISTRATOR2= R1601A2K4,
+         DIRECT_BENEFIT_RECEIVER2= R1601A2K5,
+         INFORMATION_COMMUNICATION_INFRASTRUCTURE= R1601A3K2,
+         SOURCE_OF_FUND3= R1601A3K3,
+         ADMINISTRATOR3= R1601A3K4,
+         DIRECT_BENEFIT_RECEIVER3= R1601A3K5,
+         SANITATION_INFRASTRUCTURE= R1601A4K2,
+         SOURCE_OF_FUND4= R1601A4K3,
+         ADMINISTRATOR4= R1601A4K4,
+         DIRECT_BENEFIT_RECEIVER4= R1601A4K5,
+         EDUCATION_CULTURE_HEALTH_INFRASTRUCTURE= R1601A5K2,
+         SOURCE_OF_FUND5= R1601A5K3,
+         ADMINISTRATOR5= R1601A5K4,
+         DIRECT_BENEFIT_RECEIVER5= R1601A5K5,
+         TRADING_SERVICES_INFRASTRUCTURE= R1601A6K2,
+         SOURCE_OF_FUND6= R1601A6K3,
+         ADMINISTRATOR6= R1601A6K4,
+         DIRECT_BENEFIT_RECEIVER6= R1601A6K5,
+         FARMING_PRODUCTION_VILLAGE_SMALL_INDUSTRY_INFRASTRUCTURE= R1601A7K2,
+         SOURCE_OF_FUND7= R1601A7K3,
+         ADMINISTRATOR7= R1601A7K4,
+         DIRECT_BENEFIT_RECEIVER7= R1601A7K5,
+         RECREATION_TOURISM_INFRASTRUCTURE= R1601A8K2,
+         SOURCE_OF_FUND8= R1601A8K3,
+         ADMINISTRATOR8= R1601A8K4,
+         DIRECT_BENEFIT_RECEIVER8= R1601A8K5,
+         DISASTER_MGMT_ENV_CONSERVATION_INFRASTRUCTURE= R1601A9K2,
+         SOURCE_OF_FUND9= R1601A9K3,
+         ADMINISTRATOR9= R1601A9K4,
+         DIRECT_BENEFIT_RECEIVER9= R1601A9K5,
+         GOV_SUPPORT_INFRASTRUCTURE= R1601A10K2 ,
+         SOURCE_OF_FUND10= R1601A10K3,
+         ADMINISTRATOR10= R1601A10K4,
+         DIRECT_BENEFIT_RECEIVER10= R1601A10K5,
+         EDU_HEALTH_PUBLIC_CULTURE_EMPOWERMENT= R1601B1K2,
+         SOURCE_OF_FUND11= R1601B1K3,
+         ADMINISTRATOR11= R1601B1K4,
+         DIRECT_BENEFIT_RECEIVER11= R1601B1K5,
+         VILLAGE_RESIDENTIAL_NEIGHBOURHOOD_MGMT_EMPOWERMENT= R1601B2K2,
+         SOURCE_OF_FUND12= R1601B2K3,
+         ADMINISTRATOR12= R1601B2K4,
+         DIRECT_BENEFIT_RECEIVER12= R1601B2K5,
+         VILLAGE_TRANSPORTATION_MGMT_EMPOWERMENT= R1601B3K2,
+         SOURCE_OF_FUND13= R1601B3K3,
+         ADMINISTRATOR13= R1601B3K4,
+         DIRECT_BENEFIT_RECEIVER13= R1601B3K5,
+         RENEWABLE_ENERGY_DEVELOPMENT_EMPOWERMENT= R1601B4K2,
+         SOURCE_OF_FUND14= R1601B4K3,
+         ADMINISTRATOR14= R1601B4K4,
+         DIRECT_BENEFIT_RECEIVER14= R1601B4K5,
+         INFORMATION_COMMUNICATION_MGMT_EMPOWERMENT= R1601B5K2,
+         SOURCE_OF_FUND15= R1601B5K3,
+         ADMINISTRATOR15= R1601B5K4,
+         DIRECT_BENEFIT_RECEIVER15= R1601B5K5,
+         AGRI_BASED_PRODUCTIVE_BUSI_NON_AGRI_VILLAGE_SMALL_BUSI_MGMT_EMPOWERMENT= R1601B6K2,
+         SOURCE_OF_FUND16= R1601B6K3,
+         ADMINISTRATOR16= R1601B6K4,
+         DIRECT_BENEFIT_RECEIVER16= R1601B6K5,
+         NATURE_CONSERVE_AWARENESS_DISASTER_MGMT_EMPOWERMENT= R1601B7K2,
+         SOURCE_OF_FUND17= R1601B7K3,
+         ADMINISTRATOR17= R1601B7K4,
+         DIRECT_BENEFIT_RECEIVER17= R1601B7K5,
+         COMMUNITY_ROLE_IMPROVE_VILLAGE_GOVERNANCE_EMPOWERMENT= R1601B8K2,
+         SOURCE_OF_FUND18= R1601B8K3,
+         ADMINISTRATOR18= R1601B8K4,
+         DIRECT_BENEFIT_RECEIVER18= R1601B8K5,
+         QUALITY_CAPACITY_OF_VILLAGE_COMMUNITY_EMPOWERMENT = R1601B9K2,
+         SOURCE_OF_FUND19 = R1601B9K3,
+         ADMINISTRATOR19= R1601B9K4,
+         DIRECT_BENEFIT_RECEIVER19= R1601B9K5,
+         ESTABLISHMENT_DEVELOPMENT_VILLAGE_GOV_ENTERPRISE_EMPOWERMENT= R1601B10K2,
+         SOURCE_OF_FUND20= R1601B10K3,
+         ADMINISTRATOR20= R1601B10K4,
+         DIRECT_BENEFIT_RECEIVER20= R1601B10K5,
+         VILLAGE_HEAD_EXISTENCE= R1701AK2,
+         AGE1= R1701AK3,  
+         GENDER1= R1701AK4,  
+         HIGHEST_EDUCATION_LEVEL1= R1701AK5, 
+         VILLAGE_SECRETARY_EXISTENCE= R1701BK2, 
+         AGE2= R1701BK3, 
+         GENDER2 = R1701BK4, 
+         HIGHEST_EDUCATION_LEVEL2= R1701BK5,
+         VILLAGE_SECRETARIAT_TREASURER= R1702A,  
+         TECHNICAL_EXECUTOR = R1702B, 
+         TERRITORIAL_EXECUTOR= R1702C, 
+         VILLAGE_OFFICIALS= R1702D)
+```
+
+```{r}
+colnames(podes4)
+```
+
+variables chosen:
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+var_chosen_podes4 = c("SHAPE", "PROVINCE_ID", "PROVINCE", "CITY_ID", "CITY", "DISTRICT_ID", "DISTRICT", "VILLAGE_ID", "VILLAGE", "AVAILABILITY_OF_VILLAGE_INFORMATION", "USAGE_OF_VILLAGE_FINANCIAL_SYSTEM","VILLAGE_OWNED_ENTERPRISE_LAND","VILLAGE_BUILDINGS", "VILLAGE_MARKET","OTHER_VILLAGE_ASSETS",                                                   
+"VILLAGE_MED_TERM_DEV_PLAN",                                              
+"PERIOD_OF_RPJM_DEVELOP_YEAR_START",                                      
+"PERIOD_OF_RPJM_DEVELOP_YEAR_END",                                        
+"VILLAGE_GOV_WORK_PLAN_2018",                                             
+"VILLAGE_REGULATION_NUMBER_2017",                                         
+"NO_OF_HEADMAN_REGULATION_2017",                                          
+"AVAILABILITY_OF_VILLAGE_COOPERATION_BETWEEN_VILLAGES_2018",              
+"AVAILABILITY_OF_VILLAGE_COOPERATION_WITH_THIRD_PARTIES_2018","TRANSPORTATION_INFRASTRUCTURE_DEVELOPMENT","ENERGY_INFRASTRUCTURE","INFORMATION_COMMUNICATION_INFRASTRUCTURE","SANITATION_INFRASTRUCTURE","EDUCATION_CULTURE_HEALTH_INFRASTRUCTURE","TRADING_SERVICES_INFRASTRUCTURE","FARMING_PRODUCTION_VILLAGE_SMALL_INDUSTRY_INFRASTRUCTURE","RECREATION_TOURISM_INFRASTRUCTURE","DISASTER_MGMT_ENV_CONSERVATION_INFRASTRUCTURE","GOV_SUPPORT_INFRASTRUCTURE","EDU_HEALTH_PUBLIC_CULTURE_EMPOWERMENT","VILLAGE_RESIDENTIAL_NEIGHBOURHOOD_MGMT_EMPOWERMENT","VILLAGE_TRANSPORTATION_MGMT_EMPOWERMENT","RENEWABLE_ENERGY_DEVELOPMENT_EMPOWERMENT","INFORMATION_COMMUNICATION_MGMT_EMPOWERMENT","AGRI_BASED_PRODUCTIVE_BUSI_NON_AGRI_VILLAGE_SMALL_BUSI_MGMT_EMPOWERMENT","NATURE_CONSERVE_AWARENESS_DISASTER_MGMT_EMPOWERMENT","COMMUNITY_ROLE_IMPROVE_VILLAGE_GOVERNANCE_EMPOWERMENT","QUALITY_CAPACITY_OF_VILLAGE_COMMUNITY_EMPOWERMENT","ESTABLISHMENT_DEVELOPMENT_VILLAGE_GOV_ENTERPRISE_EMPOWERMENT")
+```
+
+Now, let's rename the column names of podes with the column names vector `var_meaning1`.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+
+```
+
+
+### 3.6.2 PODES 2018 part 2 (...)
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+var_meaning2 = c("")
+```
+
+
+### 3.6.3 PODES 2018 part 3 (...)
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+var_meaning3 = c("")
+```
+
+### 3.6.4 PODES 2018 part 4 (...)
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+var_meaning4 = c("")
+```
+
+
+##### Tidy PODES 2018 data frame
+
+Combine the 4 part vector names 
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+#var_meaning <- var_meaning1 + var_meaning2 + var_meaning3 + #var_meaning4
+```
+
+Now, we will be renaming the columns using the vector we created above.
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+#colnames(podes) <- var_meaning
+```
