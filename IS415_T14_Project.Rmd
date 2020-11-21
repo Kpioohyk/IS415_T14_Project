@@ -42,7 +42,7 @@ R packages needed:
 * tidyverse - for tidying data (tidyr, purrr, tibble, stringr, forcats, readr, ggplot2 & dplyr)
 
 ```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
-packages = c('sf','spdep','rgdal','tmap','tidyverse', 'cluster', 'NbClust', 'heatmaply', 'corrplot','factoextra', 'lubridate', 'ggpubr')
+packages = c('sf','spdep','rgdal','tmap','tidyverse', 'cluster', 'NbClust', 'heatmaply', 'corrplot','factoextra', 'lubridate', 'ggpubr', 'ClustGeo', "geodist")
 for (p in packages){
   if(!require(p, character.only = T)){
     install.packages(p)
@@ -4240,12 +4240,13 @@ tmap_arrange(hclust.map, spclust.map,
              asp=NA, ncol=2)
 ```
 
-# 6 Spatially Constrained Clustering by Sector
+
+# 6 Spatially Constrained Clustering (SKATER) - Overall
 This section details the spatially constrained method by different sectors/variable groups. 
 
 First, let us create functions in order to reduce the amount of repeated code that is written.
 
-This function takes in the original transformed df and the specific columns we want that are in a vector format. It resets the index of the dataframe and normalises it. Furthermore, the gap statistic is calculated to pick out the optimum cluster number for the spatially contrained clustering. 
+This function takes in the original transformed df and the specific columns we want that are in a vector format. It resets the index of the dataframe and normalises it. Furthermore, the gap statistic is calculated to pick out the optimum cluster number for the spatially constrained clustering. 
 
 ```{r}
 prep_cluster_df <- function(org_df, vector_cols) {
@@ -4323,7 +4324,7 @@ communication <- c("DESA","MAIL_ACCESS_SCORE", "TELECOMMUNICATIONS")
 education <- c("DESA", "EDUCATION_INSTITUTION_NUM", "EDUCATION_ACCESS_SCORE")
 ```
 
-## 6.1 Spatially Constrained Clustering - Profiling Healthcare Sector
+## 6.1 Spatially Constrained Clustering (SKATER) - Profiling Healthcare Sector
 Select optimal number of clusters
 ```{r}
 healthcare_cluster_df <- prep_cluster_df(ekps.transformed, healthcare)
@@ -4340,7 +4341,7 @@ ekps.transformed <- ekps.transformed %>% rename(`HEALTHCARE_SC_CLUSTER` = `as.fa
 qtm(ekps.transformed, "HEALTHCARE_SC_CLUSTER")
 ```
 
-## 6.2 Spatially Constrained Clustering - Profiling Industrial Sector
+## 6.2 Spatially Constrained Clustering (SKATER) - Profiling Industrial Sector
 Select optimal number of clusters
 ```{r}
 industrial_cluster_df <- prep_cluster_df(ekps.transformed, industrial)
@@ -4358,7 +4359,7 @@ ekps.transformed <- ekps.transformed %>% rename(`INDUSTRIAL_SC_CLUSTER` = `as.fa
 qtm(ekps.transformed, "INDUSTRIAL_SC_CLUSTER")
 ```
 
-## 6.3 Spatially Constrained Clustering - Profiling Financial Sector
+## 6.3 Spatially Constrained Clustering (SKATER) - Profiling Financial Sector
 Select optimal number of clusters
 ```{r}
 financial_cluster_df <- prep_cluster_df(ekps.transformed, financial)
@@ -4375,7 +4376,7 @@ ekps.transformed <- ekps.transformed %>% rename(`FINANCIAL_SC_CLUSTER` = `as.fac
 qtm(ekps.transformed, "FINANCIAL_SC_CLUSTER")
 ```
 
-## 6.4 Spatially Constrained Clustering - Profiling Transport Sector
+## 6.4 Spatially Constrained Clustering (SKATER) - Profiling Transport Sector
 
 Select optimal number of clusters
 ```{r}
@@ -4394,7 +4395,7 @@ ekps.transformed <- ekps.transformed %>% rename(`TRANSPORT_SC_CLUSTER` = `as.fac
 qtm(ekps.transformed, "TRANSPORT_SC_CLUSTER")
 ```
 
-## 6.5 Spatially Constrained Clustering - Profiling Food Sector
+## 6.5 Spatially Constrained Clustering (SKATER) - Profiling Food Sector
 
 Select optimal number of clusters
 ```{r}
@@ -4413,7 +4414,7 @@ ekps.transformed <- ekps.transformed %>% rename(`FOOD_SC_CLUSTER` = `as.factor.g
 qtm(ekps.transformed, "FOOD_SC_CLUSTER")
 ```
 
-## 6.6 Spatially Constrained Clustering - Profiling Development
+## 6.6 Spatially Constrained Clustering (SKATER) - Profiling Development
 
 Select optimal number of clusters
 ```{r}
@@ -4433,7 +4434,7 @@ qtm(ekps.transformed, "DEVELOPMENT_SC_CLUSTER")
 ```
 
 
-## 6.7 Spatially Constrained Clustering - Profiling Disasters
+## 6.7 Spatially Constrained Clustering (SKATER) - Profiling Disasters
 
 Initial running of clustering algorithm resulted in errors. Diagnose why error occurs.
 ```{r}
@@ -4465,7 +4466,7 @@ ekps.transformed <- ekps.transformed %>% rename(`DISASTER_SC_CLUSTER` = `as.fact
 qtm(ekps.transformed, "DISASTER_SC_CLUSTER")
 ```
 
-## 6.8 Spatially Constrained Clustering - Profiling Telecommunication Sector
+## 6.8 Spatially Constrained Clustering (SKATER) - Profiling Telecommunication Sector
 
 Select optimal number of clusters
 ```{r}
@@ -4484,7 +4485,7 @@ ekps.transformed <- ekps.transformed %>% rename(`TELECOMM_SC_CLUSTER` = `as.fact
 qtm(ekps.transformed, "TELECOMM_SC_CLUSTER")
 ```
 
-## 6.9 Spatially Constrained Clustering - Profiling Education Sector
+## 6.9 Spatially Constrained Clustering (SKATER) - Profiling Education Sector
 
 Select optimal number of clusters
 ```{r}
@@ -4502,4 +4503,161 @@ Lastly, we rename the column and plot the cluster number on a qtm.
 ```{r}
 ekps.transformed <- ekps.transformed %>% rename(`EDUCATION_SC_CLUSTER` = `as.factor.groups_mat.`)
 qtm(ekps.transformed, "EDUCATION_SC_CLUSTER")
+```
+
+
+# 7 Spatially Constrained Clustering (ClustGeo) - Overall
+
+First, let us derive the inputs required for the ClustGeo functions.
+```{r}
+# Data matrix 
+# dat <- ekps.transformed[6:45] %>% st_set_geometry(NULL)
+dat <- ekps.transformed %>%
+  st_set_geometry(NULL) %>%
+  select("DESA",
+         "PRESENCE_SLUMS",
+         "SLASH_AND_BURN",
+         "MALNOURISHED_POP",
+         "POVERTY_POP",
+         "TRANSPORTATION_METHODS",
+         "ROAD_ACCESSIBLE_BY_4_WHEEL_VEHICLE",
+         "PUBLIC_TRANSPORT",
+         "NUM_LEATHER_INDUSTRY",
+         "NUM_WOOD_INDUSTRY",
+         "NUM_METAL_INDUSTRY",
+         "NUM_FABRIC_INDUSTRY",
+         "NUM_POTTERY_INDUSTRY",
+         "NUM_BAMBOORATTAN_INDUSTRY",
+         "NUM_FOOD_INDUSTRY",
+         "ELECTRICTY",
+         "WASTE_DISPOSAL",
+         "WATER_MANAGEMENT",
+         "NATURAL_DISASTER_SCORE",
+         "HEALTHCARE_SERVICE_NUM",
+         "DISEASE_OUTBREAK_SCORE",
+         "EDUCATION_INSTITUTION_NUM",
+         "MAIL_ACCESS_SCORE",
+         "INDUSTRIES",
+         "COOPERATIVES",
+         "GROCERIES_NUMBER",
+         "FOOD_ESTAB_NUMBER",
+         "FOOD_ESTAB_ACCESS_SCORE",
+         "LODGING_NUM",
+         "LODGING_ACCESS_SCORE",
+         "TOOK_CREDIT_SCORE",
+         "BANK_NUM",
+         "FI_INFRA_NUM",
+         "INFRA_DEVELOPMENT_SCORE",
+         "TELECOMMUNICATIONS"
+  )
+
+row.names(dat) <- dat$DESA
+dat <- dat[,-1] # drop the DESA column since it is now the index
+dat <- normalize(dat)
+
+# Distance matrix
+dist <- dist(dat)
+
+# Map of class SpatialPolygonsDataFrame
+map <- ekps.transformed.sp 
+```
+
+## 7.1 Choice of partition with D0 only
+```{r}
+D0 <- dist(dat)
+tree <- hclustgeo(D0)
+plot(tree,hang=-1,label=FALSE, xlab="",sub="",
+     main="Ward dendrogram with D0 only",cex.main=0.8,cex=0.8,cex.axis=0.8,cex.lab=0.8)
+rect.hclust(tree,k=7,border=c(4,5,3,2,1,6,7))
+legend("topright", legend= paste("cluster",1:7), fill=1:7, cex=0.8,bty="n",border="white")
+```
+### 7.1.1 Visualise Clusters on Map
+```{r}
+# plot(map, border = "grey")
+P7 <- cutree(tree, 7)
+
+ekps.transformed$cgd0 <- P7
+qtm(ekps.transformed, "cgd0")
+```
+The clusters appear geographically very fragmented.We need to introduce the geographical distances between the desas into the clustering.
+
+## 7.2 Clustering taking into account geographical distances 
+
+### 7.2.1 Derive Geographical Distance Matrix
+```{r}
+# Convert map to latlong projection instead of UTM
+map_ll <- spTransform(map, CRS("+proj=longlat +datum=WGS84"))
+
+# Extract coordinates of DESAs
+coords <- coordinates(map_ll)
+row.names(coords) <- map_ll$DESA
+colnames(coords) <- c("lon", "lat")
+D1 <- geodist(coords, measure = "vincenty") #use vincenty measure to reduce error as distance gets beyond 100km
+# D1 <- D1/1000 # convert from m to km
+D1 <- as.dist(D1)
+```
+
+### 7.2.2 Choose optimal mixing parameter, α
+The alpha value determines the relative importance we assign to the clustering variables vs that of the geographical distances. The higher the alpha, the greater the geographical differences are factored into the clustering algorithm.
+
+```{r}
+range.alpha <- seq(0,1,0.05)
+K <- 7
+cr <- choicealpha(D0,D1, range.alpha, K, graph = TRUE)
+```
+
+```{r}
+print(cr$Q)
+print(cr$Qnorm)
+```
+
+We see on the plot the proportion of explained pseudo inertia calculated with D0 (the distances related to the clustering variables) is equal to 0.508 when α=0 and decreases when α increases (black line) On the contrary the proportion of explained pseudo inertia calculated with D1 (the geographical distances) is equal to 0.89 when α=1 and decreases when α decreases (red line).
+
+From the plot, it is suggested that we pick α= 0.4, as it results in a loss of  clustering (due to variables) homogenity of 10% while resulting in a gain of geographic homogenity of 20%. 
+
+### 7.2.3 Modified partiton with alpha = 0.4
+```{r}
+tree_d1 <- hclustgeo(D0,D1, alpha=0.4)
+P7d1 <- cutree(tree,7)
+```
+
+### 7.2.4 Visualise new clusters
+```{r}
+tmap_mode("plot")
+ekps.transformed$cgd1 <- P7d1
+qtm(ekps.transformed, "cgd1")
+```
+
+```{r}
+A <- nb2mat(ekps.nb, style = "B")
+diag(A) <- 1
+colnames(A) <- rownames(A) <- map$DESA
+A[1:3,1:3]
+```
+
+```{r}
+D1_n <- as.dist(1-A)
+```
+
+```{r}
+cr <- choicealpha(D0, D1_n, range.alpha, K, graph = TRUE)
+```
+
+```{r}
+cr$Q
+```
+We see on the plot the proportion of explained pseudo inertia calculated with D0 (the distances related to the clustering variables) is equal to 0.508 when α=0 and decreases when α increases (black line) On the contrary the proportion of explained pseudo inertia calculated with D1 (the geographical distances) is equal to 0.0916 when α=1 and decreases when α decreases (red line).
+
+```{r}
+print(cr$Qnorm)
+```
+
+We pick alpha = 0.2 since it results in a loss of  clustering (due to variables) homogenity of 8% while resulting in a gain of geographic homogenity of 18%.
+
+```{r}
+tree <- hclustgeo(D0,D1,alpha=0.2)
+P7ter <- cutree(tree,7)
+
+ekps.transformed$cgdn <- P7ter
+qtm(ekps.transformed, "cgdn")
 ```
