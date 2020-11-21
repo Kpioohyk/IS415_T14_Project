@@ -4747,7 +4747,7 @@ dist <- dist(dat)
 map <- ekps.transformed.sp 
 ```
 
-## 7.1 Choice of partition with D0 only
+## 7.1 Spatially Constrained Clustering (ClustGeo) taking into account input variables only - Overall
 ```{r}
 D0 <- dist(dat)
 tree <- hclustgeo(D0)
@@ -4766,7 +4766,7 @@ qtm(ekps.transformed, "cgd0")
 ```
 The clusters appear geographically very fragmented.We need to introduce the geographical distances between the desas into the clustering.
 
-## 7.2 Clustering taking into account geographical distances 
+## 7.2 Spatially Constrained Clustering (ClustGeo)taking into account geographical distances - Overall
 
 ### 7.2.1 Derive Geographical Distance Matrix
 ```{r}
@@ -4813,6 +4813,8 @@ ekps.transformed$cgd1 <- P7d1
 qtm(ekps.transformed, "cgd1")
 ```
 
+
+## 7.3 Spatially Constrained Clustering (ClustGeo) taking into account neighbours - Overall
 ```{r}
 A <- nb2mat(ekps.nb, style = "B")
 diag(A) <- 1
@@ -4845,4 +4847,395 @@ P7ter <- cutree(tree,7)
 
 ekps.transformed$cgdn <- P7ter
 qtm(ekps.transformed, "cgdn")
+```
+
+## 7,4 Spatially Constrained Clustering (ClustGeo) - By Sector 
+Now, we will extend the analysis to the sectors created in the previous section for the SKATER method. Similarly, we will write the ClustGeo clustering functions into appropriate functions to reduce the amount of repeated code written.The cluster numbers used for analysis in tis portion will follow that used for the SKATER method, which is chosen by looking at the GapStatistic. 
+
+This function gives us the D0 matrix, which computes the euclidean distance between the various DESAs based on input
+```{r}
+getD0 <- function(org_df, vector_vars) {
+  dat <- org_df %>%
+  st_set_geometry(NULL) %>%
+  select(all_of(vector_vars)
+  )
+
+row.names(dat) <- dat$DESA
+dat <- dat[,-1] # drop the DESA column since it is now the index
+dat <- normalize(dat)
+
+# Distance matrix
+D0 <- dist(dat)
+
+return(D0)
+}
+```
+
+This function plots the Qnorm for D0 and D1 as alpha varies from 0 to 1. This is used to select the best alpha for the ClustGeo
+```{r}
+alpha_geo <- function(D0,D1,K) {
+  range.alpha <- seq(0,1,0.05)
+  cr <- choicealpha(D0, D1, range.alpha, K, graph = TRUE)
+  print(cr$Q)
+  print(cr$Qnorm)
+}
+```
+
+This function performs the clustering required and appends the clusters to the ekps.transformed df
+```{r}
+geoclustering <- function(D0, D1, alpha, K) {
+  tree <- hclustgeo(D0, D1, alpha)
+  clust <- cutree(tree, K)
+  
+  ekps.transformed <- cbind(ekps.transformed, as.factor(clust)) 
+  return(ekps.transformed)
+}
+```
+
+
+### 7.4.1 Profiling Healthcare Sector
+Get D0 Matrix
+```{r}
+D0_healthcare <- getD0(ekps.transformed, healthcare)
+```
+
+#### 7.4.1.1 Spatially Constrained Clustering (ClustGeo) taking into account geographical distances
+```{r}
+alpha_geo(D0_healthcare, D1, 5)
+```
+Pick alpha = 0.25 since it results in a loss of  clustering (due to variables) homogenity of 5% while resulting in a gain of geographic homogenity of 24%.
+
+```{r}
+ekps.transformed <- geoclustering(D0_healthcare, D1, 0.25, 5)
+```
+
+Rename Column holding clustering number 
+```{r}
+ekps.transformed <- ekps.transformed %>% rename(`HEALTHCARE_CG_DIST_CLUSTER` = `as.factor.clust.`)
+qtm(ekps.transformed, "HEALTHCARE_CG_DIST_CLUSTER")
+```
+
+#### 7.4.1.2 Spatially Constrained Clustering (ClustGeo) taking into account neighbours
+```{r}
+alpha_geo(D0_healthcare, D1_n, 5)
+```
+Pick alpha = 0.2 since it results in a loss of  clustering (due to variables) homogenity of 9% while resulting in a gain of geographic homogenity of 15%.
+
+```{r}
+ekps.transformed <- geoclustering(D0_healthcare, D1_n, 0.2, 5)
+```
+
+Rename Column holding clustering number 
+```{r}
+ekps.transformed <- ekps.transformed %>% rename(`HEALTHCARE_CG_NEIGH_CLUSTER` = `as.factor.clust.`)
+qtm(ekps.transformed, "HEALTHCARE_CG_NEIGH_CLUSTER")
+```
+
+### 7.4.2 Profiling Industrial Sector
+Get D0 Matrix
+```{r}
+D0_industrial <- getD0(ekps.transformed, industrial)
+```
+
+#### 7.4.2.1 Spatially Constrained Clustering (ClustGeo) taking into account geographical distances
+```{r}
+alpha_geo(D0_industrial, D1,4)
+```
+
+Pick alpha = 0.1 since it results in a loss of  clustering (due to variables) homogenity of 17% while resulting in a gain of geographic homogenity of 41%.
+
+```{r}
+ekps.transformed <- geoclustering(D0_industrial, D1, 0.1, 4)
+```
+
+Rename Column holding clustering number 
+```{r}
+ekps.transformed <- ekps.transformed %>% rename(`INDUSTRIAL_CG_DIST_CLUSTER` = `as.factor.clust.`)
+qtm(ekps.transformed, "INDUSTRIAL_CG_DIST_CLUSTER")
+```
+
+#### 7.4.2.2 Spatially Constrained Clustering (ClustGeo) taking into account neighbours
+```{r}
+alpha_geo(D0_industrial, D1_n, 4)
+```
+
+Pick alpha = 0.15 since it results in a loss of  clustering (due to variables) homogenity of 7% while resulting in a gain of geographic homogenity of 19%.
+
+```{r}
+ekps.transformed <- geoclustering(D0_industrial, D1_n, 0.15, 4)
+```
+
+Rename Column holding clustering number 
+```{r}
+ekps.transformed <- ekps.transformed %>% rename(`INDUSTRIAL_CG_NEIGH_CLUSTER` = `as.factor.clust.`)
+qtm(ekps.transformed, "INDUSTRIAL_CG_NEIGH_CLUSTER")
+```
+
+### 7.4.3 Profiling Financial Sector
+Get D0 Matrix
+```{r}
+D0_financial <- getD0(ekps.transformed, financial)
+```
+
+#### 7.4.3.1 Spatially Constrained Clustering (ClustGeo) taking into account geographical distances
+```{r}
+alpha_geo(D0_financial, D1, 8)
+```
+
+Pick alpha = 0.3  since it results in a loss of  clustering (due to variables) homogenity of 7% while resulting in a gain of geographic homogenity of 21%.
+
+```{r}
+ekps.transformed <- geoclustering(D0_financial, D1, 0.3, 8)
+```
+
+Rename Column holding clustering number 
+```{r}
+ekps.transformed <- ekps.transformed %>% rename(`FINANCIAL_CG_DIST_CLUSTER` = `as.factor.clust.`)
+qtm(ekps.transformed, "FINANCIAL_CG_DIST_CLUSTER")
+```
+
+#### 7.4.3.2 Spatially Constrained Clustering (ClustGeo) taking into account neighbours
+
+```{r}
+alpha_geo(D0_financial, D1_n, 8)
+```
+
+Pick alpha = 0.1 since it results in a loss of  clustering (due to variables) homogenity of 7% while resulting in a gain of geographic homogenity of 19%.
+
+```{r}
+ekps.transformed <- geoclustering(D0_financial, D1_n, 0.1, 8)
+```
+
+Rename Column holding clustering number 
+```{r}
+ekps.transformed <- ekps.transformed %>% rename(`FINANCIAL_CG_NEIGH_CLUSTER` = `as.factor.clust.`)
+qtm(ekps.transformed, "FINANCIAL_CG_NEIGH_CLUSTER")
+```
+
+### 7.4.4 Profiling Transport Sector
+Get D0 Matrix
+
+```{r}
+D0_transport<- getD0(ekps.transformed, transport)
+```
+
+#### 7.4.1.1 Spatially Constrained Clustering (ClustGeo) taking into account geographical distances
+```{r}
+alpha_geo(D0_transport, D1, 6)
+```
+Pick alpha = 0.6 since it results in a loss of  clustering (due to variables) homogenity of 9% while resulting in a gain of geographic homogenity of 24%.
+
+```{r}
+ekps.transformed <- geoclustering(D0_transport, D1, 0.6, 6)
+```
+
+Rename Column holding clustering number 
+```{r}
+ekps.transformed <- ekps.transformed %>% rename(`TRANSPORT_CG_DIST_CLUSTER` = `as.factor.clust.`)
+qtm(ekps.transformed, "TRANSPORT_CG_DIST_CLUSTER")
+```
+
+#### 7.4.1.2 Spatially Constrained Clustering (ClustGeo) taking into account neighbours
+```{r}
+alpha_geo(D0_transport, D1_n, 6)
+```
+Pick alpha = 0.35 since it results in a loss of  clustering (due to variables) homogenity of 3% while resulting in a gain of geographic homogenity of 6%.
+
+```{r}
+ekps.transformed <- geoclustering(D0_transport, D1_n, 0.35, 6)
+```
+
+Rename Column holding clustering number 
+```{r}
+ekps.transformed <- ekps.transformed %>% rename(`TRANSPORT_CG_NEIGH_CLUSTER` = `as.factor.clust.`)
+qtm(ekps.transformed, "TRANSPORT_CG_NEIGH_CLUSTER")
+```
+
+### 7.4.5 Profiling Food Sector
+Get D0 Matrix
+```{r}
+D0_food <- getD0(ekps.transformed, food)
+```
+
+#### 7.4.5.1 Spatially Constrained Clustering (ClustGeo) taking into account geographical distances
+```{r}
+alpha_geo(D0_food, D1, 6)
+```
+Pick alpha = 0.15 since it results in a loss of  clustering (due to variables) homogenity of 8% while resulting in a gain of geographic homogenity of 28%.
+
+```{r}
+ekps.transformed <- geoclustering(D0_food, D1, 0.15, 6)
+```
+
+Rename Column holding clustering number 
+```{r}
+ekps.transformed <- ekps.transformed %>% rename(`FOOD_CG_DIST_CLUSTER` = `as.factor.clust.`)
+qtm(ekps.transformed, "FOOD_CG_DIST_CLUSTER")
+```
+
+#### 7.4.5.2 Spatially Constrained Clustering (ClustGeo) taking into account neighbours
+```{r}
+alpha_geo(D0_food, D1_n, 6)
+```
+Pick alpha = 0.15 since it results in a loss of  clustering (due to variables) homogenity of 9% while resulting in a gain of geographic homogenity of 14%.
+
+```{r}
+ekps.transformed <- geoclustering(D0_food, D1_n, 0.15, 6)
+```
+
+Rename Column holding clustering number 
+```{r}
+ekps.transformed <- ekps.transformed %>% rename(`FOOD_CG_NEIGH_CLUSTER` = `as.factor.clust.`)
+qtm(ekps.transformed, "FOOD_CG_NEIGH_CLUSTER")
+```
+
+### 7.4.6 Profiling Development Sector
+Get D0 Matrix
+```{r}
+D0_development<- getD0(ekps.transformed, development)
+```
+
+#### 7.4.6.1 Spatially Constrained Clustering (ClustGeo) taking into account geographical distances
+```{r}
+alpha_geo(D0_development, D1, 6)
+```
+Pick alpha = 0.3 since it results in a loss of  clustering (due to variables) homogenity of 6% while resulting in a gain of geographic homogenity of 21%.
+
+```{r}
+ekps.transformed <- geoclustering(D0_development, D1, 0.3, 6)
+```
+
+Rename Column holding clustering number 
+```{r}
+ekps.transformed <- ekps.transformed %>% rename(`DEVELOPMENT_CG_DIST_CLUSTER` = `as.factor.clust.`)
+qtm(ekps.transformed, "DEVELOPMENT_CG_DIST_CLUSTER")
+```
+
+#### 7.4.6.2 Spatially Constrained Clustering (ClustGeo) taking into account neighbours
+```{r}
+alpha_geo(D0_development, D1_n, 6)
+```
+Pick alpha = 0.15 since it results in a loss of  clustering (due to variables) homogenity of 3% while resulting in a gain of geographic homogenity of 7%.
+
+```{r}
+ekps.transformed <- geoclustering(D0_development, D1_n, 0.15, 6)
+```
+
+Rename Column holding clustering number 
+```{r}
+ekps.transformed <- ekps.transformed %>% rename(`DEVELOPMENT_CG_NEIGH_CLUSTER` = `as.factor.clust.`)
+qtm(ekps.transformed, "DEVELOPMENT_CG_NEIGH_CLUSTER")
+```
+### 7.4.7 Profiling Disasters Sector
+Get D0 Matrix
+```{r}
+D0_disasters <- getD0(ekps.recoded, disasters)
+```
+
+#### 7.4.7.1 Spatially Constrained Clustering (ClustGeo) taking into account geographical distances
+```{r}
+alpha_geo(D0_disasters, D1, 5)
+```
+Pick alpha = 0.5 since it results in a loss of  clustering (due to variables) homogenity of 16% while resulting in a gain of geographic homogenity of 24%.
+
+```{r}
+ekps.transformed <- geoclustering(D0_disasters, D1, 0.5, 5)
+```
+
+Rename Column holding clustering number 
+```{r}
+ekps.transformed <- ekps.transformed %>% rename(`DISASTER_CG_DIST_CLUSTER` = `as.factor.clust.`)
+qtm(ekps.transformed, "DISASTER_CG_DIST_CLUSTER")
+```
+
+#### 7.4.7.2 Spatially Constrained Clustering (ClustGeo) taking into account neighbours
+```{r}
+alpha_geo(D0_disasters, D1_n, 5)
+```
+Pick alpha = 0.15 since it results in a loss of  clustering (due to variables) homogenity of 2% while resulting in a gain of geographic homogenity of 5%.
+
+```{r}
+ekps.transformed <- geoclustering(D0_disasters, D1_n, 0.15, 5)
+```
+
+Rename Column holding clustering number 
+```{r}
+ekps.transformed <- ekps.transformed %>% rename(`DISASTER_CG_NEIGH_CLUSTER` = `as.factor.clust.`)
+qtm(ekps.transformed, "DISASTER_CG_NEIGH_CLUSTER")
+```
+
+### 7.4.8 Profiling Telecommunication Sector
+Get D0 Matrix
+```{r}
+D0_comm <- getD0(ekps.transformed, communication)
+```
+
+#### 7.4.8.1 Spatially Constrained Clustering (ClustGeo) taking into account geographical distances
+```{r}
+alpha_geo(D0_comm, D1, 3)
+```
+Pick alpha = 0.35 since it results in a loss of  clustering (due to variables) homogenity of 16% while resulting in a gain of geographic homogenity of 42%.
+
+```{r}
+ekps.transformed <- geoclustering(D0_comm, D1, 0.35, 3)
+```
+
+Rename Column holding clustering number 
+```{r}
+ekps.transformed <- ekps.transformed %>% rename(`TELECOMM_CG_DIST_CLUSTER` = `as.factor.clust.`)
+qtm(ekps.transformed, "TELECOMM_CG_DIST_CLUSTER")
+```
+
+#### 7.4.8.2 Spatially Constrained Clustering (ClustGeo) taking into account neighbours
+```{r}
+alpha_geo(D0_comm, D1_n, 3)
+```
+Pick alpha = 0.35 since it results in a loss of  clustering (due to variables) homogenity of 16% while resulting in a gain of geographic homogenity of 25%.
+
+```{r}
+ekps.transformed <- geoclustering(D0_comm, D1_n, 0.35, 3)
+```
+
+Rename Column holding clustering number 
+```{r}
+ekps.transformed <- ekps.transformed %>% rename(`TELECOMM_CG_NEIGH_CLUSTER` = `as.factor.clust.`)
+qtm(ekps.transformed, "TELECOMM_CG_NEIGH_CLUSTER")
+```
+
+### 7.4.9 Profiling Education Sector
+Get D0 Matrix
+```{r}
+D0_edu <- getD0(ekps.transformed, education)
+```
+
+#### 7.4.9.1 Spatially Constrained Clustering (ClustGeo) taking into account geographical distances
+```{r}
+alpha_geo(D0_edu, D1, 2)
+```
+Pick alpha = 0.35 since it results in a loss of  clustering (due to variables) homogenity of 41% while resulting in a gain of geographic homogenity of 53%.
+
+```{r}
+ekps.transformed <- geoclustering(D0_edu, D1, 0.35, 2)
+```
+
+Rename Column holding clustering number 
+```{r}
+ekps.transformed <- ekps.transformed %>% rename(`EDUCATION_CG_DIST_CLUSTER` = `as.factor.clust.`)
+qtm(ekps.transformed, "EDUCATION_CG_DIST_CLUSTER")
+```
+
+#### 7.4.9.2 Spatially Constrained Clustering (ClustGeo) taking into account neighbours
+```{r}
+alpha_geo(D0_edu, D1_n, 2)
+```
+Pick alpha = 0.05 since it results in a loss of  clustering (due to variables) homogenity of 5% while resulting in a gain of geographic homogenity of 20%.
+
+```{r}
+ekps.transformed <- geoclustering(D0_edu, D1_n, 0.05, 2)
+```
+
+Rename Column holding clustering number 
+```{r}
+ekps.transformed <- ekps.transformed %>% rename(`EDUCATION_CG_NEIGH_CLUSTER` = `as.factor.clust.`)
+qtm(ekps.transformed, "EDUCATION_CG_NEIGH_CLUSTER")
 ```
