@@ -27,16 +27,18 @@ area <- area %>%
     )
 
 # Aspatial data (CSV file)
-podes_final <- read.csv("data/aspatial/podes_final.csv", sep = ",")
-podes_final$PROVINCE_ID <- as.character(podes$PROVINCE_ID)
-podes_final$CITY_ID <- as.character(podes$CITY_ID)
-podes_final$DISTRICT_ID <- as.character(podes$DISTRICT_ID)
-podes_final$VILLAGE_ID <- as.character(podes$VILLAGE_ID)
-# print(head(podes_final))
+podes_final <- read_csv("data/aspatial/podes_final.csv") #, sep = ",")
+podes_final$PROVINCE_ID <- as.character(podes_final$PROVINCE_ID)
+podes_final$CITY_ID <- as.character(podes_final$CITY_ID)
+podes_final$DISTRICT_ID <- as.character(podes_final$DISTRICT_ID)
+podes_final$VILLAGE_ID <- as.character(podes_final$VILLAGE_ID)
+#print(ncol(podes_final))
+#print(nrow(podes_final))
 
 # Join spatial & aspatial data
-eastkalimantan.podes <- dplyr::inner_join(area, podes, by = c("PROVINCE_ID", "CITY_ID", "DISTRICT_ID", "VILLAGE_ID", "PROVINCE", "CITY", "DISTRICT", "VILLAGE")) 
-print(nrow(eastkalimantan.podes))
+eastkalimantan_podes <- dplyr::inner_join(area, podes_final, by = c("PROVINCE_ID", "CITY_ID", "DISTRICT_ID", "VILLAGE_ID", "PROVINCE", "CITY", "DISTRICT", "VILLAGE")) 
+#print(head(eastkalimantan_podes))
+print(nrow(eastkalimantan_podes))
 
 # EDA Categorical Variables
 var_lod <- c("City" = "CITY",
@@ -170,7 +172,7 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                                               label = "Choose the Level of Detail:",
                                                               choices = var_lod,
                                                               selected = "City"),
-                                                  selectInput(inputId = "palette_cat",
+                                                  selectInput(inputId = "palette_lod",
                                                               label = "Palette:",
                                                               choices = c("Accent" = "Accent",
                                                                           "Pastel 1" = "Pastel1", 
@@ -233,7 +235,7 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                                          )
                                                   ),
                                          tabPanel("Administrative Areas",
-                                                  column(6,
+                                                  column(7,
                                                          tmapOutput("podes_cat_lod"))
                                                   )
                                          )
@@ -255,7 +257,7 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                     tabPanel("Data",
                              h3(tags$strong("Data frame of PODES 2018 Data"), style = "color: #3f7300;"),
                              tags$hr(),
-                             h5("PODES data, Potensi Desa is village potential data of Indonesia."),
+                             h5("Some of the variables of PODES data, Potensi Desa (village potential data), are displayed in the data table below."),
                              h5("Village is Indonesia's smallest administrative area and there are two types of villages, Desa (rural village) and Kelurahan (urban village),"),
                              h5("According to the 2019 report by the Ministry of Home Affairs, there are 8,488 urban villages and 74,953 rural villages in Indonesia."),
                              h5("PODES data is obtained from Professor Kam Tin Seong & produced by Badan Pusat Statistik, Central Statistics Body Indonesia."),
@@ -289,7 +291,7 @@ ui <- fluidPage(theme = shinytheme("simplex"),
 #         input$button
 #         
 #         x <- input$var_cat
-#         tm_shape(eastkalimantan.podes)+
+#         tm_shape(eastkalimantan_podes)+
 #             tm_fill(col = x, 
 #                     #style = input$style,
 #                     #breaks = input$breaks,
@@ -307,7 +309,7 @@ ui <- fluidPage(theme = shinytheme("simplex"),
 #         input$button
 #         
 #         y <- input$var_con
-#         tm_shape(eastkalimantan.podes)+
+#         tm_shape(eastkalimantan_podes)+
 #             tm_fill(col = y, 
 #                     style = input$style,
 #                     breaks = input$breaks,
@@ -322,7 +324,7 @@ ui <- fluidPage(theme = shinytheme("simplex"),
 #             tm_scale_bar(width = 0.15)
 #     })
 #     output$podes <- DT::renderDataTable({
-#         DT::datatable(data = eastkalimantan.podes %>% select(1:10),
+#         DT::datatable(data = eastkalimantan_podes %>% select(1:10),
 #                       options = list(pageLength = 10),
 #                       rownames = FALSE)
 #     })
@@ -360,7 +362,7 @@ server <- function(input, output, session) {
         #input$button
         
         x <- input$var_cat
-        tm_shape(eastkalimantan.podes)+
+        tm_shape(eastkalimantan_podes)+
             tm_fill(col = x, 
                     style = "cat",
                     #breaks = input$breaks,
@@ -378,11 +380,11 @@ server <- function(input, output, session) {
     })
     output$podes_cat_lod <- renderTmap({
         x2 <- input$var_lod
-        tm_shape(eastkalimantan.podes)+
+        tm_shape(eastkalimantan_podes)+
             tm_fill(col = x2, 
                     style = "cat",
                     #breaks = input$breaks,
-                    palette = input$palette_cat,
+                    palette = input$palette_lod,
                     id = x2,
                     legend.show = FALSE)
         
@@ -390,7 +392,7 @@ server <- function(input, output, session) {
     output$podes_con_map <- renderTmap({
         
         y <- input$var_con
-        tm_shape(eastkalimantan.podes)+
+        tm_shape(eastkalimantan_podes)+
             tm_fill(col = y, 
                     title = as.character(y),
                     style = input$style,
@@ -413,7 +415,19 @@ server <- function(input, output, session) {
         
     })
     output$podes <- DT::renderDataTable({
-        DT::datatable(data = eastkalimantan.podes %>% select(1:10),
+        data <- eastkalimantan_podes %>%
+            select(PROVINCE, CITY, DISTRICT, VILLAGE, 
+                   STATUS_HEAD_OFFICE, CONDITION_HEAD_OFFICE, LOCATION_HEAD_OFFICE, 
+                   VILLAGE_ADJACENT_TO_SEA,
+                   PRESENCE_MANGROVE_TREES, VILLAGE_LOCATION_TO_FOREST, FOREST_FUNCTION,
+                   VILLAGE_MAIN_INCOME, TYPE_OF_COMMODITIES, STREET_LIGHTING,
+                   ELECTRICTY_PROVIDER, FUEL_USED_OFTEN, TRASH_DUMP_USED_OFTEN,
+                   TOILET_FACILITIES, TOILET_DISPOSAL_SITE, SOURCE_DRINKING_WATER,
+                   PRESENCE_POWER_LINES, NUM_OF_SLUMS, SOURCE_WATER_POLLUTION,
+                   SOURCE_LAND_POLLUTION, SOURCE_AIR_POLLUTION, PLANTING_ENVIRONMENTAL_CONSERVATION,
+                   RECYCLE_ENVIRONMENTAL_CONSERVATION, SLASH_AND_BURN
+                   )
+        DT::datatable(data = data,
                       options = list(pageLength = 10),
                       rownames = FALSE)
     })
