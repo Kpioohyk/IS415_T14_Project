@@ -3475,6 +3475,19 @@ var_meaning4 <- c("SHAPE",
 colnames(podes4)
 ```
 
+
+
+Now, let's rename the column names of podes1 with the column names vector `var_meaning4`.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
+colnames(podes4) <- var_meaning4
+```
+
+```{r}
+colnames(podes4)
+```
+
+
 variables chosen:
 
 ```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
@@ -3545,7 +3558,13 @@ podes <- inner_join(podesv1, podesv2, by = c("SHAPE", "PROVINCE_ID", "PROVINCE",
 head(podes)
 ```
 
-We can see that the podes data frame have 757 variables now, and it's correct because if we bind everything it will have 784 variables and subtracted by 3 times of 9 same variable will be 784-27 = 757.
+```{r}
+colnames(podes)
+```
+
+
+
+We can see that the podes data frame have 751 variables now, and it's correct because if we bind everything it will have 784 variables and subtracted by 3 times of 9 same variable will be 7**-27 = 751.
 
 
 We will also do inner joins on the subsetted podes dataframes to retrieve the initial dataframe with the metrics we would like to analyse for the Project. The join condition will be on similar fields as above. 
@@ -3555,6 +3574,9 @@ podesv2.subset <- inner_join(podes3_final, podes4_final, by = c("SHAPE", "PROVIN
 podes.subset <- inner_join(podesv1.subset, podesv2.subset, by = c("SHAPE", "PROVINCE_ID", "PROVINCE", "CITY_ID", "CITY", "DISTRICT_ID", "DISTRICT", "VILLAGE_ID", "VILLAGE"))
 ```
 
+```{r}
+colnames(podes.subset)
+```
 
 
 
@@ -3588,11 +3610,25 @@ eastkalimantan.podes.subset <- inner_join(area,podes.subset, by = c("PROVINCE_ID
                                                                     "CITY","DISTRICT","VILLAGE")) 
 ```
 
+## 3.7.1 Examining the joined dataframes
+
+```{r}
+glimpse(eastkalimantan.podes)
+```
+
+
+
+```{r}
+glimpse(eastkalimantan.podes.subset)
+```
+
+
 # 3.8 Data Transformation
 
 ## 3.8.1 Process Nulls 
 
 Check for nulls in resulting dataframe 
+
 ```{r}
 any(is.na.data.frame(eastkalimantan.podes.subset))
 ```
@@ -3602,17 +3638,31 @@ There are nulls present in the dataframe. This is probably due to the way in whi
 eastkalimantan.podes.subset[is.na(eastkalimantan.podes.subset)] = -1
 ```
 
+```{r}
+str(eastkalimantan.podes.subset)
+```
+
+
+
+
 The error messages tell us that there are still NAs present in the dataframe. This is due to some columns being coded as factors. 
 ```{r}
+#identify which observation contains NA
+# then proceed to get the sum of na in each variable/column
+# if the sum of na in a column is more than 0, pick out the column names
+
 factorised_cols <- colnames(eastkalimantan.podes.subset)[colSums(is.na(eastkalimantan.podes.subset)) > 0]
 # should aggregate at village level
 ```
 
 
+
+
+
 ```{r}
 for (colname in factorised_cols) {
-  col <- as.data.frame(eastkalimantan.podes.subset %>% select(colname))
-  vec <- as.numeric(factor(col[,1]))
+  col <- as.data.frame(eastkalimantan.podes.subset %>% select(colname)) #select column names, make it a data frame
+  vec <- as.numeric(factor(col[,1])) 
   vec[is.na(vec)] = -1
   eastkalimantan.podes.subset[which(colnames(eastkalimantan.podes.subset) == colname)] <- vec
 }
@@ -3741,6 +3791,17 @@ ekps.recoded <- ekps.recoded %>%
   mutate(DESA = paste(CITY, DISTRICT, VILLAGE)) # done to generate a unique identifier other than region code, which may be hard to interpret in plots
 ```
 
+```{r}
+str(ekps.recoded)
+```
+
+```{r}
+unique(ekps.recoded$CITY)
+```
+
+
+
+
 Next, let us deal with some aggregated variables that are in different scales/unit of measurement
 ```{r}
 ekps.recoded$NUM_FAMILIES_WITH_LANDLINES <- normalize(ekps.recoded$NUM_FAMILIES_WITH_LANDLINES)
@@ -3808,6 +3869,42 @@ ekps.transformed <- ekps.recoded %>%
          "GEOMETRY"
          )
 ```
+
+##############################################
+
+Now let's calculate the total 
+
+4 city - "KUTAI KARTANEGARA"   "PENAJAM PASER UTARA" "BALIKPAPAN"          "SAMARINDA"  
+
+```{r}
+LQ <- ekps.recoded %>%
+  mutate(TELECOMMUNICATIONS = (`TELECOMMUNICATIONS`/`COMP_TOT`)/(sum(SP_inner_join$COMP_A)/max(SP_inner_join$COMP_TOT))) %>%
+  mutate(INDUSTRY_B = (`COMP_B`/`COMP_TOT`)/(sum(SP_inner_join$COMP_B)/max(SP_inner_join$COMP_TOT))) %>%
+  mutate(INDUSTRY_C = (`COMP_C`/`COMP_TOT`)/(sum(SP_inner_join$COMP_C)/max(SP_inner_join$COMP_TOT))) %>%
+  mutate(INDUSTRY_D = (`COMP_D`/`COMP_TOT`)/(sum(SP_inner_join$COMP_D)/max(SP_inner_join$COMP_TOT))) %>%
+  mutate(INDUSTRY_E = (`COMP_E`/`COMP_TOT`)/(sum(SP_inner_join$COMP_E)/max(SP_inner_join$COMP_TOT))) %>%
+  mutate(INDUSTRY_F = (`COMP_F`/`COMP_TOT`)/(sum(SP_inner_join$COMP_F)/max(SP_inner_join$COMP_TOT))) %>%
+  mutate(INDUSTRY_G = (`COMP_G`/`COMP_TOT`)/(sum(SP_inner_join$COMP_G)/max(SP_inner_join$COMP_TOT))) %>%
+  mutate(INDUSTRY_H = (`COMP_H`/`COMP_TOT`)/(sum(SP_inner_join$COMP_H)/max(SP_inner_join$COMP_TOT))) %>%
+  mutate(INDUSTRY_I = (`COMP_I`/`COMP_TOT`)/(sum(SP_inner_join$COMP_I)/max(SP_inner_join$COMP_TOT))) %>%
+  mutate(INDUSTRY_J = (`COMP_J`/`COMP_TOT`)/(sum(SP_inner_join$COMP_J)/max(SP_inner_join$COMP_TOT))) %>%
+  mutate(INDUSTRY_K = (`COMP_K`/`COMP_TOT`)/(sum(SP_inner_join$COMP_K)/max(SP_inner_join$COMP_TOT))) %>%
+  mutate(INDUSTRY_L = (`COMP_L`/`COMP_TOT`)/(sum(SP_inner_join$COMP_L)/max(SP_inner_join$COMP_TOT))) %>%
+  mutate(INDUSTRY_M = (`COMP_M`/`COMP_TOT`)/(sum(SP_inner_join$COMP_M)/max(SP_inner_join$COMP_TOT))) %>%
+  mutate(INDUSTRY_N = (`COMP_N`/`COMP_TOT`)/(sum(SP_inner_join$COMP_N)/max(SP_inner_join$COMP_TOT))) %>%
+  mutate(INDUSTRY_O = (`COMP_O`/`COMP_TOT`)/(sum(SP_inner_join$COMP_O)/max(SP_inner_join$COMP_TOT))) %>%
+  mutate(INDUSTRY_P = (`COMP_P`/`COMP_TOT`)/(sum(SP_inner_join$COMP_P)/max(SP_inner_join$COMP_TOT))) %>%
+  mutate(INDUSTRY_Q = (`COMP_Q`/`COMP_TOT`)/(sum(SP_inner_join$COMP_Q)/max(SP_inner_join$COMP_TOT))) %>%
+  mutate(INDUSTRY_R = (`COMP_R`/`COMP_TOT`)/(sum(SP_inner_join$COMP_R)/max(SP_inner_join$COMP_TOT))) %>%
+  mutate(INDUSTRY_S = (`COMP_S`/`COMP_TOT`)/(sum(SP_inner_join$COMP_S)/max(SP_inner_join$COMP_TOT))) %>%
+  mutate(INDUSTRY_T = (`COMP_T`/`COMP_TOT`)/(sum(SP_inner_join$COMP_T)/max(SP_inner_join$COMP_TOT))) %>%
+  mutate(INDUSTRY_U = (`COMP_U`/`COMP_TOT`)/(sum(SP_inner_join$COMP_U)/max(SP_inner_join$COMP_TOT))) %>%
+  select(name_muni,IBGE_RES_POP,AREA, GVA_AGROPEC, GVA_INDUSTRY, GVA_SERVICES, GVA_PUBLIC, INDUSTRY_A,INDUSTRY_B,INDUSTRY_C,INDUSTRY_D,INDUSTRY_E,INDUSTRY_F,INDUSTRY_G,INDUSTRY_H,INDUSTRY_I,INDUSTRY_J,INDUSTRY_K,INDUSTRY_L,INDUSTRY_M,INDUSTRY_N,INDUSTRY_O,INDUSTRY_P,INDUSTRY_Q,INDUSTRY_R,INDUSTRY_S,INDUSTRY_T,INDUSTRY_U, geom)
+
+summary(LQ)
+```
+
+
 
 # 4. Exploratory Data Analysis (EDA)
 
@@ -4216,6 +4313,11 @@ plot(ekps.transformed.sp, border=gray(.5))
 plot(clust6, coordinates(ekps.transformed.sp), cex.lab=.4,
      groups.colors=c("red","green","blue","yellow", "orange", "black", "grey"), cex.circles=0.005, add=TRUE)
 ```
+
+## compare the spatially constrained vs non-constrained and compare the mean 
+find out the characteristics of each  clusters in each method (barchart)
+
+
 The discrepancy in the size of desas makes the above plot hard to visualise. Let us use a chloropleth to do it.
 
 ### 5.2.6 Visualise Spatially Constrained Clusters using Chloropleth Map
