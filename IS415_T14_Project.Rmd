@@ -3483,10 +3483,6 @@ Now, let's rename the column names of podes1 with the column names vector `var_m
 colnames(podes4) <- var_meaning4
 ```
 
-```{r}
-colnames(podes4)
-```
-
 
 variables chosen:
 
@@ -3564,7 +3560,7 @@ colnames(podes)
 
 
 
-We can see that the podes data frame have 751 variables now, and it's correct because if we bind everything it will have 784 variables and subtracted by 3 times of 9 same variable will be 7**-27 = 751.
+We can see that the podes data frame have 751 variables now, and it's correct because if we bind everything it will have 784 variables and subtracted by 3 times of 9 same variable will be 778-27 = 751.
 
 
 We will also do inner joins on the subsetted podes dataframes to retrieve the initial dataframe with the metrics we would like to analyse for the Project. The join condition will be on similar fields as above. 
@@ -3582,7 +3578,7 @@ colnames(podes.subset)
 
 # 3.7 Combining spatial and aspatial data
 
-We will join the `area` shapefile of East Kalimantan boundary with the tidied podes dataset so that we can do further analysis. Our common variables between `area` and `podes` have different data types so we have to change the podes' variabel into character type.
+We will join the `area` shapefile of East Kalimantan boundary with the tidied podes dataset so that we can do further analysis. Our common variables between `area` and `podes` dataframes have different data types so we have to change the `podes'` variable into character type.
 
 ```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
 podes$PROVINCE_ID <- as.character(podes$PROVINCE_ID)
@@ -3591,6 +3587,7 @@ podes$DISTRICT_ID <- as.character(podes$DISTRICT_ID)
 podes$VILLAGE_ID <- as.character(podes$VILLAGE_ID)
 ```
 
+Then, we perform innerjoin 
 
 ```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
 eastkalimantan.podes <- inner_join(area,podes, by = c("PROVINCE_ID", "CITY_ID", "DISTRICT_ID", "VILLAGE_ID","PROVINCE",
@@ -3671,7 +3668,7 @@ for (colname in factorised_cols) {
 ```{r}
 any(is.na.data.frame(eastkalimantan.podes.subset))
 ```
-All NA values are successfully replaced. 
+Note: All NA values are successfully replaced. 
 
 ## 3.8.2 Recode Categorical Variables as Numbers 
 
@@ -3761,6 +3758,9 @@ for (col in to_numeric) {
 
 ```
 
+
+
+
 Next, we will consider aggregating certain similar features together in order to reduce the number of features in the dataset further.
 ```{r}
 ekps.recoded <- ekps.recoded %>%
@@ -3794,6 +3794,11 @@ ekps.recoded <- ekps.recoded %>%
 ```{r}
 str(ekps.recoded)
 ```
+
+```{r}
+colnames(ekps.recoded)
+```
+
 
 ```{r}
 unique(ekps.recoded$CITY)
@@ -3872,43 +3877,50 @@ ekps.transformed <- ekps.recoded %>%
 
 ##############################################
 
+this is for LQ calculation
+
 Now let's calculate the total 
+
+apply LQ onto different industry independently, total would be the sum of related industry 
 
 4 city - "KUTAI KARTANEGARA"   "PENAJAM PASER UTARA" "BALIKPAPAN"          "SAMARINDA"  
 
-```{r}
-LQ <- ekps.recoded %>%
-  mutate(TELECOMMUNICATIONS = (`TELECOMMUNICATIONS`/`COMP_TOT`)/(sum(SP_inner_join$COMP_A)/max(SP_inner_join$COMP_TOT))) %>%
-  mutate(INDUSTRY_B = (`COMP_B`/`COMP_TOT`)/(sum(SP_inner_join$COMP_B)/max(SP_inner_join$COMP_TOT))) %>%
-  mutate(INDUSTRY_C = (`COMP_C`/`COMP_TOT`)/(sum(SP_inner_join$COMP_C)/max(SP_inner_join$COMP_TOT))) %>%
-  mutate(INDUSTRY_D = (`COMP_D`/`COMP_TOT`)/(sum(SP_inner_join$COMP_D)/max(SP_inner_join$COMP_TOT))) %>%
-  mutate(INDUSTRY_E = (`COMP_E`/`COMP_TOT`)/(sum(SP_inner_join$COMP_E)/max(SP_inner_join$COMP_TOT))) %>%
-  mutate(INDUSTRY_F = (`COMP_F`/`COMP_TOT`)/(sum(SP_inner_join$COMP_F)/max(SP_inner_join$COMP_TOT))) %>%
-  mutate(INDUSTRY_G = (`COMP_G`/`COMP_TOT`)/(sum(SP_inner_join$COMP_G)/max(SP_inner_join$COMP_TOT))) %>%
-  mutate(INDUSTRY_H = (`COMP_H`/`COMP_TOT`)/(sum(SP_inner_join$COMP_H)/max(SP_inner_join$COMP_TOT))) %>%
-  mutate(INDUSTRY_I = (`COMP_I`/`COMP_TOT`)/(sum(SP_inner_join$COMP_I)/max(SP_inner_join$COMP_TOT))) %>%
-  mutate(INDUSTRY_J = (`COMP_J`/`COMP_TOT`)/(sum(SP_inner_join$COMP_J)/max(SP_inner_join$COMP_TOT))) %>%
-  mutate(INDUSTRY_K = (`COMP_K`/`COMP_TOT`)/(sum(SP_inner_join$COMP_K)/max(SP_inner_join$COMP_TOT))) %>%
-  mutate(INDUSTRY_L = (`COMP_L`/`COMP_TOT`)/(sum(SP_inner_join$COMP_L)/max(SP_inner_join$COMP_TOT))) %>%
-  mutate(INDUSTRY_M = (`COMP_M`/`COMP_TOT`)/(sum(SP_inner_join$COMP_M)/max(SP_inner_join$COMP_TOT))) %>%
-  mutate(INDUSTRY_N = (`COMP_N`/`COMP_TOT`)/(sum(SP_inner_join$COMP_N)/max(SP_inner_join$COMP_TOT))) %>%
-  mutate(INDUSTRY_O = (`COMP_O`/`COMP_TOT`)/(sum(SP_inner_join$COMP_O)/max(SP_inner_join$COMP_TOT))) %>%
-  mutate(INDUSTRY_P = (`COMP_P`/`COMP_TOT`)/(sum(SP_inner_join$COMP_P)/max(SP_inner_join$COMP_TOT))) %>%
-  mutate(INDUSTRY_Q = (`COMP_Q`/`COMP_TOT`)/(sum(SP_inner_join$COMP_Q)/max(SP_inner_join$COMP_TOT))) %>%
-  mutate(INDUSTRY_R = (`COMP_R`/`COMP_TOT`)/(sum(SP_inner_join$COMP_R)/max(SP_inner_join$COMP_TOT))) %>%
-  mutate(INDUSTRY_S = (`COMP_S`/`COMP_TOT`)/(sum(SP_inner_join$COMP_S)/max(SP_inner_join$COMP_TOT))) %>%
-  mutate(INDUSTRY_T = (`COMP_T`/`COMP_TOT`)/(sum(SP_inner_join$COMP_T)/max(SP_inner_join$COMP_TOT))) %>%
-  mutate(INDUSTRY_U = (`COMP_U`/`COMP_TOT`)/(sum(SP_inner_join$COMP_U)/max(SP_inner_join$COMP_TOT))) %>%
-  select(name_muni,IBGE_RES_POP,AREA, GVA_AGROPEC, GVA_INDUSTRY, GVA_SERVICES, GVA_PUBLIC, INDUSTRY_A,INDUSTRY_B,INDUSTRY_C,INDUSTRY_D,INDUSTRY_E,INDUSTRY_F,INDUSTRY_G,INDUSTRY_H,INDUSTRY_I,INDUSTRY_J,INDUSTRY_K,INDUSTRY_L,INDUSTRY_M,INDUSTRY_N,INDUSTRY_O,INDUSTRY_P,INDUSTRY_Q,INDUSTRY_R,INDUSTRY_S,INDUSTRY_T,INDUSTRY_U, geom)
 
-summary(LQ)
-```
+<!-- ```{r} -->
+<!-- LQ <- ekps.recoded %>% -->
+<!--   mutate(TELECOMMUNICATIONS = (`TELECOMMUNICATIONS`/`COMP_TOT`)/(sum(SP_inner_join$COMP_A)/max(SP_inner_join$COMP_TOT))) %>% -->
+<!--   mutate(INDUSTRY_B = (`COMP_B`/`COMP_TOT`)/(sum(SP_inner_join$COMP_B)/max(SP_inner_join$COMP_TOT))) %>% -->
+<!--   mutate(INDUSTRY_C = (`COMP_C`/`COMP_TOT`)/(sum(SP_inner_join$COMP_C)/max(SP_inner_join$COMP_TOT))) %>% -->
+<!--   mutate(INDUSTRY_D = (`COMP_D`/`COMP_TOT`)/(sum(SP_inner_join$COMP_D)/max(SP_inner_join$COMP_TOT))) %>% -->
+<!--   mutate(INDUSTRY_E = (`COMP_E`/`COMP_TOT`)/(sum(SP_inner_join$COMP_E)/max(SP_inner_join$COMP_TOT))) %>% -->
+<!--   mutate(INDUSTRY_F = (`COMP_F`/`COMP_TOT`)/(sum(SP_inner_join$COMP_F)/max(SP_inner_join$COMP_TOT))) %>% -->
+<!--   mutate(INDUSTRY_G = (`COMP_G`/`COMP_TOT`)/(sum(SP_inner_join$COMP_G)/max(SP_inner_join$COMP_TOT))) %>% -->
+<!--   mutate(INDUSTRY_H = (`COMP_H`/`COMP_TOT`)/(sum(SP_inner_join$COMP_H)/max(SP_inner_join$COMP_TOT))) %>% -->
+<!--   mutate(INDUSTRY_I = (`COMP_I`/`COMP_TOT`)/(sum(SP_inner_join$COMP_I)/max(SP_inner_join$COMP_TOT))) %>% -->
+<!--   mutate(INDUSTRY_J = (`COMP_J`/`COMP_TOT`)/(sum(SP_inner_join$COMP_J)/max(SP_inner_join$COMP_TOT))) %>% -->
+<!--   mutate(INDUSTRY_K = (`COMP_K`/`COMP_TOT`)/(sum(SP_inner_join$COMP_K)/max(SP_inner_join$COMP_TOT))) %>% -->
+<!--   mutate(INDUSTRY_L = (`COMP_L`/`COMP_TOT`)/(sum(SP_inner_join$COMP_L)/max(SP_inner_join$COMP_TOT))) %>% -->
+<!--   mutate(INDUSTRY_M = (`COMP_M`/`COMP_TOT`)/(sum(SP_inner_join$COMP_M)/max(SP_inner_join$COMP_TOT))) %>% -->
+<!--   mutate(INDUSTRY_N = (`COMP_N`/`COMP_TOT`)/(sum(SP_inner_join$COMP_N)/max(SP_inner_join$COMP_TOT))) %>% -->
+<!--   mutate(INDUSTRY_O = (`COMP_O`/`COMP_TOT`)/(sum(SP_inner_join$COMP_O)/max(SP_inner_join$COMP_TOT))) %>% -->
+<!--   mutate(INDUSTRY_P = (`COMP_P`/`COMP_TOT`)/(sum(SP_inner_join$COMP_P)/max(SP_inner_join$COMP_TOT))) %>% -->
+<!--   mutate(INDUSTRY_Q = (`COMP_Q`/`COMP_TOT`)/(sum(SP_inner_join$COMP_Q)/max(SP_inner_join$COMP_TOT))) %>% -->
+<!--   mutate(INDUSTRY_R = (`COMP_R`/`COMP_TOT`)/(sum(SP_inner_join$COMP_R)/max(SP_inner_join$COMP_TOT))) %>% -->
+<!--   mutate(INDUSTRY_S = (`COMP_S`/`COMP_TOT`)/(sum(SP_inner_join$COMP_S)/max(SP_inner_join$COMP_TOT))) %>% -->
+<!--   mutate(INDUSTRY_T = (`COMP_T`/`COMP_TOT`)/(sum(SP_inner_join$COMP_T)/max(SP_inner_join$COMP_TOT))) %>% -->
+<!--   mutate(INDUSTRY_U = (`COMP_U`/`COMP_TOT`)/(sum(SP_inner_join$COMP_U)/max(SP_inner_join$COMP_TOT))) %>% -->
+<!--   select(name_muni,IBGE_RES_POP,AREA, GVA_AGROPEC, GVA_INDUSTRY, GVA_SERVICES, GVA_PUBLIC, INDUSTRY_A,INDUSTRY_B,INDUSTRY_C,INDUSTRY_D,INDUSTRY_E,INDUSTRY_F,INDUSTRY_G,INDUSTRY_H,INDUSTRY_I,INDUSTRY_J,INDUSTRY_K,INDUSTRY_L,INDUSTRY_M,INDUSTRY_N,INDUSTRY_O,INDUSTRY_P,INDUSTRY_Q,INDUSTRY_R,INDUSTRY_S,INDUSTRY_T,INDUSTRY_U, geom) -->
+
+<!-- summary(LQ) -->
+<!-- ``` -->
 
 
 
 # 4. Exploratory Data Analysis (EDA)
 
 ## 4.1 EDA using choropleth map
+
+Using the overall dataframe with non-aggregated industry, we will plot a choropleth map of 2017 universal healthcare population programme population. 
 
 ```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
 tm_shape(eastkalimantan.podes)+
@@ -3995,10 +4007,13 @@ bm_qtm <- function(vnam,df,titlesize,legx, legy) {
 
 ```
 
+
+
 ```{r}
 #example
 boxmap("INFRA_DEVELOPMENT_SCORE", ekps.transformed, 0.5,0.5,0.5)
 ```
+
 
 ## 4.2 Correlation Analysis 
 ```{r}
@@ -4118,6 +4133,12 @@ cluster_df <- select(cluster_df, c(2:35))
 head(cluster_df,5)
 ```
 
+```{r}
+colnames(cluster_df)
+```
+
+
+
 ### 5.1.1 Standardise Data
 This step is important as the variables that we have selected for are different in terms of units and thus range. We will use Min-Max standardisation as we cannot assume that the variables come from a normal distribution.
 
@@ -4134,6 +4155,9 @@ proxmat <- dist(cluster_df, method = "euclidean")
 ```
 
 ### 5.1.3 Select Optimal Clustering Method
+
+Adapted the code from this [source](https://uc-r.github.io/hc_clustering)
+
 ```{r}
 m <- c( "average", "single", "complete", "ward")
 names(m) <- c( "average", "single", "complete", "ward")
@@ -4177,6 +4201,31 @@ From the above plot, we can see that the Gap Statistic seems to be increasing as
 plot(hclust_ward, cex = 0.4)
 rect.hclust(hclust_ward, k = 7, border = 2:5)
 ```
+
+```{r}
+cut_ward <- cutree(hclust_ward, k = 7)
+```
+
+```{r}
+plot(hclust_ward, cex = 0.4)
+rect.hclust(hclust_ward , k = 7, border = 2:5)
+abline(h = 7, col = 'red')
+```
+
+```{r}
+seeds_df_cl <- mutate(cluster_df, cluster = cut_ward)
+count(seeds_df_cl,cluster)
+```
+
+Total amount of observation is 384 
+
+```{r}
+table(cut_ward, cluster_df$NUM_LEATHER_INDUSTRY)
+```
+
+
+
+
 ### 5.1.7 Visually-driven Hierarchical Clustering Analysis
 
 Transform df to matrix
@@ -4218,6 +4267,20 @@ Visualize on chloropleth
 qtm(ekps.transformed, "H_CLUSTER")
 ```
 From the above, we can see that the spatial distribution of the generated hierarchical clusters is rather fragmented. This does not make sense in the context of this project as urban planners likely would want a continuous plot of land to develop the new capital. Thus, we will be using the spatially constrained method moving forward. 
+
+
+### 5.1.9
+
+do up the function for the distribution of cluster per each variable 
+
+```{r}
+
+```
+
+
+
+
+
 
 
 ## 5.2 Spatially Constrained Clustering - All Variables
@@ -4460,6 +4523,7 @@ Lastly, we rename the column and plot the cluster number on a qtm.
 ekps.transformed <- ekps.transformed %>% rename(`INDUSTRIAL_SC_CLUSTER` = `as.factor.groups_mat.`)
 qtm(ekps.transformed, "INDUSTRIAL_SC_CLUSTER")
 ```
+
 
 ## 6.3 Spatially Constrained Clustering (SKATER) - Profiling Financial Sector
 Select optimal number of clusters
