@@ -1,5 +1,5 @@
 # IS415 Project: East Kalimantan as the new J-Town
-By Team 14: [Ng Xun Jie](), [Erika Aldisa Gunawan](https://www.linkedin.com/in/erikaaldisa/), [Sean Lee Jun Hui]()
+By Team 14: [Ng Xun Jie](www.linkedin.com/in/xunjieng53b81m), [Erika Aldisa Gunawan](https://www.linkedin.com/in/erikaaldisa/), [Sean Lee Jun Hui](www.linkedin.com/in/ljhsean)
 
 This project is done for IS415 Geospatial Analytics & Application (SMUX-X), a module in Singapore Management University (SMU) with the guidance of Professor Kam Tin Seong.
 
