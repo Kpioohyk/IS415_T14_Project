@@ -4269,17 +4269,126 @@ qtm(ekps.transformed, "H_CLUSTER")
 From the above, we can see that the spatial distribution of the generated hierarchical clusters is rather fragmented. This does not make sense in the context of this project as urban planners likely would want a continuous plot of land to develop the new capital. Thus, we will be using the spatially constrained method moving forward. 
 
 
-### 5.1.9
+### 5.1.9 Finding the distribution of each variable of choice on each clusters 
 
-do up the function for the distribution of cluster per each variable 
 
 ```{r}
+colnames(ekps.transformed)
+```
+
+Since there are 39 variables, we will plot all 39 of them in 3 separate plots with 13 variables each. 
+
+```{r}
+slum <- ggplot(ekps.transformed, aes(x = `H_CLUSTER` , y=`PRESENCE_SLUMS`, fill=`H_CLUSTER`)) + geom_bar(stat="summary", fun="mean")
+
+slash_burn <- ggplot(ekps.transformed, aes(x = `H_CLUSTER` , y=`SLASH_AND_BURN`, fill=`H_CLUSTER`)) + geom_bar(stat="summary", fun="mean")
+
+malnourished_pop <- ggplot(ekps.transformed, aes(x = `H_CLUSTER` , y=`MALNOURISHED_POP`, fill=`H_CLUSTER`)) + geom_bar(stat="summary", fun="mean")
+
+poverty_pop <- ggplot(ekps.transformed, aes(x = `H_CLUSTER` , y=`POVERTY_POP`, fill=`H_CLUSTER`)) + geom_bar(stat="summary", fun="mean")
+
+transport_methods <- ggplot(ekps.transformed, aes(x = `H_CLUSTER` , y=`TRANSPORTATION_METHODS`, fill=`H_CLUSTER`)) + geom_bar(stat="summary", fun="mean")
+
+road_access_4_wheel <- ggplot(ekps.transformed, aes(x = `H_CLUSTER` , y=`ROAD_ACCESSIBLE_BY_4_WHEEL_VEHICLE`, fill=`H_CLUSTER`)) + geom_bar(stat="summary", fun="mean")
+
+public_transport <- ggplot(ekps.transformed, aes(x = `H_CLUSTER` , y=`PUBLIC_TRANSPORT`, fill=`H_CLUSTER`)) + geom_bar(stat="summary", fun="mean")
+
+leather_indus <- ggplot(ekps.transformed, aes(x = `H_CLUSTER` , y=`NUM_LEATHER_INDUSTRY`, fill=`H_CLUSTER`)) + geom_bar(stat="summary", fun="mean")
+
+wood_indus <- ggplot(ekps.transformed, aes(x = `H_CLUSTER` , y=`NUM_WOOD_INDUSTRY`, fill=`H_CLUSTER`)) + geom_bar(stat="summary", fun="mean")
+
+metal_indus <- ggplot(ekps.transformed, aes(x = `H_CLUSTER` , y=`NUM_METAL_INDUSTRY`, fill=`H_CLUSTER`)) + geom_bar(stat="summary", fun="mean")
+
+fabric_indus <- ggplot(ekps.transformed, aes(x = `H_CLUSTER` , y=`NUM_FABRIC_INDUSTRY`, fill=`H_CLUSTER`)) + geom_bar(stat="summary", fun="mean")
+
+pottery_indus <- ggplot(ekps.transformed, aes(x = `H_CLUSTER` , y=`NUM_POTTERY_INDUSTRY`, fill=`H_CLUSTER`)) + geom_bar(stat="summary", fun="mean")
+
+bamboorattan_indus <- ggplot(ekps.transformed, aes(x = `H_CLUSTER` , y=`NUM_BAMBOORATTAN_INDUSTRY`, fill=`H_CLUSTER`)) + geom_bar(stat="summary", fun="mean")
+
+food_indus <- ggplot(ekps.transformed, aes(x = `H_CLUSTER` , y=`NUM_FOOD_INDUSTRY`, fill=`H_CLUSTER`)) + geom_bar(stat="summary", fun="mean")
+
+electricity <- ggplot(ekps.transformed, aes(x = `H_CLUSTER` , y=`ELECTRICTY`, fill=`H_CLUSTER`)) + geom_bar(stat="summary", fun="mean")
+
+water_disposal <- ggplot(ekps.transformed, aes(x = `H_CLUSTER` , y=`WASTE_DISPOSAL`, fill=`H_CLUSTER`)) + geom_bar(stat="summary", fun="mean")
+
+water_mgmt <- ggplot(ekps.transformed, aes(x = `H_CLUSTER` , y=`WATER_MANAGEMENT`, fill=`H_CLUSTER`)) + geom_bar(stat="summary", fun="mean")
+        
+natural_disaster_score <- ggplot(ekps.transformed, aes(x = `H_CLUSTER` , y=`NATURAL_DISASTER_SCORE`, fill=`H_CLUSTER`)) + geom_bar(stat="summary", fun="mean")
+
+healthcare_service <- ggplot(ekps.transformed, aes(x = `H_CLUSTER` , y=`HEALTHCARE_SERVICE_NUM`, fill=`H_CLUSTER`)) + geom_bar(stat="summary", fun="mean")
+
+healthcare_access_score <- ggplot(ekps.transformed, aes(x = `H_CLUSTER` , y=`HEALTHCARE_ACCESS_SCORE`, fill=`H_CLUSTER`)) + geom_bar(stat="summary", fun="mean")
+
+disease_outbreak_score <- ggplot(ekps.transformed, aes(x = `H_CLUSTER` , y=`DISEASE_OUTBREAK_SCORE`, fill=`H_CLUSTER`)) + geom_bar(stat="summary", fun="mean")                
+           
+edu_institution_num <- ggplot(ekps.transformed, aes(x = `H_CLUSTER` , y=`EDUCATION_INSTITUTION_NUM`, fill=`H_CLUSTER`)) + geom_bar(stat="summary", fun="mean") 
+
+edu_access_score <- ggplot(ekps.transformed, aes(x = `H_CLUSTER` , y=`EDUCATION_ACCESS_SCORE`, fill=`H_CLUSTER`)) + geom_bar(stat="summary", fun="mean") 
+
+mail_access_score <- ggplot(ekps.transformed, aes(x = `H_CLUSTER` , y=`MAIL_ACCESS_SCORE`, fill=`H_CLUSTER`)) + geom_bar(stat="summary", fun="mean") 
+
+industries <- ggplot(ekps.transformed, aes(x = `H_CLUSTER` , y=`INDUSTRIES`, fill=`H_CLUSTER`)) + geom_bar(stat="summary", fun="mean") 
+
+cooperatives <- ggplot(ekps.transformed, aes(x = `H_CLUSTER` , y=`COOPERATIVES`, fill=`H_CLUSTER`)) + geom_bar(stat="summary", fun="mean") 
+
+groceries_num <- ggplot(ekps.transformed, aes(x = `H_CLUSTER` , y=`GROCERIES_NUMBER`, fill=`H_CLUSTER`)) + geom_bar(stat="summary", fun="mean") 
+
+groceries_access_Score <- ggplot(ekps.transformed, aes(x = `H_CLUSTER` , y=`GROCERIES_ACCESS_SCORE`, fill=`H_CLUSTER`)) + geom_bar(stat="summary", fun="mean") 
+
+food_estab_num <- ggplot(ekps.transformed, aes(x = `H_CLUSTER` , y=`FOOD_ESTAB_NUMBER`, fill=`H_CLUSTER`)) + geom_bar(stat="summary", fun="mean") 
+
+food_estab_access_score <- ggplot(ekps.transformed, aes(x = `H_CLUSTER` , y=`FOOD_ESTAB_ACCESS_SCORE`, fill=`H_CLUSTER`)) + geom_bar(stat="summary", fun="mean") 
+
+lodging_num <- ggplot(ekps.transformed, aes(x = `H_CLUSTER` , y=`LODGING_NUM`, fill=`H_CLUSTER`)) + geom_bar(stat="summary", fun="mean") 
+
+lodging_access_score <- ggplot(ekps.transformed, aes(x = `H_CLUSTER` , y=`LODGING_ACCESS_SCORE`, fill=`H_CLUSTER`)) + geom_bar(stat="summary", fun="mean") 
+
+took_credit_score <- ggplot(ekps.transformed, aes(x = `H_CLUSTER` , y=`TOOK_CREDIT_SCORE`, fill=`H_CLUSTER`)) + geom_bar(stat="summary", fun="mean") 
+
+bank_num <- ggplot(ekps.transformed, aes(x = `H_CLUSTER` , y=`BANK_NUM`, fill=`H_CLUSTER`)) + geom_bar(stat="summary", fun="mean") 
+
+bank_access_score <- ggplot(ekps.transformed, aes(x = `H_CLUSTER` , y=`BANK_ACCESS_SCORE`, fill=`H_CLUSTER`)) + geom_bar(stat="summary", fun="mean") 
+
+fi_infra_num <- ggplot(ekps.transformed, aes(x = `H_CLUSTER` , y=`FI_INFRA_NUM`, fill=`H_CLUSTER`)) + geom_bar(stat="summary", fun="mean") 
+
+fi_infra_access_Score <- ggplot(ekps.transformed, aes(x = `H_CLUSTER` , y=`FI_INFRA_ACCESS_SCORE`, fill=`H_CLUSTER`)) + geom_bar(stat="summary", fun="mean") 
+
+infra_dev_score <- ggplot(ekps.transformed, aes(x = `H_CLUSTER` , y=`INFRA_DEVELOPMENT_SCORE`, fill=`H_CLUSTER`)) + geom_bar(stat="summary", fun="mean") 
+
+telecom <- ggplot(ekps.transformed, aes(x = `H_CLUSTER` , y=`TELECOMMUNICATIONS`, fill=`H_CLUSTER`)) + geom_bar(stat="summary", fun="mean") 
 
 ```
 
+Since there are 39 variables, we will plot all 39 of them in 6 separate plots with 6 variables each plus 1 plot with 3 variables.
 
 
+```{r}
+ggarrange(slum, slash_burn, malnourished_pop, poverty_pop, transport_methods, road_access_4_wheel, nrow = 2, ncol =3)
+```
 
+```{r}
+ggarrange(public_transport, leather_indus, wood_indus, metal_indus, fabric_indus, pottery_indus, nrow = 2, ncol =3)
+```
+
+```{r}
+ggarrange(bamboorattan_indus, food_indus, electricity, water_disposal, water_mgmt, natural_disaster_score, nrow = 2, ncol =3)
+```
+
+```{r}
+ggarrange(healthcare_service, healthcare_access_score, disease_outbreak_score, edu_institution_num, edu_access_score, mail_access_score, nrow = 2, ncol =3)
+```
+
+```{r}
+ggarrange(industries, cooperatives, groceries_num, groceries_access_Score, food_estab_num, food_estab_access_score,  nrow = 2, ncol =3)
+```
+
+```{r}
+ggarrange(lodging_num, lodging_access_score, took_credit_score, bank_num, bank_access_score, fi_infra_num, nrow = 2, ncol =3)
+```
+
+```{r}
+ggarrange(fi_infra_access_Score, infra_dev_score, telecom, nrow = 3, ncol = 1)
+```
 
 
 
@@ -4406,6 +4515,127 @@ tmap_arrange(hclust.map, spclust.map,
 ```
 
 
+
+ 
+
+```{r}
+slum_SP <- ggplot(ekps.transformed, aes(x = `SP_CLUSTER` , y=`PRESENCE_SLUMS`, fill=`SP_CLUSTER`)) + geom_bar(stat="summary", fun="mean")
+
+slash_burn_SP <- ggplot(ekps.transformed, aes(x = `SP_CLUSTER` , y=`SLASH_AND_BURN`, fill=`SP_CLUSTER`)) + geom_bar(stat="summary", fun="mean")
+
+malnourished_pop_SP <- ggplot(ekps.transformed, aes(x = `SP_CLUSTER` , y=`MALNOURISHED_POP`, fill=`SP_CLUSTER`)) + geom_bar(stat="summary", fun="mean")
+
+poverty_pop_SP <- ggplot(ekps.transformed, aes(x = `SP_CLUSTER` , y=`POVERTY_POP`, fill=`SP_CLUSTER`)) + geom_bar(stat="summary", fun="mean")
+
+transport_methods_SP <- ggplot(ekps.transformed, aes(x = `SP_CLUSTER` , y=`TRANSPORTATION_METHODS`, fill=`SP_CLUSTER`)) + geom_bar(stat="summary", fun="mean")
+
+road_access_4_wheel_SP <- ggplot(ekps.transformed, aes(x = `SP_CLUSTER` , y=`ROAD_ACCESSIBLE_BY_4_WHEEL_VEHICLE`, fill=`SP_CLUSTER`)) + geom_bar(stat="summary", fun="mean")
+
+public_transport_SP <- ggplot(ekps.transformed, aes(x = `SP_CLUSTER` , y=`PUBLIC_TRANSPORT`, fill=`SP_CLUSTER`)) + geom_bar(stat="summary", fun="mean")
+
+leather_indus_SP <- ggplot(ekps.transformed, aes(x = `SP_CLUSTER` , y=`NUM_LEATHER_INDUSTRY`, fill=`SP_CLUSTER`)) + geom_bar(stat="summary", fun="mean")
+
+wood_indus_SP <- ggplot(ekps.transformed, aes(x = `SP_CLUSTER` , y=`NUM_WOOD_INDUSTRY`, fill=`SP_CLUSTER`)) + geom_bar(stat="summary", fun="mean")
+
+metal_indus_SP <- ggplot(ekps.transformed, aes(x = `SP_CLUSTER` , y=`NUM_METAL_INDUSTRY`, fill=`SP_CLUSTER`)) + geom_bar(stat="summary", fun="mean")
+
+fabric_indus_SP <- ggplot(ekps.transformed, aes(x = `SP_CLUSTER` , y=`NUM_FABRIC_INDUSTRY`, fill=`SP_CLUSTER`)) + geom_bar(stat="summary", fun="mean")
+
+pottery_indus_SP <- ggplot(ekps.transformed, aes(x = `SP_CLUSTER` , y=`NUM_POTTERY_INDUSTRY`, fill=`SP_CLUSTER`)) + geom_bar(stat="summary", fun="mean")
+
+bamboorattan_indus_SP <- ggplot(ekps.transformed, aes(x = `SP_CLUSTER` , y=`NUM_BAMBOORATTAN_INDUSTRY`, fill=`SP_CLUSTER`)) + geom_bar(stat="summary", fun="mean")
+
+food_indus_SP <- ggplot(ekps.transformed, aes(x = `SP_CLUSTER` , y=`NUM_FOOD_INDUSTRY`, fill=`SP_CLUSTER`)) + geom_bar(stat="summary", fun="mean")
+
+electricity_SP <- ggplot(ekps.transformed, aes(x = `SP_CLUSTER` , y=`ELECTRICTY`, fill=`SP_CLUSTER`)) + geom_bar(stat="summary", fun="mean")
+
+water_disposal_SP <- ggplot(ekps.transformed, aes(x = `SP_CLUSTER` , y=`WASTE_DISPOSAL`, fill=`SP_CLUSTER`)) + geom_bar(stat="summary", fun="mean")
+
+water_mgmt_SP <- ggplot(ekps.transformed, aes(x = `SP_CLUSTER` , y=`WATER_MANAGEMENT`, fill=`SP_CLUSTER`)) + geom_bar(stat="summary", fun="mean")
+        
+natural_disaster_score_SP <- ggplot(ekps.transformed, aes(x = `SP_CLUSTER` , y=`NATURAL_DISASTER_SCORE`, fill=`SP_CLUSTER`)) + geom_bar(stat="summary", fun="mean")
+
+healthcare_service_SP <- ggplot(ekps.transformed, aes(x = `SP_CLUSTER` , y=`HEALTHCARE_SERVICE_NUM`, fill=`SP_CLUSTER`)) + geom_bar(stat="summary", fun="mean")
+
+healthcare_access_score_SP <- ggplot(ekps.transformed, aes(x = `SP_CLUSTER` , y=`HEALTHCARE_ACCESS_SCORE`, fill=`SP_CLUSTER`)) + geom_bar(stat="summary", fun="mean")
+
+disease_outbreak_score_SP <- ggplot(ekps.transformed, aes(x = `SP_CLUSTER` , y=`DISEASE_OUTBREAK_SCORE`, fill=`SP_CLUSTER`)) + geom_bar(stat="summary", fun="mean")                
+           
+edu_institution_num_SP <- ggplot(ekps.transformed, aes(x = `SP_CLUSTER` , y=`EDUCATION_INSTITUTION_NUM`, fill=`SP_CLUSTER`)) + geom_bar(stat="summary", fun="mean") 
+
+edu_access_score_SP <- ggplot(ekps.transformed, aes(x = `SP_CLUSTER` , y=`EDUCATION_ACCESS_SCORE`, fill=`SP_CLUSTER`)) + geom_bar(stat="summary", fun="mean") 
+
+mail_access_score_SP <- ggplot(ekps.transformed, aes(x = `SP_CLUSTER` , y=`MAIL_ACCESS_SCORE`, fill=`SP_CLUSTER`)) + geom_bar(stat="summary", fun="mean") 
+
+industries_SP <- ggplot(ekps.transformed, aes(x = `SP_CLUSTER` , y=`INDUSTRIES`, fill=`SP_CLUSTER`)) + geom_bar(stat="summary", fun="mean") 
+
+cooperatives_SP <- ggplot(ekps.transformed, aes(x = `SP_CLUSTER` , y=`COOPERATIVES`, fill=`SP_CLUSTER`)) + geom_bar(stat="summary", fun="mean") 
+
+groceries_num_SP <- ggplot(ekps.transformed, aes(x = `SP_CLUSTER` , y=`GROCERIES_NUMBER`, fill=`SP_CLUSTER`)) + geom_bar(stat="summary", fun="mean") 
+
+groceries_access_Score_SP <- ggplot(ekps.transformed, aes(x = `SP_CLUSTER` , y=`GROCERIES_ACCESS_SCORE`, fill=`SP_CLUSTER`)) + geom_bar(stat="summary", fun="mean") 
+
+food_estab_num_SP <- ggplot(ekps.transformed, aes(x = `SP_CLUSTER` , y=`FOOD_ESTAB_NUMBER`, fill=`SP_CLUSTER`)) + geom_bar(stat="summary", fun="mean") 
+
+food_estab_access_score_SP <- ggplot(ekps.transformed, aes(x = `SP_CLUSTER` , y=`FOOD_ESTAB_ACCESS_SCORE`, fill=`SP_CLUSTER`)) + geom_bar(stat="summary", fun="mean") 
+
+lodging_num_SP <- ggplot(ekps.transformed, aes(x = `SP_CLUSTER` , y=`LODGING_NUM`, fill=`SP_CLUSTER`)) + geom_bar(stat="summary", fun="mean") 
+
+lodging_access_score_SP <- ggplot(ekps.transformed, aes(x = `SP_CLUSTER` , y=`LODGING_ACCESS_SCORE`, fill=`SP_CLUSTER`)) + geom_bar(stat="summary", fun="mean") 
+
+took_credit_score_SP <- ggplot(ekps.transformed, aes(x = `SP_CLUSTER` , y=`TOOK_CREDIT_SCORE`, fill=`SP_CLUSTER`)) + geom_bar(stat="summary", fun="mean") 
+
+bank_num_SP <- ggplot(ekps.transformed, aes(x = `SP_CLUSTER` , y=`BANK_NUM`, fill=`SP_CLUSTER`)) + geom_bar(stat="summary", fun="mean") 
+
+bank_access_score_SP <- ggplot(ekps.transformed, aes(x = `SP_CLUSTER` , y=`BANK_ACCESS_SCORE`, fill=`SP_CLUSTER`)) + geom_bar(stat="summary", fun="mean") 
+
+fi_infra_num_SP <- ggplot(ekps.transformed, aes(x = `SP_CLUSTER` , y=`FI_INFRA_NUM`, fill=`SP_CLUSTER`)) + geom_bar(stat="summary", fun="mean") 
+
+fi_infra_access_Score_SP <- ggplot(ekps.transformed, aes(x = `SP_CLUSTER` , y=`FI_INFRA_ACCESS_SCORE`, fill=`SP_CLUSTER`)) + geom_bar(stat="summary", fun="mean") 
+
+infra_dev_score_SP <- ggplot(ekps.transformed, aes(x = `SP_CLUSTER` , y=`INFRA_DEVELOPMENT_SCORE`, fill=`SP_CLUSTER`)) + geom_bar(stat="summary", fun="mean") 
+
+telecom_SP <- ggplot(ekps.transformed, aes(x = `SP_CLUSTER` , y=`TELECOMMUNICATIONS`, fill=`SP_CLUSTER`)) + geom_bar(stat="summary", fun="mean") 
+
+```
+
+Since there are 39 variables, we will plot all 39 of them in 6 separate plots with 6 variables each plus 1 plot with 3 variables.
+
+
+```{r}
+ggarrange(slum_SP, slash_burn_SP, malnourished_pop_SP, poverty_pop_SP, transport_methods_SP, road_access_4_wheel_SP, nrow = 2, ncol =3)
+```
+
+```{r}
+ggarrange(public_transport_SP, leather_indus_SP, wood_indus_SP, metal_indus_SP, fabric_indus_SP, pottery_indus_SP, nrow = 2, ncol =3)
+```
+
+```{r}
+ggarrange(bamboorattan_indus_SP, food_indus_SP, electricity_SP, water_disposal_SP, water_mgmt_SP, natural_disaster_score_SP, nrow = 2, ncol =3)
+```
+
+```{r}
+ggarrange(healthcare_service_SP, healthcare_access_score_SP, disease_outbreak_score_SP, edu_institution_num_SP, edu_access_score_SP, mail_access_score_SP, nrow = 2, ncol =3)
+```
+
+```{r}
+ggarrange(industries_SP, cooperatives_SP, groceries_num_SP, groceries_access_Score_SP, food_estab_num_SP, food_estab_access_score_SP,  nrow = 2, ncol =3)
+```
+
+```{r}
+ggarrange(lodging_num_SP, lodging_access_score_SP, took_credit_score_SP, bank_num_SP, bank_access_score_SP, fi_infra_num_SP, nrow = 2, ncol =3)
+```
+
+```{r}
+ggarrange(fi_infra_access_Score_SP, infra_dev_score_SP, telecom_SP, nrow = 3, ncol = 1)
+```
+
+
+
+
+
+
+
 # 6 Spatially Constrained Clustering (SKATER) - Overall
 This section details the spatially constrained method by different sectors/variable groups. 
 
@@ -4522,6 +4752,7 @@ Lastly, we rename the column and plot the cluster number on a qtm.
 ```{r}
 ekps.transformed <- ekps.transformed %>% rename(`INDUSTRIAL_SC_CLUSTER` = `as.factor.groups_mat.`)
 qtm(ekps.transformed, "INDUSTRIAL_SC_CLUSTER")
+
 ```
 
 
