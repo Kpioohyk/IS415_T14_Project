@@ -4244,6 +4244,7 @@ Visualise Dendogram
 ```{r}
 plot(hclust_ward, cex = 0.1)#can try to drop labels
 ```
+
 ### 5.1.5 Select Optimal Number of Clusters
 We will use the gap statistic method which compares total intra-cluster variation for different number of clusters used; with comparison to the expected values under null reference data distriubtion. We want to select the cluster number that maximises the gap statistic.
 
@@ -4842,7 +4843,7 @@ print(cr$Qnorm)
 We pick alpha = 0.2 since it results in a loss of  clustering (due to variables) homogenity of 8% while resulting in a gain of geographic homogenity of 18%.
 
 ```{r}
-tree <- hclustgeo(D0,D1,alpha=0.2)
+tree <- hclustgeo(D0,D1_n,alpha=0.2)
 P7ter <- cutree(tree,7)
 
 ekps.transformed$cgdn <- P7ter
