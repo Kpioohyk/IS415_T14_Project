@@ -1,0 +1,147 @@
+\documentclass{acm_proc_article-sp}
+\usepackage[utf8]{inputenc}
+
+\renewcommand{\paragraph}[1]{\vskip 6pt\noindent\textbf{#1 }}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{url}
+
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+\title{\includegraphics{SMU_logo.png}
+
+IS415 Geospatial Analytics and Application
+
+AY 2020/2021 Term 1
+
+Section no: G1
+
+Geospatial Analytics and Application Practice Research Paper
+
+Project title:
+
+Prepared for:
+
+Professor Kam Tin Seong}
+
+
+% Add imagehandling
+\usepackage{graphicx}
+% Redefine \includegraphics so that, unless explicit options are
+% given, the image width will not exceed the width of the page.
+% Images get their normal width if they fit onto the page, but
+% are scaled down if they would overflow the margins.
+\makeatletter
+\def\ScaleIfNeeded{%
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+\let\Oldincludegraphics\includegraphics
+{%
+ \catcode`\@=11\relax%
+ \gdef\includegraphics{\@ifnextchar[{\Oldincludegraphics}{\Oldincludegraphics[width=\ScaleIfNeeded]}}%
+}%
+
+\numberofauthors{2}
+\author{
+\alignauthor Erika Aldisa Gunawan \\
+        \affaddr{Singapore Management University}\\
+       \email{}
+\and \alignauthor Lee Jun Hui Sean \\
+        \affaddr{National University of Singapore}\\
+       \email{}
+\and \alignauthor Ng Xun Jie \\
+        \affaddr{Singapore Management University}\\
+       \email{}
+\and }
+
+\date{}
+
+%Remove copyright shit
+\permission{}
+\conferenceinfo{} {}
+\CopyrightYear{}
+\crdata{}
+
+% Pandoc syntax highlighting
+
+% Pandoc citation processing
+
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This is the abstract.
+
+It consists of two paragraphs.
+\end{abstract}
+
+\hypertarget{introduction}{%
+\section{Introduction}\label{introduction}}
+
+Here is our introduction. We are plleased to present you with
+
+\hypertarget{problem-statement}{%
+\subsection{Problem Statement}\label{problem-statement}}
+
+\hypertarget{motivation}{%
+\subsection{Motivation}\label{motivation}}
+
+\hypertarget{literature-review}{%
+\section{Literature Review}\label{literature-review}}
+
+\hypertarget{methods}{%
+\section{Methods}\label{methods}}
+
+\hypertarget{results}{%
+\section{Results}\label{results}}
+
+\hypertarget{discussion}{%
+\section{Discussion}\label{discussion}}
+
+\hypertarget{future-work}{%
+\section{Future Work}\label{future-work}}
+
+\hypertarget{conclusion}{%
+\section{Conclusion}\label{conclusion}}
+
+\hypertarget{references}{%
+\section{References}\label{references}}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+references:
+
+\begin{itemize}
+\tightlist
+\item
+  id: meier2012 title: Professinal Android 4 Application Development
+  author:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    family: Meier given: Reto type: book publisher: John Wiley \& Sons,
+    Inc. issued: year: 2012 month: 5
+  \end{itemize}
+\item
+  id: fenner2012a title: One-click science marketing author:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    family: Fenner given: Martin container-title: Nature Materials
+    volume: 11 URL: `\url{https://doi.org/10.1038/nmat3283}' DOI:
+    10.1038/nmat3283 issue: 4 publisher: Nature Publishing Group page:
+    261-263 type: article-journal issued: year: 2012 month: 3 \ldots{}
+  \end{itemize}
+\end{itemize}
+\setlength{\parindent}{0in}
+
+\end{document}

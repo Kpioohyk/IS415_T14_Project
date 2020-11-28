@@ -4502,19 +4502,40 @@ qtm(ekps.transformed, "SP_CLUSTER")
 ```
 Compare both clustering methods
 ```{r}
-hclust.map <- qtm(ekps.transformed,
-                  "H_CLUSTER", legend.outside = T) + 
-  tm_borders(alpha = 0.5) 
+tmap_mode("view")
 
-spclust.map <- qtm(ekps.transformed,
-                   "SP_CLUSTER", legend.outside = T) + 
-  tm_borders(alpha = 0.5) 
+hclust_map<- tm_shape(ekps.transformed) + 
+  tm_fill(col = "H_CLUSTER", id = "DESA") +
+  tm_borders(alpha = 0.5)
 
-tmap_arrange(hclust.map, spclust.map,
-             asp=NA, ncol=2)
+hclust_map
+
+# tmap_arrange(hclust_map, spclust_map, asp=NA, ncol=2)
 ```
 
 
+```{r}
+tmap_mode("view")
+spclust_map <- tm_shape(ekps.transformed) + 
+  tm_fill(col = "SP_CLUSTER", id = "DESA") +
+  tm_borders(alpha = 0.5) 
+
+spclust_map
+```
+
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=TRUE}
+tm_shape(area)+
+  tm_basemap('OpenStreetMap')+
+  tm_polygons("CITY")+
+  tm_text("VILLAGE_ID", size = 0.1)+ 
+  tm_borders(lwd=0.5)+
+  tm_layout(legend.height = 0.50, 
+            legend.width = 0.44,
+            frame = FALSE) +
+  tm_compass(type="8star", size = 2) +
+  tm_scale_bar(width = 0.15)
+```
 
  
 
@@ -4629,11 +4650,68 @@ ggarrange(lodging_num_SP, lodging_access_score_SP, took_credit_score_SP, bank_nu
 ```{r}
 ggarrange(fi_infra_access_Score_SP, infra_dev_score_SP, telecom_SP, nrow = 3, ncol = 1)
 ```
+## Cluster 3 analysis
+
+From the above spatially constrained clustering results, we can see that in most of the bar chart plotted above, cluster 3 stands out the most as either having the highest or lowest counts (mean). This prompted us to look into each the variable further. 
+
+cluster 3 - tmap using the desa, make it interactive, make it static for the report. Bar chart to deliberate on the reseaarch paper
 
 
+The code chunk below entails the population poverty level and malnourishment level
+```{r}
+ggarrange(malnourished_pop_SP,
+poverty_pop_SP, nrow = 1, ncol =2)
+```
+The code chunk below entails the manufacturing/small industries
+```{r}
+ggarrange(leather_indus_SP,
+metal_indus_SP,
+fabric_indus_SP,
+pottery_indus_SP,
+food_indus_SP, nrow = 2, ncol =3)
+```
+
+The code chunk below entails the number of industries and cooperatives
+
+```{r}
+ggarrange(industries_SP,
+cooperatives_SP, nrow = 1, ncol =2)
+```
 
 
+The code chunk below entails the number of public service available in cluster 3 
 
+```{r}
+ggarrange(electricity_SP,
+water_disposal_SP,
+healthcare_service_SP,
+healthcare_access_score_SP,
+edu_institution_num_SP,
+edu_access_score_SP,
+nrow = 2, ncol =3)
+```
+```{r}
+ggarrange(mail_access_score_SP,
+food_estab_num_SP,
+food_estab_access_score_SP,
+nrow = 2, ncol =2)
+```
+The code chunk below entails the number of banks/financial institution in cluster 3
+
+```{r}
+ggarrange(bank_num_SP,
+bank_access_score_SP,
+fi_infra_num_SP,
+nrow = 2, ncol =2)
+```
+
+The code chunk below entails the public infrastructure for citizens in cluster 3 
+```{r}
+ggarrange(infra_dev_score_SP,
+telecom_SP,
+nrow = 1, ncol =2)
+
+```
 
 
 # 6 Spatially Constrained Clustering (SKATER) - Overall
