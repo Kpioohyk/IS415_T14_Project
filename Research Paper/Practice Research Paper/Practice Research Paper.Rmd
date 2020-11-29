@@ -24,7 +24,7 @@ header-includes:
   - \usepackage{cite}
   
 abstract: 
-  In light of the news about Indonesia's decision to move their capital from Jakarta to East Kalimantan, there has been numerous debates on where the new mega-city should be constructed. A project of this scale has never been seen before in Indonesia, where multiple institutions and millions of people will be relocated across the Indonesian Archipelago. This results in the need to properly spatially profile the region to help urban planners strategise and ease the planning process of the new Capital City.This paper aims to achieve the above by using agglomerative hierarchical clustering and as well as spatially constrained methods such as SKATER and ClustGeo. The findings indicate that the regions surrounding current population city centres in East Kalimantan, namely Balikpapan and Samarinda, are potentially good areas to look into. Another significant finding is that the areas in the North-Western region of East Kalimantan are relatively underdeveloped as compared to the coastal regions. 
+  In light of the news about Indonesia's decision to move their capital from Jakarta to East Kalimantan, there has been numerous debates on where the new mega-city should be constructed. A project of this scale has never been seen before in Indonesia, where multiple institutions and millions of people will be relocated across the Indonesian Archipelago. This results in the need to properly spatially profile the region to help urban planners strategise and ease the planning process of the new Capital City. This paper aims to achieve the above by using agglomerative hierarchical clustering and as well as spatially constrained methods such as SKATER and ClustGeo. The findings indicate that the regions surrounding current population city centres in East Kalimantan, namely Balikpapan and Samarinda, are potentially good areas to look into. Another significant finding is that the areas in the North-Western region of East Kalimantan are relatively underdeveloped as compared to the coastal regions. 
 
 output: 
   rticles::acm_article
@@ -195,7 +195,7 @@ Overall, there were not much differences observed between the D0 and D1 method, 
 # Results & Discussion 
 Upon obtaining the results of SKATER clustering method, our team decided to examine how each selected variable contributed to the formation of clusters seen in our SKATER map.The results from the SKATER method was analysed because the results offered were the most spatially homogeneous and we felt that would offer the greatest insights to urban planners. 
 
-To do so, the team decided to firstly perform a descriptive analysis on the created spatially constrained clusters created from the SKATER method.The cluster exploration was done in the form of bar charts, where the mean of selected variables are taken for the clusters. 
+To do so, the team decided to firstly perform a descriptive analysis on the created spatially constrained clusters created from the SKATER method.The cluster exploration was done in the form of bar charts (Figure 12), where the mean of selected variables are taken for the clusters. 
 
 \begin{figure}[H]
   \begin{center}
