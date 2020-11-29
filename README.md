@@ -7,7 +7,7 @@ This project is a geospatial analytics project which looks at **Spatially Constr
 
 The links you want to check out:
 
-1. [Project Web page]()
+1. [Project Web page](https://is415-t14-project-proposal.netlify.app/)
 
 The web page contains everything about our project including our **poster**, **video** and **research paper.**
 
