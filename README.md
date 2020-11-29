@@ -11,6 +11,6 @@ The links you want to check out:
 
 The web page contains everything about our project including our **poster**, **video** and **research paper.**
 
-2. [Project R Shiny application]()
+2. [Project R Shiny application](https://erika-aldisa-gunawan.shinyapps.io/IS415_T14_EastKalimantan_New_JTown/)
 
 The R Shiny application allows user to engage with the dataset variables which will change the map visualization and analysis value.
