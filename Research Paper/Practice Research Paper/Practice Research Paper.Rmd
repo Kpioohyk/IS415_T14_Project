@@ -19,6 +19,7 @@ author:
     affiliation: National University of Singapore 
   - name: Ng Xun Jie
     affiliation: Singapore Management University
+    
 header-includes:
   - \usepackage{float}
   - \usepackage{cite}
@@ -42,18 +43,29 @@ On 26th August 2019, Indonesian President Joko Widodo announced that the capital
   \end{center}
 \end{figure}
 
-The intent was to move away from the heavily populated Java island to slow down the environmental degradation of Jakarta and to unify the archipelago by developing Kalimantan, which is the geographical center of Indonesia (Septiana & Sumarlam, 2018). The move garnered criticisms from urban planning experts and environmentalists because they felt that the move was not strategic. This is because it can potentially cause more environmental damage due to deforestation to make way for urban development and it won’t mean that Jakarta’s problems will be significantly resolved.
+The intent was to move away from the heavily populated Java island to slow down the environmental degradation of Jakarta and to unify the archipelago by developing Kalimantan, which is the geographical center of Indonesia (Septiana & Sumarlam, 2018). The move garnered criticisms from urban planning experts and environmentalists because they felt that the move was not strategic. With Kalimantan being a relatively underdeveloped region of Indonesia that is highly forested (Figure 2), and the main income of most of its people coming from agriculture, the aforementioned critics have lambasted this decision as they believe it can potentially cause significant environmental damage via deforestation in the name of urban development. Furthermore, they posit that it won’t necessarily mean that Jakarta’s problems will be significantly resolved, and could potentially occur to the new Capital city without strong urban planning and mindset changes.
 
-Thus, our project aims to conduct geospatial analysis on the proposed area of the new capital city in East Kalimantan to learn more about the area’s socio-economical potential to be considered as the new capital city of Indonesia. 
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=0.5\textwidth]{images/Forest.png}
+    \caption{Proximities of Villages to Forests in East Kalimantan}
+  \end{center}
+\end{figure}
+
+Thus, our project aims to conduct geospatial analysis on the proposed area of the new capital city in East Kalimantan to learn more about the area’s socio-economical potential to be considered as the new capital city of Indonesia.  
 
 # Motivation
 With the above being said, the specific objectives of this paper are as follows.
 
 1. Analyse the necessary reasons that led to the change of Indonesia’s capital city from Jakarta to East Kalimantan.
     + The analysis variables will be derived from research, dataset and extra variables needed for development of capital city
-2. Conduct Spatially constrained clustering analysis & segmentation
+2. Perform an Exploratory Data Analysis on the Region to confirm/alleviate the concerns of naysayers 
+    + Look at the Spatial Distribution of Natural Disasters (E.g. Earthquakes, Tsunamis, etc) to identify suitable regions for the construction of the new capital
+    + Look at the Spatial Distribution of Natural Vegetation (E.g. Forests) to identify suitable regions where the construction of the new capital will minimise damage to existing forests
+3. Conduct Spatially constrained clustering analysis & segmentation
     + Profiling of East Kalimantan province to derive the most suitable area for the new capital city in East Kalimantan.
     + Perform analysis on the derived clusters to understand the outputs of the clustering algorithms. This will be useful for planners to understand the different clusters and their characteristics.
+
 
 
 # Related Work
@@ -70,14 +82,17 @@ The quotient value of less than one indicates that the industry in the study reg
 
 On the other hand, according to Guillain & Le Gallo (2010), spatial agglomeration occurs proportionally with regional development. In their paper on identifying the manufacturing and service sector around Paris in 1999, they have employed Spatial Autocorrelation analysis using location quotient (LQ) to compute the spatial delimiting agglomeration.  Spatial Autocorrelation techniques like global Gini Index coupled with Moran’s I statistics are argued to be able to present insights as to the relative distribution patterns and spatial patterns of observations in a dataset, but the inclusion of LQ amplify the analysis method and allow one to better understand the mechanism behind events of clustering. The researchers also included Moran scatter plots and local indicator of spatial association (LISA) statistics, to combat LQ’s weakness of (1) arbitrary cut-off for agglomeration identification and (2) failure to identify the delimitations of clusters that are spatially autocorrelated. 
 
-# Methods
-For this project, it is important to understand about the government administrative region of Indonesia. In Indonesia, nationally one country, is divided into 34 provinces which includes East Kalimantan. A province (provinsi in Indonesian language) is divided into cities or regencies. Regencies (kabupaten) are usually larger than cities (kota) in size and generally have agricultural activities. In the East Kalimantan province, there are 3 major cities, consisting of Balikpapan, Samarinda, Bontang, and 7 regencies. The administrative region of regencies or cities are then further divided into districts (kecamatan) and the smallest government administrative region is denoted as village (desa) or sub-district (kelurahan). A common observation is that villages, which are often located in rural areas, will combine to form a regency while a sub-district, which are often located nearer to urban areas, will combine to form a city. 
+# Dataset
+For this project, it is important to understand about the government administrative region of Indonesia. In Indonesia, nationally one country, is divided into 34 provinces which includes East Kalimantan. A province (provinsi in Indonesian language) is divided into cities or regencies. Regencies (kabupaten) are usually larger than cities (kota) in size and generally have agricultural activities. In the East Kalimantan province, there are 3 major cities, consisting of Balikpapan, Samarinda, Bontang, and 7 regencies. The administrative region of regencies or cities are then further divided into districts (kecamatan) and the smallest government administrative region is denoted as village (desa) or sub-district (kelurahan). A common observation is that villages, which are often located in rural areas, will combine to form a regency while a sub-district, which are often located nearer to urban areas, will combine to form a city. According to the 2019 report by the Ministry of Home Affairs, there are 8,488 urban villages and 74,953 rural villages in Indonesia.
 
+The dataset used in this analysis, also known as the PODES (Potensi Desa) data, has been obtained through Professor Kam Tin Seong. The original dataset has been produced through extensive surveying of the region by Badan Pusat Statistik, which is the Central Statistics Body Indonesia.
+
+# Methods
 The team employed 3 different clustering methods in the project, namely agglomerative hierarchical clustering, spatially constrained clustering (SKATER Method) and also the ClustGeo clustering method (D0,D1,Neighbours). The decision to use three different methods rather than one was so that we could provide the urban planners with a more comprehensive view of the study area. Below details the workings of each algorithm. 
 
 ## Agglomerative Hierarchical Clustering 
 
-The first method that the team employed would be Hierarchical Clustering. This is a method that involves the calculation of euclidean distances between the various Desas (villages). The euclidean distance between any two points refers to the length of the line segment between them in a particular dimension space (Tabak, 2014). Prior to this calculation (Figure 3), the various variables used for the clustering method were normalised using the Min-Max standardisation method in order to ensure that the variables used in clustering had the same range and were unitless. 
+The first method that the team employed would be Hierarchical Clustering. This is a method that involves the calculation of euclidean distances between the various Desas (villages). The euclidean distance between any two points refers to the length of the line segment between them in a particular dimension space (Tabak, 2014). Prior to this calculation (Figure 4), the various variables used for the clustering method were normalised using the Min-Max standardisation method in order to ensure that the variables used in clustering had the same range and were unitless. 
 
 \begin{figure}[ht]
   \begin{center}
@@ -96,14 +111,14 @@ Afterwards, the agglomerative hierarchical clustering was performed. The steps a
 
 \begin{figure}[h]
   \begin{center}
-    \includegraphics[width=0.5\textwidth]{images/gap.png}
+    \includegraphics[width=0.52\textwidth]{images/gap.png}
     \caption{Typical Gap Statistic Plot in the Project}
   \end{center}
 \end{figure}
 
-After creating the dendogram, the next step is to choose the optimum number of clusters for the analysis. This was done through the use of the Gap Statistic. The Gap Statistic compares the total intra-cluster variation for each cluster number with that of their expected values under the null reference data distribution (Tibshirani, Walther & Hastie, 2000). Ideally, the cluster number should be chosen such that it maximises the Gap Statistic. However, throughout the project, the results have consistently been such that the gap statistic increases as cluster number, K, increases (Figure 4).
+After creating the dendogram, the next step is to choose the optimum number of clusters for the analysis. This was done through the use of the Gap Statistic. The Gap Statistic compares the total intra-cluster variation for each cluster number with that of their expected values under the null reference data distribution (Tibshirani, Walther & Hastie, 2000). Ideally, the cluster number should be chosen such that it maximises the Gap Statistic. However, throughout the project, the results have consistently been such that the gap statistic increases as cluster number, K, increases (Figure 5).
 
-According to Tibshirani, Walther and Hastie, when this situation occurs, it becomes important to pick the first cluster number i where the gradient from cluster i-1 to i is steeper than the gradient from i to i+1. This is because simply picking a large K would not result in meaningful clusters for the analysis. The created dendrogram is then cut into K groups, according to the optimum cluster number K. The cluster numbers were then mapped onto a choropleth map (Figure 5). Further analysis of the results can be found in the ‘Results’ section. 
+According to Tibshirani, Walther and Hastie, when this situation occurs, it becomes important to pick the first cluster number i where the gradient from cluster i-1 to i is steeper than the gradient from i to i+1. This is because simply picking a large K would not result in meaningful clusters for the analysis. The created dendrogram is then cut into K groups, according to the optimum cluster number K. The cluster numbers were then mapped onto a choropleth map (Figure 6). Further analysis of the results can be found in the ‘Results’ section. 
 
 \begin{figure}[h!]
   \begin{center}
@@ -112,12 +127,12 @@ According to Tibshirani, Walther and Hastie, when this situation occurs, it beco
   \end{center}
 \end{figure}
 
-Overall, this method tends to produce spatially fragmented clusters as the geographical locations of the Desas are not taken into account, as seen in Figure 5. To counteract this, the Skater and ClustGeo methods were explored. 
+Overall, this method tends to produce spatially fragmented clusters as the geographical locations of the Desas are not taken into account, as seen in Figure 6. To counteract this, the Skater and ClustGeo methods were explored. 
 
 ## Spatially Constrained Clustering (SKATER Method)
 This method takes into account the proximity of the Desas when clustering them. The first step taken requires the computation of the neighbours list. This refers to a matrix where each row has two columns; one that refers to a desa and another that contains a list of the neighbouring desas of that particular desa. 
 
-For this particular dataset, there is one Desa that is not physically connected to the Kalimantan mainland (Figure 6). Upon further inspection, this is the desa corresponding to *“Kutai Kartanegara Muara Jawa Muara Kembang”*. Using the knearneigh() function, its nearest neighbour in terms of coordinate distance is then added to its neighbour list. To ensure that subsequent algorithms can work as intended, this particular desa was also added to its nearest neighbour’s neighbours list. 
+For this particular dataset, there is one Desa that is not physically connected to the Kalimantan mainland (Figure 7). Upon further inspection, this is the desa corresponding to *“Kutai Kartanegara Muara Jawa Muara Kembang”*. Using the knearneigh() function, its nearest neighbour in terms of coordinate distance is then added to its neighbour list. To ensure that subsequent algorithms can work as intended, this particular desa was also added to its nearest neighbour’s neighbours list. 
 
 \begin{figure}[h!]
   \begin{center}
@@ -128,7 +143,7 @@ For this particular dataset, there is one Desa that is not physically connected 
 
 The distances between the desas, which involves the pairwise dissimilarity between the desa and its neighbours, are then computed using nbcosts() of the spdep package. With this, the minimum spanning tree is calculated. The minimum spanning tree of a graph refers to a subset of the edges of a connected, undirected graph, where the edges in this subset connect all the desas together with the lowest possible total distance (refers to the computed distance in the previous part). 
 
-Subsequently, the SKATER method can then be implemented. This uses the skater() present in the spdep package. This method uses the created minimum spanning tree, and groups the desas similarly to the agglomerative hierarchical clustering method. The cluster numbers used in this section followed the number used in the previous agglomerative hierarchical clustering method. The cluster numbers were then mapped onto a choropleth map (Figure 7). 
+Subsequently, the SKATER method can then be implemented. This uses the skater() present in the spdep package. This method uses the created minimum spanning tree, and groups the desas similarly to the agglomerative hierarchical clustering method. The cluster numbers used in this section followed the number used in the previous agglomerative hierarchical clustering method. The cluster numbers were then mapped onto a choropleth map (Figure 8). 
 
 \begin{figure}[H]
   \begin{center}
@@ -143,7 +158,7 @@ This method produces spatially continuous clusters and can be more relevant to u
 This is the last method that the team has attempted for this study. This method was introduced as it allows one to specify the relative weighting of the input clustering variables against that of the geographical distances between the desas. This is in contrast to the SKATER method, where one is unable to specify this parameter. The number of clusters used in this section will also be the same as the number of clusters used in the agglomerative hierarchical clustering method, which was derived by looking at the Gap Statistic.
 
 ### Input Clustering Variables only  - D0 Method
-This method is similar to the agglomerative hierarchical clustering method in the sense that it involves the calculation of the euclidean distances between the Desa to create the matrix D0. Therefore, the outputs of this method (Figure 8) are largely similar to the agglomerative hierarchical clustering method that was previously discussed, although there are some differences as well. This is due to the difference in the methods used. 
+This method is similar to the agglomerative hierarchical clustering method in the sense that it involves the calculation of the euclidean distances between the Desa to create the matrix D0. Therefore, the outputs of this method (Figure 9) are largely similar to the agglomerative hierarchical clustering method that was previously discussed, although there are some differences as well. This is due to the difference in the methods used. 
 
 \begin{figure}[H]
   \begin{center}
@@ -157,7 +172,7 @@ This method involves the incorporation of geographical distances into the cluste
 
 Firstly, the geographical distances between the Desas had to be calculated. To do so, the projection of the Data had to be changed to “longlat” as it was previously in a Universal Transverse Mercator (UTM) format. Afterwards, the geodist() function of the geodist package was used to calculate the geographical distance between the Desas using the extracted latitude and longitude coordinates. 
 
-With this done, the optimal mixing parameter, alpha is then chosen. This value determines the relative importance we assign to the clustering variables versus that of the geographical distances. The higher the value, the greater the geographical differences are factored into the clustering algorithm. This is done using the choicealpha() function of the ClustGeo package, which results in a plot as seen in Figure 9. 
+With this done, the optimal mixing parameter, alpha is then chosen. This value determines the relative importance we assign to the clustering variables versus that of the geographical distances. The higher the value, the greater the geographical differences are factored into the clustering algorithm. This is done using the choicealpha() function of the ClustGeo package, which results in a plot as seen in Figure 10. 
 
 \begin{figure}[H]
   \begin{center}
@@ -166,7 +181,7 @@ With this done, the optimal mixing parameter, alpha is then chosen. This value d
   \end{center}
 \end{figure}
 
-From here, an alpha value is chosen by picking a value which results in a small loss of variable clustering homogeneity (represented by black line, D0), but large significant gains in terms of geographic homogeneity (represented by red line, D1). Afterwards, the hclustgeo() function is run using D0,D1, and the selected alpha variable to generate the required output (Figure 10).
+From here, an alpha value is chosen by picking a value which results in a small loss of variable clustering homogeneity (represented by black line, D0), but large significant gains in terms of geographic homogeneity (represented by red line, D1). Afterwards, the hclustgeo() function is run using D0,D1, and the selected alpha variable to generate the required output (Figure 11).
 
 
 \begin{figure}[h!]
@@ -181,7 +196,7 @@ This method draws similarity to the SKATER method, except now it is possible to 
 
 It first requires an adjacency matrix to be constructed from the underlying graph structure of East Kalimantan. As this was already previously constructed in the SKATER portion of this study, the constructed neighbours list then was simply converted to an adjacency matrix. 
 
-Afterwards, the dissimilarity matrix, denoted as D1.n, was calculated by taking as.dist(1-A), where A refers to the adjacency matrix representation of the graph. The next step would be to choose the optimal mixing parameter once again, which was done in a similar fashion to the D1 method above. The clusters are then formed by specifying D0,D1.n, and alpha as the input arguments for the hclustgeo() function, giving the outputs in Figure 11.
+Afterwards, the dissimilarity matrix, denoted as D1.n, was calculated by taking as.dist(1-A), where A refers to the adjacency matrix representation of the graph. The next step would be to choose the optimal mixing parameter once again, which was done in a similar fashion to the D1 method above. The clusters are then formed by specifying D0,D1.n, and alpha as the input arguments for the hclustgeo() function, giving the outputs in Figure 12.
 
 \begin{figure}[h!]
   \begin{center}
@@ -195,7 +210,7 @@ Overall, there were not much differences observed between the D0 and D1 method, 
 # Results & Discussion 
 Upon obtaining the results of SKATER clustering method, our team decided to examine how each selected variable contributed to the formation of clusters seen in our SKATER map.The results from the SKATER method was analysed because the results offered were the most spatially homogeneous and we felt that would offer the greatest insights to urban planners. 
 
-To do so, the team decided to firstly perform a descriptive analysis on the created spatially constrained clusters created from the SKATER method.The cluster exploration was done in the form of bar charts (Figure 12), where the mean of selected variables are taken for the clusters. 
+To do so, the team decided to firstly perform a descriptive analysis on the created spatially constrained clusters created from the SKATER method.The cluster exploration was done in the form of bar charts (Figure 13), where the mean of selected variables are taken for the clusters. 
 
 \begin{figure}[H]
   \begin{center}
@@ -220,11 +235,11 @@ Furthermore, the team also reran the clustering algorithm for some selected vari
   \end{center}
 \end{figure}
 
-From this analysis, it is evident that cluster 3 is unique because it is presented in almost all bar charts as either the highest or lowest value. In the interest of time, the team then decided to look into two variables as cluster 3 stands out the most. As seen above, our team decided to look into the financial and healthcare sector (Figure 12), more specifically the number of service providers in these 2 sectors. This decision is made in accordance with how we perceive that the financial and healthcare sector forms part of the basic infrastructure of a city. We can clearly see that when compared with the cluster number formed with the SKATER analysis on all variables, cluster 3 in the financial sector is significantly lower than other clusters. Our team hypothesized that this could be due to low financial investment in the cluster and we hope that further research can be conducted to prove our hypothesis. 
+From this analysis, it is evident that cluster 3 is unique because it is presented in almost all bar charts as either the highest or lowest value. In the interest of time, the team then decided to look into two variables as cluster 3 stands out the most. As seen above, our team decided to look into the financial and healthcare sector (Figure 13), more specifically the number of service providers in these 2 sectors. This decision is made in accordance with how we perceive that the financial and healthcare sector forms part of the basic infrastructure of a city. We can clearly see that when compared with the cluster number formed with the SKATER analysis on all variables, cluster 3 in the financial sector is significantly lower than other clusters. Our team hypothesized that this could be due to low financial investment in the cluster and we hope that further research can be conducted to prove our hypothesis. 
 
 On the other hand, we can observe that cluster 3 is significantly higher than other clusters in terms of healthcare sector, signifying that there could be ample healthcare facilities in the cluster. However, our team proposes that an in-depth analysis must be conducted to identify whether the supply of healthcare services is meeting the demand of such services in the corresponding clusters. 
 
-In addition, for the industrial level SKATER analysis, the team looked at the same two industries, financial (Figure 13) and healthcare (Figure 14) in order to identify any geographical patterns in their distributions. In doing the analysis, we can quickly identify that the isolation of the variables associated with the two industries have yielded different numbers of clusters (8 for finance, 5 for healthcare), compared the overall SKATER analysis that contains 7 clusters. These numbers were derived through the Gap Statistic method as previously discussed. 
+In addition, for the industrial level SKATER analysis, the team looked at the same two industries, financial (Figure 14) and healthcare (Figure 15) in order to identify any geographical patterns in their distributions. In doing the analysis, we can quickly identify that the isolation of the variables associated with the two industries have yielded different numbers of clusters (8 for finance, 5 for healthcare), compared the overall SKATER analysis that contains 7 clusters. These numbers were derived through the Gap Statistic method as previously discussed. 
 
 Considering that the two bigger cities located in East Kalimantan province, namely Balikpapan and Samarinda, we can pinpoint that cluster 4 in the financial sector is relatively closer to the city of Samarinda, potentially indicating that the financial sector is stronger in that region. This could be done for future analysis, alongside more data to prove our hypothesis. The healthcare sector map on the other hand complements the cluster 3 formed from previous SKATER analysis, further strengthening our hypothesis that the region (cluster 3 as well) that is closer to the city of Balikpapan is indeed equipped with sufficient healthcare infrastructure. 
 

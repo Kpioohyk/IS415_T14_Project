@@ -1,0 +1,14 @@
+---
+title: "README"
+author: "Ng Xun Jie"
+date: "11/29/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Important disclaimer
+
+Due to time constraint, the team has decided to use Adobe Photoshop to construct the poster instead of using the posterdown package to render our poster. IS415 Poster.Rmd is thus left not editted, but will be used in the future to further our familiarity with the use of R code to perform a multitude of tasks. 

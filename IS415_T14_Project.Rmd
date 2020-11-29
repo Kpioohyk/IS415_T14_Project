@@ -4812,12 +4812,16 @@ hclust_map
 ```{r}
 spclust_map <- tm_shape(ekps.transformed) + 
   tm_fill(col = "SP_CLUSTER", id = "DESA") +
-  tm_borders(alpha = 0.5) 
+  tm_borders(alpha = 0.5) +
+  tm_scale_bar(width = 0.15)
 
 spclust_map
 ```
 
 
+<<<<<<< HEAD
+ 
+=======
 ```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=TRUE}
 tm_shape(area)+
   tm_basemap('OpenStreetMap')+
@@ -4835,6 +4839,7 @@ tm_shape(area)+
 ```{r}
 tmap_mode("plot")
 ```
+>>>>>>> f6834c6fbb0e0f8a5c5a4dd8849f62591287bdbf
 
 ```{r}
 slum_SP <- ggplot(ekps.transformed, aes(x = `SP_CLUSTER` , y=`PRESENCE_SLUMS`, fill=`SP_CLUSTER`)) + geom_bar(stat="summary", fun="mean")
@@ -5018,6 +5023,14 @@ nrow = 1, ncol =2)
 ```
 
 
+```{r}
+ggarrange(bank_num_SP, bank_access_score_SP,
+fi_infra_num_SP,
+healthcare_service_SP,
+nrow = 2, ncol =2)
+```
+
+
 # 6 Spatially Constrained Clustering (SKATER) - Overall
 
 This section details the spatially constrained method by different sectors/variable groups. 
@@ -5104,6 +5117,13 @@ communication <- c("DESA","MAIL_ACCESS_SCORE", "TELECOMMUNICATIONS")
 education <- c("DESA", "EDUCATION_INSTITUTION_NUM", "EDUCATION_ACCESS_SCORE")
 ```
 
+```{r}
+load(file = "district_border.Rda")
+load(file = "city_border.Rda")
+```
+
+
+
 ## 6.1 Spatially Constrained Clustering (SKATER) - Profiling Healthcare Sector
 
 Select optimal number of clusters
@@ -5120,11 +5140,42 @@ ekps.transformed <- sc_clust(ekps.nb, healthcare_cluster_df, 5)
 Lastly, we rename the column and plot the cluster number on a qtm.
 s
 ```{r}
+<<<<<<< HEAD
+#ekps.transformed <- ekps.transformed %>% rename(`HEALTHCARE_SC_CLUSTER` = `as.factor.groups_mat.`)
+
+tmap_mode("plot")
+tm_shape(ekps.transformed) + 
+  tm_fill(col = "HEALTHCARE_SC_CLUSTER") +
+  tm_borders(alpha = 0.5) +
+  tm_scale_bar(width = 0.15)
+  
+
+=======
 tmap_mode("view")
 
 ekps.transformed <- ekps.transformed %>% rename(`HEALTHCARE_SC_CLUSTER` = `as.factor.groups_mat.`)
 qtm(ekps.transformed, "HEALTHCARE_SC_CLUSTER")
+>>>>>>> f6834c6fbb0e0f8a5c5a4dd8849f62591287bdbf
 ```
+
+
+<!-- ```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=TRUE} -->
+<!-- tm_shape(area)+ -->
+<!--   tm_basemap('OpenStreetMap')+ -->
+<!--   tm_polygons("CITY")+ -->
+<!--   tm_text("VILLAGE_ID", size = 0.1)+ -->
+<!--   tm_borders(lwd=0.5)+ -->
+<!--   tm_layout(legend.height = 0.50, -->
+<!--             legend.width = 0.44, -->
+<!--             frame = FALSE) + -->
+<!--   tm_compass(type="8star", size = 2) + -->
+<!--   tm_scale_bar(width = 0.15) -->
+<!-- ``` -->
+
+
+
+
+
 
 ## 6.2 Spatially Constrained Clustering (SKATER) - Profiling Industrial Sector
 
@@ -5144,7 +5195,15 @@ Lastly, we rename the column and plot the cluster number on a qtm.
 
 ```{r}
 ekps.transformed <- ekps.transformed %>% rename(`INDUSTRIAL_SC_CLUSTER` = `as.factor.groups_mat.`)
-qtm(ekps.transformed, "INDUSTRIAL_SC_CLUSTER")
+
+
+tmap_mode("view")
+
+tm_shape(ekps.transformed) + 
+  tm_fill(col = "INDUSTRIAL_SC_CLUSTER") +
+  tm_borders(alpha = 0.5) +
+  tm_scale_bar(width = 0.15)
+
 
 ```
 
@@ -5166,8 +5225,16 @@ ekps.transformed <- sc_clust(ekps.nb, financial_cluster_df, 8)
 Lastly, we rename the column and plot the cluster number on a qtm.
 
 ```{r}
-ekps.transformed <- ekps.transformed %>% rename(`FINANCIAL_SC_CLUSTER` = `as.factor.groups_mat.`)
-qtm(ekps.transformed, "FINANCIAL_SC_CLUSTER")
+#ekps.transformed <- ekps.transformed %>% rename(`FINANCIAL_SC_CLUSTER` = `as.factor.groups_mat.`)
+
+tmap_mode("plot")
+
+tm_shape(ekps.transformed) + 
+  tm_fill(col = "FINANCIAL_SC_CLUSTER") +
+  tm_borders(alpha = 0.5) +
+  tm_scale_bar(width = 0.15)
+  
+
 ```
 
 ## 6.4 Spatially Constrained Clustering (SKATER) - Profiling Transport Sector
@@ -5188,7 +5255,15 @@ Lastly, we rename the column and plot the cluster number on a qtm.
 
 ```{r}
 ekps.transformed <- ekps.transformed %>% rename(`TRANSPORT_SC_CLUSTER` = `as.factor.groups_mat.`)
-qtm(ekps.transformed, "TRANSPORT_SC_CLUSTER")
+
+
+
+tmap_mode("view")
+
+tm_shape(ekps.transformed) + 
+  tm_fill(col = "TRANSPORT_SC_CLUSTER") +
+  tm_borders(alpha = 0.5) +
+  tm_scale_bar(width = 0.15)
 ```
 
 ## 6.5 Spatially Constrained Clustering (SKATER) - Profiling Food Sector
@@ -5209,7 +5284,16 @@ Lastly, we rename the column and plot the cluster number on a qtm.
 
 ```{r}
 ekps.transformed <- ekps.transformed %>% rename(`FOOD_SC_CLUSTER` = `as.factor.groups_mat.`)
-qtm(ekps.transformed, "FOOD_SC_CLUSTER")
+
+
+
+
+tmap_mode("view")
+
+tm_shape(ekps.transformed) + 
+  tm_fill(col = "FOOD_SC_CLUSTER") +
+  tm_borders(alpha = 0.5) +
+  tm_scale_bar(width = 0.15)
 ```
 
 ## 6.6 Spatially Constrained Clustering (SKATER) - Profiling Development
@@ -5230,7 +5314,13 @@ Lastly, we rename the column and plot the cluster number on a qtm.
 
 ```{r}
 ekps.transformed <- ekps.transformed %>% rename(`DEVELOPMENT_SC_CLUSTER` = `as.factor.groups_mat.`)
-qtm(ekps.transformed, "DEVELOPMENT_SC_CLUSTER")
+
+tmap_mode("view")
+
+tm_shape(ekps.transformed) + 
+  tm_fill(col = "DEVELOPMENT_SC_CLUSTER") +
+  tm_borders(alpha = 0.5) +
+  tm_scale_bar(width = 0.15)
 ```
 
 
@@ -5268,7 +5358,15 @@ Lastly, we rename the column and plot the cluster number on a qtm.
 
 ```{r}
 ekps.transformed <- ekps.transformed %>% rename(`DISASTER_SC_CLUSTER` = `as.factor.groups_mat.`)
-qtm(ekps.transformed, "DISASTER_SC_CLUSTER")
+
+
+
+tmap_mode("view")
+
+tm_shape(ekps.transformed) + 
+  tm_fill(col = "DISASTER_SC_CLUSTER") +
+  tm_borders(alpha = 0.5) +
+  tm_scale_bar(width = 0.15)
 ```
 
 ## 6.8 Spatially Constrained Clustering (SKATER) - Profiling Telecommunication Sector
@@ -5289,7 +5387,13 @@ Lastly, we rename the column and plot the cluster number on a qtm.
 
 ```{r}
 ekps.transformed <- ekps.transformed %>% rename(`TELECOMM_SC_CLUSTER` = `as.factor.groups_mat.`)
-qtm(ekps.transformed, "TELECOMM_SC_CLUSTER")
+
+tmap_mode("view")
+
+tm_shape(ekps.transformed) + 
+  tm_fill(col = "TELECOMM_SC_CLUSTER") +
+  tm_borders(alpha = 0.5) +
+  tm_scale_bar(width = 0.15)
 ```
 
 ## 6.9 Spatially Constrained Clustering (SKATER) - Profiling Education Sector
@@ -5311,7 +5415,13 @@ Lastly, we rename the column and plot the cluster number on a qtm.
 
 ```{r}
 ekps.transformed <- ekps.transformed %>% rename(`EDUCATION_SC_CLUSTER` = `as.factor.groups_mat.`)
-qtm(ekps.transformed, "EDUCATION_SC_CLUSTER")
+
+tmap_mode("plot")
+
+tm_shape(ekps.transformed) + 
+  tm_fill(col = "EDUCATION_SC_CLUSTER") +
+  tm_borders(alpha = 0.5) +
+  tm_scale_bar(width = 0.15)
 ```
 
 
