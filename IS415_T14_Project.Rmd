@@ -974,7 +974,7 @@ podes1_final %>%
 ```
 
 ```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
-summary(podes1_final)
+#summary(podes1_final)
 ```
 
 From this summary, we can learn a lot of things about East Kalimantan, here are some of the observations:
@@ -1426,19 +1426,8 @@ podes2_final <- podes2 %>%
 
 
 ```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
-summary(podes2_final)
+#summary(podes2_final)
 ```
-
-
-From this summary, the observations are:
-
--
-
--
-
--
-
--
 
 
 
@@ -2225,7 +2214,7 @@ head(podes3_final)
 ```
 
 ```{r}
-summary(podes3_final)
+#summary(podes3_final)
 ```
 
 Observations:
@@ -3290,35 +3279,42 @@ var_meaning4 <- c("SHAPE",
          "DISTRICT",
          "VILLAGE_ID",
          "VILLAGE",
-         "FIGHTS_VILLAGE_SUBDISTRICT",
+         "PRESENCE_FIGHTS",
          "TOTAL_FIGHT_COMMUNITY_GRP",
          "FIGHT_COMMUNITY_GRP_DIED",
          "FIGHT_COMMUNITY_GRP_INJURED",
-         "CAUSE_OF_FIGHT_COMMUNITY_GRP",
+         "CAUSE_FIGHT_COMMUNITY_GRP",
+         
          "TOTAL_FIGHT_RURAL_COMMUNITY",
          "FIGHT_RURAL_COMMUNITY_DIED",
          "FIGHT_RURAL_COMMUNITY_INJURED",
-         "CAUSE_OF_FIGHT_RURAL_COMMUNITY",
-         "TOTAL_FIGHT_COMMUNITY_SECURITY_FORCE",
-         "FIGHT_RURAL_COMMUNITY_SECURITY_FORCE_DIED",
-         "FIGHT_RURAL_COMMUNITY_SECURITY_FORCE_INJURED",
-         "CAUSE_OF_FIGHT_RURAL_COMMUNITY_SECURITY_FORCE",
-         "TOTAL_FIGHT_COMMUNITY_GOV_OFF",
-         "FIGHT_RURAL_COMMUNITY_GOV_OFF_DIED",
-         "FIGHT_RURAL_COMMUNITY_GOV_OFF_INJURED",
-         "CAUSE_OF_FIGHT_RURAL_COMMUNITY_GOV_OFF",
+         "CAUSE_FIGHT_RURAL_COMMUNITY",
+         
+         "TOTAL_FIGHT_SECURITY_FORCE",
+         "FIGHT_SECURITY_FORCE_DIED",
+         "FIGHT_SECURITY_FORCE_INJURED",
+         "CAUSE_FIGHT_SECURITY_FORCE",
+         
+         "TOTAL_FIGHT_GOVT_OFFICIAL",
+         "FIGHT_GOVT_OFFICIAL_DIED",
+         "FIGHT_GOVT_OFFICIAL_INJURED",
+         "CAUSE_FIGHT_GOVT_OFFICIAL",
+         
          "TOTAL_FIGHT_STUDENT",
-         "FIGHT_RURAL_STUDENT_DIED",
-         "FIGHT_RURAL_STUDENT_INJURED",
-         "CAUSE_OF_FIGHT_RURAL_STUDENT" ,
-         "TOTAL_FIGHT_ETHNIC",
-         "FIGHT_RURAL_ETHNIC_DIED",
-         "FIGHT_RURAL_ETHNIC_INJURED",
-         "CAUSE_OF_FIGHT_RURAL_ETHNIC",
+         "FIGHT_STUDENT_DIED",
+         "FIGHT_STUDENT_INJURED",
+         "CAUSE_FIGHT_STUDENT" ,
+         
+         "TOTAL_FIGHT_ETHNIC_GROUP",
+         "FIGHT_ETHNIC_GROUP_DIED",
+         "FIGHT_ETHNIC_GROUP_INJURED",
+         "CAUSE_FIGHT_ETHNIC_GROUP",
+         
          "TOTAL_FIGHT_OTHERS",
-         "FIGHT_RURAL_OTHERS_DIED",
-         "FIGHT_RURAL_OTHERS_INJURED",
-         "CAUSE_OF_FIGHT_RURAL_OTHERS",
+         "FIGHT_OTHERS_DIED",
+         "FIGHT_OTHERS_INJURED",
+         "CAUSE_FIGHT_OTHERS",
+         
          "RESOLVED_FIGHT",
          "RECONCILIATOR",
          "THEFT",
@@ -3331,150 +3327,143 @@ var_meaning4 <- c("SHAPE",
          "TREND_PERSECUTION",
          "ARSON",
          "TREND_ARSON",
-         "RAPE_CRIME_AGAINST_DECENCY",
-         "TREND_RAPE_CRIME_AGAINST_DECENCY",
+         "RAPE_CRIME",
+         "TREND_RAPE_CRIME",
          "DRUG_ABUSE_TRAFFICKING",
          "TREND_DRUG_ABUSE_TRAFFICKING",
          "GAMBLING",
          "TREND_GAMBLING",
          "MURDER",
          "TREND_MURDER",
-         "TRAFFICKING",
-         "TREND_TRAFFICKING",
+         "HUMAN_TRAFFICKING",
+         "TREND_HUMAN_TRAFFICKING",
          "CORRUPTION",
          "TREND_CORRUPTION",
-         "TYPE_OF_CRIME_MOST",
+         "MOST_FREQUENT_CRIME",
          "BUILDING_MAINTENANCE_SECURITY_POST",
          "ESTABLISHING_SECURITY_GUARD",
          "RAISING_CIVIL_DEFENSE",
          "REPORTING_GUEST_STAY_MORE_THAN_24_HOURS",
-         "ACTIVATION_OF_SECURITY_SYSTEM_FROM_CITIZEN_INITIATIVE",
-         "NO_OF_CIVIL_DEFENSE_PROTECTION_PERSONNEL_IN_VILLAGE", 
-         "EXISTENCE_OF_POLICE_STATION_OFFICE_VILLAGE",
-         "NUMBER_OF_POLICE_STATION_USED",
-         "NUMBER_OF_POLICE_STATION_NOT_USED",
-         "ESTIMATE_DISTANCE_TO_NEAREST_POLICE_STATION_KM",
-         "CONVENIENCE_TO_REACH_NEAREST_POLICE_STATION",
-         "NO_OF_SUICIDE_VICTIM_ATTEMPTED_SUICIDE_VILLAGE",
-         "CONVENIENCE_TO_STREET_CHILDREN_HANGOUT_LOCATION",  
-         "CONVENIENCE_TO_HANGOUT_PLACES_HOMELESS_BEGGAR", 
-         "CONVENIENCE_TO_LOCATION_OF_COMMERCIAL_SEX_WORKERS",  
-         "AVAILABILITY_OF_VILLAGE_INFORMATION",  
+         "ACTIVATION_OF_CITIZEN_SECURITY_SYSTEM",
+         "NUM_CIVIL_DEFENSE_OFFICER", 
+         "PRESENCE_POLICE_STATION_OFFICE",
+         "NUM_OF_POLICE_STATION_USED",
+         "NUM_OF_POLICE_STATION_NOT_USED",
+         "DISTANCE_TO_NEAREST_POLICE_STATION_KM",
+         "CONVENIENCE_TO_NEAREST_POLICE_STATION",
+         "NUM_SUICIDE_VICTIM",
+         "PRESENCE_STREET_CHILDREN_GATHERING_PLACE",  
+         "PRESENCE_HOMELESS_BEGGAR_GATHERING_PLACE", 
+         "PRESENCE_SEX_WORKERS",  
+         "VILLAGE_INFORMATION_SYSTEM",  
          "USAGE_OF_VILLAGE_FINANCIAL_SYSTEM",  
          "VILLAGE_OWNED_ENTERPRISE_LAND",  
          "VILLAGE_BUILDINGS",  
          "VILLAGE_MARKET",  
-         "OTHER_VILLAGE_ASSETS",  
+         "OTHER_VILLAGE_ASSETS",
+         
          "VILLAGE_MED_TERM_DEV_PLAN",
-         "PERIOD_OF_RPJM_DEVELOP_YEAR_START",
-         "PERIOD_OF_RPJM_DEVELOP_YEAR_END",
+         "RPJM_PERIOD_START",
+         "RPJM_PERIOD_END",
          "VILLAGE_GOV_WORK_PLAN_2018",   
-         "VILLAGE_REGULATION_NUMBER_2017", 
-         "NO_OF_HEADMAN_REGULATION_2017", 
-         "AVAILABILITY_OF_VILLAGE_COOPERATION_BETWEEN_VILLAGES_2018",  
-         "AVAILABILITY_OF_VILLAGE_COOPERATION_WITH_THIRD_PARTIES_2018",  
-         "AVAILABILITY_OF_VILLAGE_ASSISTANCE",   
+         "VILLAGE_REGULATION_2017", 
+         "VILLAGE_HEAD_REGULATION_2017", 
+         "COOPERATION_BETWEEN_VILLAGES_2018",  
+         "VILLAGE_COOPERATION_WITH_THIRD_PARTIES_2018",  
+         "PRESENCE_VILLAGE_GUIDES",   
          "TRANSPORTATION_INFRASTRUCTURE_DEVELOPMENT", 
-         "SOURCE_OF_FUND1",
-         "ADMINISTRATOR1",
-         "DIRECT_BENEFIT_RECEIVER1",
+         "SOURCE_FUND_TRANSPORT",
+         "ADMINISTRATOR_TRANSPORT",
+         "BENEFIT_RECEIVER_TRANSPORT",
          "ENERGY_INFRASTRUCTURE",
-         "SOURCE_OF_FUND2",
-         "ADMINISTRATOR2",
-         "DIRECT_BENEFIT_RECEIVER2",
-         "INFORMATION_COMMUNICATION_INFRASTRUCTURE",
-         "SOURCE_OF_FUND3",
-         "ADMINISTRATOR3",
-         "DIRECT_BENEFIT_RECEIVER3",
+         "SOURCE_FUND_ENERGY",
+         "ADMINISTRATOR_ENERGY",
+         "BENEFIT_RECEIVER_ENERGY",
+         "INFO_COMM_INFRASTRUCTURE",
+         "SOURCE_FUND_INFO_COMM",
+         "ADMINISTRATOR_INFO_COMM",
+         "BENEFIT_RECEIVER_INFO_COMM",
          "SANITATION_INFRASTRUCTURE",
-         "SOURCE_OF_FUND4",
-         "ADMINISTRATOR4",
-         "DIRECT_BENEFIT_RECEIVER4",
+         "SOURCE_FUND_SANITATION",
+         "ADMINISTRATOR_SANITATION",
+         "BENEFIT_RECEIVER_SANITATION",
          "EDUCATION_CULTURE_HEALTH_INFRASTRUCTURE",
-         "SOURCE_OF_FUND5",
-         "ADMINISTRATOR5",
-         "DIRECT_BENEFIT_RECEIVER5",
+         "SOURCE_FUND_EDUCATIONCULTURE",
+         "ADMINISTRATOR_EDUCATIONCULTURE",
+         "BENEFIT_RECEIVER_EDUCATIONCULTURE",
          "TRADING_SERVICES_INFRASTRUCTURE",
-         "SOURCE_OF_FUND6",
-         "ADMINISTRATOR6",
+         "SOURCE_FUND_TRADING",
+         "ADMINISTRATOR_TRADING",
          "DIRECT_BENEFIT_RECEIVER6",
-         "FARMING_PRODUCTION_VILLAGE_SMALL_INDUSTRY_INFRASTRUCTURE",
-         "SOURCE_OF_FUND7",
-         "ADMINISTRATOR7",
-         "DIRECT_BENEFIT_RECEIVER7",
+         "FARMING_PRODUCTION_SMALL_INDUSTRY_INFRASTRUCTURE",
+         "SOURCE_FUND_FARMING_SMALL_INDUSTRY",
+         "ADMINISTRATOR_FARMING_SMALL_INDUSTRY",
+         "BENEFIT_RECEIVER_FARMING_SMALL_INDUSTRY",
          "RECREATION_TOURISM_INFRASTRUCTURE",
-         "SOURCE_OF_FUND8",
-         "ADMINISTRATOR8",
-         "DIRECT_BENEFIT_RECEIVER8",
-         "DISASTER_MGMT_ENV_CONSERVATION_INFRASTRUCTURE",
-         "SOURCE_OF_FUND9",
-         "ADMINISTRATOR9",
-         "DIRECT_BENEFIT_RECEIVER9",
-         "GOV_SUPPORT_INFRASTRUCTURE",
-         "SOURCE_OF_FUND10",
-         "ADMINISTRATOR10",
-         "DIRECT_BENEFIT_RECEIVER10",
-         "EDU_HEALTH_PUBLIC_CULTURE_EMPOWERMENT",
-         "SOURCE_OF_FUND11",
-         "ADMINISTRATOR11",
-         "DIRECT_BENEFIT_RECEIVER11",
-         "VILLAGE_RESIDENTIAL_NEIGHBOURHOOD_MGMT_EMPOWERMENT",
-         "SOURCE_OF_FUND12",
-         "ADMINISTRATOR12",
-         "DIRECT_BENEFIT_RECEIVER12",
-         "VILLAGE_TRANSPORTATION_MGMT_EMPOWERMENT",
-         "SOURCE_OF_FUND13",
-         "ADMINISTRATOR13",
-         "DIRECT_BENEFIT_RECEIVER13= R1601B3K5",
-         "RENEWABLE_ENERGY_DEVELOPMENT_EMPOWERMENT",
-         "SOURCE_OF_FUND14",
-         "ADMINISTRATOR14",
-         "DIRECT_BENEFIT_RECEIVER14",
-         "INFORMATION_COMMUNICATION_MGMT_EMPOWERMENT",
-         "SOURCE_OF_FUND15",
-         "ADMINISTRATOR15",
-         "DIRECT_BENEFIT_RECEIVER15",
-         "AGRI_BASED_PRODUCTIVE_BUSI_NON_AGRI_VILLAGE_SMALL_BUSI_MGMT_EMPOWERMENT",
-         "SOURCE_OF_FUND16",
-         "ADMINISTRATOR16",
-         "DIRECT_BENEFIT_RECEIVER16",
-         "NATURE_CONSERVE_AWARENESS_DISASTER_MGMT_EMPOWERMENT",
-         "SOURCE_OF_FUND17",
-         "ADMINISTRATOR17",
-         "DIRECT_BENEFIT_RECEIVER17",
-         "COMMUNITY_ROLE_IMPROVE_VILLAGE_GOVERNANCE_EMPOWERMENT",
-         "SOURCE_OF_FUND18",
-         "ADMINISTRATOR18",
-         "DIRECT_BENEFIT_RECEIVER18",
-         "QUALITY_CAPACITY_OF_VILLAGE_COMMUNITY_EMPOWERMENT",
-         "SOURCE_OF_FUND19",
-         "ADMINISTRATOR19",
-         "DIRECT_BENEFIT_RECEIVER19",
-         "ESTABLISHMENT_DEVELOPMENT_VILLAGE_GOV_ENTERPRISE_EMPOWERMENT",
-         "SOURCE_OF_FUND20",
-         "ADMINISTRATOR20",
-         "DIRECT_BENEFIT_RECEIVER20",
-         "VILLAGE_HEAD_EXISTENCE",
-         "AGE1",  
-         "GENDER1",  
-         "HIGHEST_EDUCATION_LEVEL1", 
-         "VILLAGE_SECRETARY_EXISTENCE", 
-         "AGE2", 
-         "GENDER2", 
-         "HIGHEST_EDUCATION_LEVEL2",
-         "VILLAGE_SECRETARIAT_TREASURER",  
-         "TECHNICAL_EXECUTOR", 
-         "TERRITORIAL_EXECUTOR", 
+         "SOURCE_FUND_RECREATION",
+         "ADMINISTRATOR_RECREATION",
+         "BENEFIT_RECEIVER_RECREATION",
+         "DISASTER_MITIGATION_ENV_CONSERVATION_INFRASTRUCTURE",
+         "SOURCE_FUND_DISASTER_MITIGATION",
+         "ADMINISTRATOR_DISASTER_MITIGATION",
+         "BENEFIT_RECEIVER_DISASTER_MITIGATION",
+         "GOVT_SUPPORT_INFRASTRUCTURE",
+         "SOURCE_FUND_GOVT_INFRASTRUCTURE",
+         "ADMINISTRATOR_GOVT_SUPPORT",
+         "BENEFIT_RECEIVER_GOVT_SUPPORT",
+         "EDU_HEALTH_CULTURE_EMPOWERMENT",
+         "SOURCE_FUND_SOCIAL_EMPOWERMENT",
+         "ADMINISTRATOR_SOCIAL_EMPOWERMENT",
+         "BENEFIT_RECEIVER_SOCIAL_EMPOWERMENT",
+         "RESIDENTIAL_NEIGHBOURHOOD_EMPOWERMENT",
+         "SOURCE_OF_FUND_RESIDENTIAL_EMPOWERMENT",
+         "ADMINISTRATOR_RESIDENTIAL_EMPOWERMENT",
+         "BENEFIT_RECEIVER_RESIDENTIAL_EMPOWERMENT",
+         "TRANSPORTATION_EMPOWERMENT",
+         "SOURCE_FUND_TRANSPORTATION_EMPOWERMENT",
+         "ADMINISTRATOR_TRANSPORTATION_EMPOWERMENT",
+         "BENEFIT_RECEIVER_TRANSPORTATION_EMPOWERMENT",
+         "RENEWABLE_ENERGY_EMPOWERMENT",
+         "SOURCE_FUND_ENERGY_EMPOWERMENT",
+         "ADMINISTRATOR_ENERGY_EMPOWERMENT",
+         "BENEFIT_RECEIVER_ENERGY_EMPOWERMENT",
+         "INFO_COMM_EMPOWERMENT",
+         "SOURCE_FUND_INFO_COMM_EMPOWERMENT",
+         "ADMINISTRATOR_INFO_COMM_EMPOWERMENT",
+         "BENEFIT_RECEIVER_INFO_COMM_EMPOWERMENT",
+         "AGRI_BUSINESS_NON_AGRI_SMALL_BUSI_EMPOWERMENT",
+         "SOURCE_FUND_AGRI_BUSINESS_EMPOWERMENT",
+         "ADMINISTRATOR_AGRI_BUSINESS_EMPOWERMENT",
+         "BENEFIT_RECEIVER_AGRI_BUSINESS_EMPOWERMENT",
+         "DISASTER_MITIGATION_ENV_CONSERVATION_EMPOWERMENT",
+         "SOURCE_FUND_ENV_CONSERVATION_EMPOWERMENT",
+         "ADMINISTRATOR_ENV_CONSERVATION_EMPOWERMENT",
+         "BENEFIT_RECEIVER_ENV_CONSERVATION_EMPOWERMENT",
+         "COMMUNITY_INVOLVEMENT_VILLAGE_GOVERNANCE_EMPOWERMENT",
+         "SOURCE_FUND_GOVERNANCE_EMPOWERMENT",
+         "ADMINISTRATOR_GOVERNANCE_EMPOWERMENT",
+         "BENEFIT_RECEIVER_GOVERNANCE_EMPOWERMENT",
+         "VILLAGE_CAPACITY_EMPOWERMENT",
+         "SOURCE_FUND_VILLAGE_CAPACITY",
+         "ADMINISTRATOR_VILLAGE_CAPACITY",
+         "BENEFIT_RECEIVER_VILLAGE_CAPACITY",
+         "VILLAGE_ENTERPRISE_EMPOWERMENT",
+         "SOURCE_FUND_VILLAGE_ENTERPRISE",
+         "ADMINISTRATOR_VILLAGE_ENTERPRISE",
+         "BENEFIT_RECEIVER_VILLAGE_ENTERPRISE",
+         "PRESENCE_VILLAGE_HEAD",
+         "VILLAGE_HEAD_AGE",  
+         "VILLAGE_HEAD_GENDER",  
+         "VILLAGE_HEAD_EDUCATION_LEVEL", 
+         "PRESENCE_VILLAGE_SECRETARY", 
+         "VILLAGE_SECRETARY_AGE", 
+         "VILLAGE_SECRETARY_GENDER", 
+         "VILLAGE_SECRETARY_EDUCATION_LEVEL",
+         "VILLAGE_SECRETARIAT",  
+         "TECHNICAL_HEAD", 
+         "TERRITORIAL_HEAD", 
          "VILLAGE_OFFICIALS")
 ```
-
-
-
-
-```{r}
-colnames(podes4)
-```
-
 
 
 Now, let's rename the column names of podes1 with the column names vector `var_meaning4`.
@@ -3497,40 +3486,43 @@ podes4_final <- podes4 %>%
          "DISTRICT",
          "VILLAGE_ID", 
          "VILLAGE", 
-         "AVAILABILITY_OF_VILLAGE_INFORMATION",
+         "VILLAGE_INFORMATION_SYSTEM",
          "USAGE_OF_VILLAGE_FINANCIAL_SYSTEM",
          # "VILLAGE_OWNED_ENTERPRISE_LAND",
          # "VILLAGE_BUILDINGS",
          # "VILLAGE_MARKET",
          # "OTHER_VILLAGE_ASSETS",
          "VILLAGE_MED_TERM_DEV_PLAN", 
-         # "PERIOD_OF_RPJM_DEVELOP_YEAR_START", 
-         # "PERIOD_OF_RPJM_DEVELOP_YEAR_END", 
+         # "RPJM_PERIOD_START",
+         # "RPJM_PERIOD_END", 
          # "VILLAGE_GOV_WORK_PLAN_2018", 
-         # "VILLAGE_REGULATION_NUMBER_2017", 
-         # "NO_OF_HEADMAN_REGULATION_2017",
-         # "AVAILABILITY_OF_VILLAGE_COOPERATION_BETWEEN_VILLAGES_2018",
-         # "AVAILABILITY_OF_VILLAGE_COOPERATION_WITH_THIRD_PARTIES_2018", 
+         # "VILLAGE_REGULATION_2017", 
+         # "VILLAGE_HEAD_REGULATION_2017",
+         # "COOPERATION_BETWEEN_VILLAGES_2018",
+         # "VILLAGE_COOPERATION_WITH_THIRD_PARTIES_2018", 
          "TRANSPORTATION_INFRASTRUCTURE_DEVELOPMENT",
          "ENERGY_INFRASTRUCTURE", 
-         "INFORMATION_COMMUNICATION_INFRASTRUCTURE", 
+         "INFO_COMM_INFRASTRUCTURE", 
          "SANITATION_INFRASTRUCTURE", 
          "EDUCATION_CULTURE_HEALTH_INFRASTRUCTURE", 
          "TRADING_SERVICES_INFRASTRUCTURE",
-         "FARMING_PRODUCTION_VILLAGE_SMALL_INDUSTRY_INFRASTRUCTURE",
+         "FARMING_PRODUCTION_SMALL_INDUSTRY_INFRASTRUCTURE",
          "RECREATION_TOURISM_INFRASTRUCTURE", 
-         "DISASTER_MGMT_ENV_CONSERVATION_INFRASTRUCTURE",
-         "GOV_SUPPORT_INFRASTRUCTURE", 
-         "EDU_HEALTH_PUBLIC_CULTURE_EMPOWERMENT", 
-         "VILLAGE_RESIDENTIAL_NEIGHBOURHOOD_MGMT_EMPOWERMENT",
-         "VILLAGE_TRANSPORTATION_MGMT_EMPOWERMENT",
-         "RENEWABLE_ENERGY_DEVELOPMENT_EMPOWERMENT",
-         "INFORMATION_COMMUNICATION_MGMT_EMPOWERMENT", 
-         "AGRI_BASED_PRODUCTIVE_BUSI_NON_AGRI_VILLAGE_SMALL_BUSI_MGMT_EMPOWERMENT",
-         "NATURE_CONSERVE_AWARENESS_DISASTER_MGMT_EMPOWERMENT",
-         "COMMUNITY_ROLE_IMPROVE_VILLAGE_GOVERNANCE_EMPOWERMENT",
-         "QUALITY_CAPACITY_OF_VILLAGE_COMMUNITY_EMPOWERMENT", 
-         "ESTABLISHMENT_DEVELOPMENT_VILLAGE_GOV_ENTERPRISE_EMPOWERMENT")
+         "DISASTER_MITIGATION_ENV_CONSERVATION_INFRASTRUCTURE",
+         "GOVT_SUPPORT_INFRASTRUCTURE", 
+         
+         "EDU_HEALTH_CULTURE_EMPOWERMENT", 
+         "RESIDENTIAL_NEIGHBOURHOOD_EMPOWERMENT",
+         "TRANSPORTATION_EMPOWERMENT",
+         "RENEWABLE_ENERGY_EMPOWERMENT",
+         "INFO_COMM_EMPOWERMENT", 
+         "AGRI_BUSINESS_NON_AGRI_SMALL_BUSI_EMPOWERMENT",
+         "DISASTER_MITIGATION_ENV_CONSERVATION_EMPOWERMENT",
+         "COMMUNITY_INVOLVEMENT_VILLAGE_GOVERNANCE_EMPOWERMENT",
+         "VILLAGE_CAPACITY_EMPOWERMENT", 
+         "VILLAGE_ENTERPRISE_EMPOWERMENT")
+
+
 ```
 
 ```{r}
@@ -3550,20 +3542,22 @@ podesv2 <- inner_join(podes3, podes4, by = c("SHAPE", "PROVINCE_ID", "PROVINCE",
 podes <- inner_join(podesv1, podesv2, by = c("SHAPE", "PROVINCE_ID", "PROVINCE", "CITY_ID", "CITY", "DISTRICT_ID", "DISTRICT", "VILLAGE_ID", "VILLAGE"))
 ```
 
-```{r}
+Let's download/write the final podes data into a csv data so that we can read it in the shiny app.R file.
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
 head(podes)
+write.csv(podes, "podes_final.csv", sep = ",")
 ```
+
 
 ```{r}
 colnames(podes)
 ```
 
-
-
 We can see that the podes data frame have 751 variables now, and it's correct because if we bind everything it will have 784 variables and subtracted by 3 times of 9 same variable will be 778-27 = 751.
 
-
 We will also do inner joins on the subsetted podes dataframes to retrieve the initial dataframe with the metrics we would like to analyse for the Project. The join condition will be on similar fields as above. 
+
 ```{r}
 podesv1.subset <- inner_join(podes1_final, podes2_final, by = c("SHAPE", "PROVINCE_ID", "PROVINCE", "CITY_ID", "CITY", "DISTRICT_ID", "DISTRICT", "VILLAGE_ID", "VILLAGE"))
 podesv2.subset <- inner_join(podes3_final, podes4_final, by = c("SHAPE", "PROVINCE_ID", "PROVINCE", "CITY_ID", "CITY", "DISTRICT_ID", "DISTRICT", "VILLAGE_ID", "VILLAGE"))
@@ -3574,7 +3568,238 @@ podes.subset <- inner_join(podesv1.subset, podesv2.subset, by = c("SHAPE", "PROV
 colnames(podes.subset)
 ```
 
+## Combining polygons based on city and district level for R shiny
 
+To save the data to Rda file to load to R shiny app for choropleth maps border
+
+###  City/Regency level border
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=TRUE}
+city <- unique(area$CITY)
+
+city1 <- area %>%
+  filter(CITY == "KUTAI KARTANEGARA") %>%
+  st_combine()
+
+city2 <- area %>%
+  filter(CITY == "PENAJAM PASER UTARA") %>%
+  st_combine()
+
+city3 <- area %>%
+  filter(CITY == "BALIKPAPAN") %>%
+  st_combine()
+
+city4 <- area %>%
+  filter(CITY == "SAMARINDA") %>%
+  st_combine()
+
+city_border1 <- st_as_sf(st_union(city1, by_feature = TRUE))
+city_border2 <- st_as_sf(st_union(city2, by_feature = TRUE))
+city_border3 <- st_as_sf(st_union(city3, by_feature = TRUE))
+city_border4 <- st_as_sf(st_union(city4, by_feature = TRUE))
+city_border <- rbind(city_border1, city_border2, city_border3, city_border4)
+qtm(city_border)
+```
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=TRUE}
+save(city_border, file = "city_border.Rda")
+```
+
+
+### District level border
+
+```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=TRUE}
+district <- unique(area$DISTRICT)
+
+district1 <- area %>%
+  filter(DISTRICT == "SEMBOJA") %>%
+  st_combine()
+district2 <- area %>%
+  filter(DISTRICT == "MUARA JAWA") %>%
+  st_combine()
+district3 <- area %>%
+  filter(DISTRICT == "SANGA-SANGA") %>%
+  st_combine()
+district4 <- area %>%
+  filter(DISTRICT == "LOA JANAN") %>%
+  st_combine()
+
+
+district5 <- area %>%
+  filter(DISTRICT == "LOA KULU") %>%
+  st_combine()
+district6 <- area %>%
+  filter(DISTRICT == "MUARA MUNTAI") %>%
+  st_combine()
+district7 <- area %>%
+  filter(DISTRICT == "MUARA WIS") %>%
+  st_combine()
+district8 <- area %>%
+  filter(DISTRICT == "KOTABANGUN") %>%
+  st_combine()
+
+
+district9 <- area %>%
+  filter(DISTRICT == "TENGGARONG") %>%
+  st_combine()
+district10 <- area %>%
+  filter(DISTRICT == "SEBULU") %>%
+  st_combine()
+district11 <- area %>%
+  filter(DISTRICT == "TENGGARONG SEBERANG") %>%
+  st_combine()
+district12 <- area %>%
+  filter(DISTRICT == "ANGGANA") %>%
+  st_combine()
+
+district13 <- area %>%
+  filter(DISTRICT == "MUARA BADAK") %>%
+  st_combine()
+district14 <- area %>%
+  filter(DISTRICT == "MARANG KAYU") %>%
+  st_combine()
+district15 <- area %>%
+  filter(DISTRICT == "MUARA KAMAN") %>%
+  st_combine()
+district16 <- area %>%
+  filter(DISTRICT == "KENOHAN") %>%
+  st_combine()
+
+district17 <- area %>%
+  filter(DISTRICT == "KEMBANG JANGGUT") %>%
+  st_combine()
+district18 <- area %>%
+  filter(DISTRICT == "TABANG") %>%
+  st_combine()
+district19 <- area %>%
+  filter(DISTRICT == "BABULU") %>%
+  st_combine()
+district20 <- area %>%
+  filter(DISTRICT == "WARU") %>%
+  st_combine()
+
+district21 <- area %>%
+  filter(DISTRICT == "PENAJAM") %>%
+  st_combine()
+district22 <- area %>%
+  filter(DISTRICT == "SEPAKU") %>%
+  st_combine()
+district23 <- area %>%
+  filter(DISTRICT == "BALIKPAPAN SELATAN") %>%
+  st_combine()
+district24 <- area %>%
+  filter(DISTRICT == "BALIKPAPAN KOTA") %>%
+  st_combine()
+
+district25 <- area %>%
+  filter(DISTRICT == "BALIKPAPAN TIMUR") %>%
+  st_combine()
+district26 <- area %>%
+  filter(DISTRICT == "BALIKPAPAN UTARA") %>%
+  st_combine()
+district27 <- area %>%
+  filter(DISTRICT == "BALIKPAPAN TENGAH") %>%
+  st_combine()
+district28 <- area %>%
+  filter(DISTRICT == "BALIKPAPAN BARAT") %>%
+  st_combine()
+
+district29 <- area %>%
+  filter(DISTRICT == "PALARAN") %>%
+  st_combine()
+district30 <- area %>%
+  filter(DISTRICT == "SAMARINDA ILIR") %>%
+  st_combine()
+district31 <- area %>%
+  filter(DISTRICT == "SAMARINDA KOTA") %>%
+  st_combine()
+district32 <- area %>%
+  filter(DISTRICT == "SAMBUTAN") %>%
+  st_combine()
+
+district33 <- area %>%
+  filter(DISTRICT == "SAMARINDA SEBERANG") %>%
+  st_combine()
+district34 <- area %>%
+  filter(DISTRICT == "LOA JANAN ILIR") %>%
+  st_combine()
+district35 <- area %>%
+  filter(DISTRICT == "SUNGAI KUNJANG") %>%
+  st_combine()
+district36 <- area %>%
+  filter(DISTRICT == "SAMARINDA ULU") %>%
+  st_combine()
+district37 <- area %>%
+  filter(DISTRICT == "SAMARINDA UTARA") %>%
+  st_combine()
+district38 <- area %>%
+  filter(DISTRICT == "SUNGAI PINANG") %>%
+  st_combine()
+
+dist_border1 <- st_as_sf(st_union(district1, by_feature = TRUE))
+dist_border2 <- st_as_sf(st_union(district2, by_feature = TRUE))
+dist_border3 <- st_as_sf(st_union(district3, by_feature = TRUE))
+dist_border4 <- st_as_sf(st_union(district4, by_feature = TRUE))
+
+dist_border5 <- st_as_sf(st_union(district5, by_feature = TRUE))
+dist_border6 <- st_as_sf(st_union(district6, by_feature = TRUE))
+dist_border7 <- st_as_sf(st_union(district7, by_feature = TRUE))
+dist_border8 <- st_as_sf(st_union(district8, by_feature = TRUE))
+
+dist_border9 <- st_as_sf(st_union(district9, by_feature = TRUE))
+dist_border10 <- st_as_sf(st_union(district10, by_feature = TRUE))
+dist_border11 <- st_as_sf(st_union(district11, by_feature = TRUE))
+dist_border12 <- st_as_sf(st_union(district12, by_feature = TRUE))
+
+dist_border13 <- st_as_sf(st_union(district13, by_feature = TRUE))
+dist_border14 <- st_as_sf(st_union(district14, by_feature = TRUE))
+dist_border15 <- st_as_sf(st_union(district15, by_feature = TRUE))
+dist_border16 <- st_as_sf(st_union(district16, by_feature = TRUE))
+
+dist_border17 <- st_as_sf(st_union(district17, by_feature = TRUE))
+dist_border18 <- st_as_sf(st_union(district18, by_feature = TRUE))
+dist_border19 <- st_as_sf(st_union(district19, by_feature = TRUE))
+dist_border20 <- st_as_sf(st_union(district20, by_feature = TRUE))
+
+dist_border21 <- st_as_sf(st_union(district21, by_feature = TRUE))
+dist_border22 <- st_as_sf(st_union(district22, by_feature = TRUE))
+dist_border23 <- st_as_sf(st_union(district23, by_feature = TRUE))
+dist_border24 <- st_as_sf(st_union(district24, by_feature = TRUE))
+
+dist_border25 <- st_as_sf(st_union(district25, by_feature = TRUE))
+dist_border26 <- st_as_sf(st_union(district26, by_feature = TRUE))
+dist_border27 <- st_as_sf(st_union(district27, by_feature = TRUE))
+dist_border28 <- st_as_sf(st_union(district28, by_feature = TRUE))
+
+dist_border29 <- st_as_sf(st_union(district29, by_feature = TRUE))
+dist_border30 <- st_as_sf(st_union(district30, by_feature = TRUE))
+dist_border31 <- st_as_sf(st_union(district31, by_feature = TRUE))
+dist_border32 <- st_as_sf(st_union(district32, by_feature = TRUE))
+
+dist_border33 <- st_as_sf(st_union(district33, by_feature = TRUE))
+dist_border34 <- st_as_sf(st_union(district34, by_feature = TRUE))
+dist_border35 <- st_as_sf(st_union(district35, by_feature = TRUE))
+dist_border36 <- st_as_sf(st_union(district36, by_feature = TRUE))
+dist_border37 <- st_as_sf(st_union(district37, by_feature = TRUE))
+dist_border38 <- st_as_sf(st_union(district38, by_feature = TRUE))
+
+
+district_border <- rbind(dist_border1, dist_border2, dist_border3, dist_border4,
+                         dist_border5, dist_border6, dist_border7, dist_border8,
+                         dist_border9, dist_border10, dist_border11, dist_border12,
+                         dist_border13, dist_border14, dist_border15, dist_border16,
+                         dist_border17, dist_border18, dist_border19, dist_border20,
+                         dist_border21, dist_border22, dist_border23, dist_border24,
+                         dist_border25, dist_border26, dist_border27, dist_border28,
+                         dist_border29, dist_border30, dist_border31, dist_border32,
+                         dist_border33, dist_border34, dist_border35, dist_border36,
+                         dist_border37, dist_border38)
+qtm(district_border)
+```
+
+```{r}
+save(district_border, file = "district_border.Rda")
+```
 
 # 3.7 Combining spatial and aspatial data
 
@@ -3587,14 +3812,16 @@ podes$DISTRICT_ID <- as.character(podes$DISTRICT_ID)
 podes$VILLAGE_ID <- as.character(podes$VILLAGE_ID)
 ```
 
-Then, we perform innerjoin 
+Then, we perform innerjoin.
 
 ```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
-eastkalimantan.podes <- inner_join(area,podes, by = c("PROVINCE_ID", "CITY_ID", "DISTRICT_ID", "VILLAGE_ID","PROVINCE",
-                                                                    "CITY","DISTRICT","VILLAGE")) 
+eastkalimantan.podes <- inner_join(area, podes, by = c("PROVINCE_ID", "CITY_ID", "DISTRICT_ID", "VILLAGE_ID", "PROVINCE", "CITY", "DISTRICT", "VILLAGE")) 
+eastkalimantan.podes <- as.data.frame(eastkalimantan.podes)
+head(eastkalimantan.podes)
 ```
 
-Do the same for podes.subset
+Do the same for podes.subset,
+
 ```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
 podes.subset$PROVINCE_ID <- as.character(podes.subset$PROVINCE_ID)
 podes.subset$CITY_ID <- as.character(podes.subset$CITY_ID)
@@ -3610,13 +3837,11 @@ eastkalimantan.podes.subset <- inner_join(area,podes.subset, by = c("PROVINCE_ID
 ## 3.7.1 Examining the joined dataframes
 
 ```{r}
-glimpse(eastkalimantan.podes)
+#glimpse(eastkalimantan.podes)
 ```
 
-
-
 ```{r}
-glimpse(eastkalimantan.podes.subset)
+#glimpse(eastkalimantan.podes.subset)
 ```
 
 
@@ -3702,7 +3927,9 @@ for (name in to_recode) {
 ```
 
 ## 3.8.3 Further Dimensional Reduction - Aggregating Features
+
 Let us first change the datatypes of some columns to numerical. 
+
 ```{r}
 to_numeric <- c("STREET_LIGHTING",
                 "PRESENCE_SLUMS",
@@ -3740,28 +3967,25 @@ to_numeric <- c("STREET_LIGHTING",
                 "ATM",
                 "BANK_AGENT",
                 "TRANSPORTATION_INFRASTRUCTURE_DEVELOPMENT",
-                "INFORMATION_COMMUNICATION_INFRASTRUCTURE",
+                "INFO_COMM_INFRASTRUCTURE",
                 "SANITATION_INFRASTRUCTURE",
                 "EDUCATION_CULTURE_HEALTH_INFRASTRUCTURE",
                 "TRADING_SERVICES_INFRASTRUCTURE",
-                "FARMING_PRODUCTION_VILLAGE_SMALL_INDUSTRY_INFRASTRUCTURE",
+                "FARMING_PRODUCTION_SMALL_INDUSTRY_INFRASTRUCTURE",
                 "RECREATION_TOURISM_INFRASTRUCTURE",
-                "DISASTER_MGMT_ENV_CONSERVATION_INFRASTRUCTURE",
-                "GOV_SUPPORT_INFRASTRUCTURE",
+                "DISASTER_MITIGATION_ENV_CONSERVATION_INFRASTRUCTURE",
+                "GOVT_SUPPORT_INFRASTRUCTURE",
                 "INTERNET_CAFES")
-
-
 
 for (col in to_numeric) {
   ekps.recoded[, col] <- as.numeric(unlist(ekps.recoded[,col] %>% st_set_geometry(NULL)))
 }
-
 ```
 
 
 
-
 Next, we will consider aggregating certain similar features together in order to reduce the number of features in the dataset further.
+
 ```{r}
 ekps.recoded <- ekps.recoded %>%
   mutate(`ELECTRICTY` = `STREET_LIGHTING` + `PRESENCE_POWER_LINES`) %>%
@@ -3787,7 +4011,7 @@ ekps.recoded <- ekps.recoded %>%
   mutate(`BANK_ACCESS_SCORE` = GOVT_BANKS_ACCESSIBILITY + COMMERCIAL_BANKS_ACCESSIBILITY + RURAL_CREDIT_BANKS_ACCESSIBILITY) %>%
   mutate(`FI_INFRA_NUM` = BMT + ATM + BANK_AGENT) %>%
   mutate(`FI_INFRA_ACCESS_SCORE` = BMT_ACCESSIBILITY + ATM_ACCESSIBILITY + BANK_AGENT_ACCESSIBILITY) %>%
-  mutate(`INFRA_DEVELOPMENT_SCORE` = TRANSPORTATION_INFRASTRUCTURE_DEVELOPMENT + INFORMATION_COMMUNICATION_INFRASTRUCTURE + SANITATION_INFRASTRUCTURE + EDUCATION_CULTURE_HEALTH_INFRASTRUCTURE + TRADING_SERVICES_INFRASTRUCTURE + FARMING_PRODUCTION_VILLAGE_SMALL_INDUSTRY_INFRASTRUCTURE + RECREATION_TOURISM_INFRASTRUCTURE + DISASTER_MGMT_ENV_CONSERVATION_INFRASTRUCTURE + GOV_SUPPORT_INFRASTRUCTURE) %>%
+  mutate(`INFRA_DEVELOPMENT_SCORE` = TRANSPORTATION_INFRASTRUCTURE_DEVELOPMENT + INFO_COMM_INFRASTRUCTURE + SANITATION_INFRASTRUCTURE + EDUCATION_CULTURE_HEALTH_INFRASTRUCTURE + TRADING_SERVICES_INFRASTRUCTURE + FARMING_PRODUCTION_SMALL_INDUSTRY_INFRASTRUCTURE + RECREATION_TOURISM_INFRASTRUCTURE + DISASTER_MITIGATION_ENV_CONSERVATION_INFRASTRUCTURE + GOVT_SUPPORT_INFRASTRUCTURE) %>%
   mutate(DESA = paste(CITY, DISTRICT, VILLAGE)) # done to generate a unique identifier other than region code, which may be hard to interpret in plots
 ```
 
@@ -3923,7 +4147,7 @@ apply LQ onto different industry independently, total would be the sum of relate
 Using the overall dataframe with non-aggregated industry, we will plot a choropleth map of 2017 universal healthcare population programme population. 
 
 ```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE}
-tm_shape(eastkalimantan.podes)+
+tm_shape(st_as_sf(eastkalimantan.podes))+
   tm_fill(col = "UNIVERSAL_HEALTHCARE_PROGRAMME_POP_2017",
           palette = "Blues",
           title = "Population with universal healthcare")+
@@ -4014,8 +4238,41 @@ bm_qtm <- function(vnam,df,titlesize,legx, legy) {
 boxmap("INFRA_DEVELOPMENT_SCORE", ekps.transformed, 0.5,0.5,0.5)
 ```
 
+## Box plot for continuous variables
+
+```{r}
+bp <- ggplot(eastkalimantan.podes, aes(x = CITY, y = STATEMENT_OF_POVERTY, colour = CITY)) +
+  geom_boxplot(fill = NA, alpha = 0.5) +
+  #coord_flip()+
+  scale_y_log10()+
+  theme(legend.position="none")+
+  geom_jitter(aes(text=paste("VILLAGE: ", VILLAGE)))+
+  labs(title = "Population under poverty",
+       y = "Population")
+
+fig <- ggplotly(bp)
+fig
+```
+
+## Bar chart for categorical variables
+
+```{r}
+bc <- ggplot(eastkalimantan.podes, aes(x = PRESENCE_VILLAGE_HEAD, fill = CITY)) +
+  geom_bar(alpha = 0.8, position="stack") + 
+  #theme(legend.position="none")+
+  #geom_jitter(aes(y = VILLAGE_LOCATION_TO_FOREST, text=paste("VILLAGE: ", VILLAGE), width = 0.25))+
+  #coord_flip() +
+  #geom_point(aes(y = VILLAGE_LOCATION_TO_FOREST, colour = CITY), alpha = 0.8) +
+  labs(title = "Presence of Village Head",
+       y = "Count")
+
+fig <- ggplotly(bc)
+fig
+```
+
 
 ## 4.2 Correlation Analysis 
+
 ```{r}
 ekps.cor <- cor(as.data.frame(ekps.transformed[7:45] %>% st_set_geometry(NULL)))
 corrplot.mixed(ekps.cor,
@@ -4027,6 +4284,7 @@ corrplot.mixed(ekps.cor,
          tl.cex = 0.3
          )
 ```
+
 As there are still many transformed variables, it becomes hard to interpret the correlation plot. Let us write a function that will pull out the variables with high correlation (>0.8) that we should drop for the clustering analysis. 
 
 ```{r}
@@ -4068,6 +4326,7 @@ corrplot(ekps.corr.filtered,
          tl.cex = 0.5
          )
 ```
+
 The above reduced plot shows us only the variables with correlations above 0.7. Looking at the plot, we will drop:
 
 + **HEALTHCARE_ACCESS_SCORE** as it has a high correlation with 6 other variables. 
@@ -4139,7 +4398,8 @@ colnames(cluster_df)
 
 
 
-### 5.1.1 Standardise Data
+### 5.1.1 Data Standardisation
+
 This step is important as the variables that we have selected for are different in terms of units and thus range. We will use Min-Max standardisation as we cannot assume that the variables come from a normal distribution.
 
 ```{r}
@@ -4148,6 +4408,7 @@ summary(cluster_df)
 ```
 
 ### 5.1.2 Compute Proximity Matrix
+
 This computes the euclidean distance between 2 of the DESAs using the input attributes.
 
 ```{r}
@@ -4168,6 +4429,7 @@ ac <- function(x) {
 
 map_dbl(m, ac)
 ```
+
 From the above, we can see the Ward's method provides the strongest clustering structure. We will use this method for hierarchical clustering of the municipalities.
 
 ### 5.1.4 Perform Hierarchical Clustering
@@ -4177,11 +4439,13 @@ hclust_ward <- hclust(proxmat, method = 'ward.D')
 ```
 
 Visualise Dendogram
+
 ```{r}
 plot(hclust_ward, cex = 0.1)#can try to drop labels
 ```
 
 ### 5.1.5 Select Optimal Number of Clusters
+
 We will use the gap statistic method which compares total intra-cluster variation for different number of clusters used; with comparison to the expected values under null reference data distriubtion. We want to select the cluster number that maximises the gap statistic.
 
 ```{r}
@@ -4192,12 +4456,15 @@ print(gap_stat, method = "firstmax")
 ```
 
 Visualize Gap Statistic
+
 ```{r}
 fviz_gap_stat(gap_stat)
 ```
+
 From the above plot, we can see that the Gap Statistic seems to be increasing as k increases. While theoratically it means we can pick a large number for k, this is not a good practice as it will result in lesser than meaningful clusters. Pick k = 7 as the line from k =6 to k=7 is distinctively steeper than any value from k = 8 onwards. 
 
 ### 5.1.6 Cut Dendogram and Visualize it
+
 ```{r}
 plot(hclust_ward, cex = 0.4)
 rect.hclust(hclust_ward, k = 7, border = 2:5)
@@ -4230,11 +4497,13 @@ table(cut_ward, cluster_df$NUM_LEATHER_INDUSTRY)
 ### 5.1.7 Visually-driven Hierarchical Clustering Analysis
 
 Transform df to matrix
+
 ```{r}
 cluster_df_mat <- data.matrix(cluster_df)
 ```
 
 Plot interactive Cluster Heat Map
+
 ```{r}
 heatmaply(cluster_df_mat,
           Colv=NA,
@@ -4253,20 +4522,24 @@ heatmaply(cluster_df_mat,
 ```
 
 ### 5.1.8 Map back Clusters
+
 ```{r}
 groups <- as.factor(cutree(hclust_ward, k=7))
 ```
 
 Join back to original df
+
 ```{r}
 ekps.transformed <- cbind(ekps.transformed, as.matrix(groups)) %>%
   rename(`H_CLUSTER` = `as.matrix.groups.`)
 ```
 
 Visualize on chloropleth
+
 ```{r}
 qtm(ekps.transformed, "H_CLUSTER")
 ```
+
 From the above, we can see that the spatial distribution of the generated hierarchical clusters is rather fragmented. This does not make sense in the context of this project as urban planners likely would want a continuous plot of land to develop the new capital. Thus, we will be using the spatially constrained method moving forward. 
 
 
@@ -4394,35 +4667,44 @@ ggarrange(fi_infra_access_Score, infra_dev_score, telecom, nrow = 3, ncol = 1)
 
 
 ## 5.2 Spatially Constrained Clustering - All Variables
+
 Next, let us try the spatially constrained clustering method. This approach is likely to be more appropriate in this case as the urban planners likely do not want a collection of fragmented land for the new capital. 
 
 ### 5.2.1 Convert to SpatialPolygonsDataFrame
+
 ```{r}
 ekps.transformed.sp <- as_Spatial(st_zm(ekps.transformed)) #st_zm needed since GIS data is in multipolygons
 ```
 
 Change CRS to EPSG:2933 (Source)[https://epsg.io/2933]
+
 ```{r}
 ekps.transformed.sp <- spTransform(ekps.transformed.sp, CRS("+init=epsg:2933"))
 ```
 
 ### 5.2.2 Compute Neighbours List
+
 ```{r}
 ekps.nb <- poly2nb(ekps.transformed.sp)
 summary(ekps.nb)
 ```
+
 From the above, it seems that there is one desa that is not connected to any of the other desas. We need to keep this in mind when doing the spatially constrained clustering method. 
 
 ### 5.2.3 Resolve Desa that is unconnected
+
 First, let us find out which Desa is disconnected.
+
 ```{r}
 cnt <- card(ekps.nb)
 island_ind <- match(0, cnt)
 print(island_ind)
 ```
+
 The island desa's index is 30 in ekps.nb.
 
 Next, we join it to the Desa that is the nearest to it
+
 ```{r}
 nearest <- knearneigh(coordinates(ekps.transformed.sp))$nn
 ekps.nb[[island_ind]] <- nearest[island_ind]
@@ -4433,12 +4715,14 @@ ekps.nb[[nearest[island_ind]]] <- c(as.integer(island_ind), as.integer(ekps.nb[[
 
 
 Visualize Final Neighbours List
+
 ```{r}
 plot(ekps.transformed.sp, border=grey(.5))
 plot(ekps.nb, coordinates(ekps.transformed.sp), col="blue", add=TRUE)
 ```
 
 ### 5.2.4 Compute Minimum Spanning Tree
+
 ```{r}
 lcosts <- nbcosts(ekps.nb, cluster_df)
 ekps.w <- nb2listw(ekps.nb, lcosts, style="B")
@@ -4446,17 +4730,21 @@ summary(ekps.w)
 ```
 
 Find MST
+
 ```{r}
 ekps.mst <- mstree(ekps.w)
 ```
 
 Check dimensions
+
 ```{r}
 dim(ekps.mst)
 ```
+
 383 Edges present, which is equals to 384 (# of Desas) - 1. 
 
 Visualise MST
+
 ```{r}
 plot(ekps.transformed.sp, border=gray(.5))
 plot.mst(ekps.mst, coordinates(ekps.transformed.sp), 
@@ -4470,6 +4758,7 @@ clust6 <- skater(ekps.mst[,1:2], cluster_df, method = "euclidean", 6)
 ```
 
 Check Cluster Assignment
+
 ```{r}
 ccs6 <- clust6$groups
 ccs6
@@ -4478,17 +4767,20 @@ ccs6
 ```{r}
 table(ccs6)
 ```
+
 Looks relatively evenly spread, with the exception of Cluster 2. 
 
 Visualise Clusters on MST
+
 ```{r}
 plot(ekps.transformed.sp, border=gray(.5))
 plot(clust6, coordinates(ekps.transformed.sp), cex.lab=.4,
      groups.colors=c("red","green","blue","yellow", "orange", "black", "grey"), cex.circles=0.005, add=TRUE)
 ```
 
-## compare the spatially constrained vs non-constrained and compare the mean 
-find out the characteristics of each  clusters in each method (barchart)
+##### compare the spatially constrained vs non-constrained and compare the mean 
+
+Find out the characteristics of each  clusters in each method (barchart)
 
 
 The discrepancy in the size of desas makes the above plot hard to visualise. Let us use a chloropleth to do it.
@@ -4501,9 +4793,11 @@ ekps.transformed <- cbind(ekps.transformed, as.factor(groups_mat)) %>%
   rename(`SP_CLUSTER`=`as.factor.groups_mat.`)
 qtm(ekps.transformed, "SP_CLUSTER")
 ```
+
 Compare both clustering methods
+
 ```{r}
-tmap_mode("view")
+tmap_mode("plot")
 
 hclust_map<- tm_shape(ekps.transformed) + 
   tm_fill(col = "H_CLUSTER", id = "DESA") +
@@ -4516,15 +4810,18 @@ hclust_map
 
 
 ```{r}
-tmap_mode("view")
 spclust_map <- tm_shape(ekps.transformed) + 
   tm_fill(col = "SP_CLUSTER", id = "DESA") +
-  tm_borders(alpha = 0.5) 
+  tm_borders(alpha = 0.5) +
+  tm_scale_bar(width = 0.15)
 
 spclust_map
 ```
 
 
+<<<<<<< HEAD
+ 
+=======
 ```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=TRUE}
 tm_shape(area)+
   tm_basemap('OpenStreetMap')+
@@ -4538,7 +4835,11 @@ tm_shape(area)+
   tm_scale_bar(width = 0.15)
 ```
 
- 
+
+```{r}
+tmap_mode("plot")
+```
+>>>>>>> f6834c6fbb0e0f8a5c5a4dd8849f62591287bdbf
 
 ```{r}
 slum_SP <- ggplot(ekps.transformed, aes(x = `SP_CLUSTER` , y=`PRESENCE_SLUMS`, fill=`SP_CLUSTER`)) + geom_bar(stat="summary", fun="mean")
@@ -4651,19 +4952,23 @@ ggarrange(lodging_num_SP, lodging_access_score_SP, took_credit_score_SP, bank_nu
 ```{r}
 ggarrange(fi_infra_access_Score_SP, infra_dev_score_SP, telecom_SP, nrow = 3, ncol = 1)
 ```
-## Cluster 3 analysis
+
+##### Cluster 3 analysis
 
 From the above spatially constrained clustering results, we can see that in most of the bar chart plotted above, cluster 3 stands out the most as either having the highest or lowest counts (mean). This prompted us to look into each the variable further. 
 
-cluster 3 - tmap using the desa, make it interactive, make it static for the report. Bar chart to deliberate on the reseaarch paper
+cluster 3 - tmap using the desa, make it interactive, make it static for the report. Bar chart to deliberate on the research paper
 
 
 The code chunk below entails the population poverty level and malnourishment level
+
 ```{r}
 ggarrange(malnourished_pop_SP,
 poverty_pop_SP, nrow = 1, ncol =2)
 ```
+
 The code chunk below entails the manufacturing/small industries
+
 ```{r}
 ggarrange(leather_indus_SP,
 metal_indus_SP,
@@ -4691,12 +4996,14 @@ edu_institution_num_SP,
 edu_access_score_SP,
 nrow = 2, ncol =3)
 ```
+
 ```{r}
 ggarrange(mail_access_score_SP,
 food_estab_num_SP,
 food_estab_access_score_SP,
 nrow = 2, ncol =2)
 ```
+
 The code chunk below entails the number of banks/financial institution in cluster 3
 
 ```{r}
@@ -4707,6 +5014,7 @@ nrow = 2, ncol =2)
 ```
 
 The code chunk below entails the public infrastructure for citizens in cluster 3 
+
 ```{r}
 ggarrange(infra_dev_score_SP,
 telecom_SP,
@@ -4715,7 +5023,16 @@ nrow = 1, ncol =2)
 ```
 
 
+```{r}
+ggarrange(bank_num_SP, bank_access_score_SP,
+fi_infra_num_SP,
+healthcare_service_SP,
+nrow = 2, ncol =2)
+```
+
+
 # 6 Spatially Constrained Clustering (SKATER) - Overall
+
 This section details the spatially constrained method by different sectors/variable groups. 
 
 First, let us create functions in order to reduce the amount of repeated code that is written.
@@ -4751,6 +5068,7 @@ prep_cluster_df <- function(org_df, vector_cols) {
 ```
 
 This function performs the spatially contrained method using the previously constructed neighbour weights and the optimum number of clusters. It also takes in a col_name argument which will be used to rename the generated column for the sector spatially constrained method. 
+
 ```{r}
 sc_clust <- function(nb_mat, cluster_df, clust_num) {
   # Generate Weights
@@ -4778,6 +5096,7 @@ sc_clust <- function(nb_mat, cluster_df, clust_num) {
 ```
 
 Now, let us split all the variables we have into several sectors for profiling. 
+
 ```{r}
 healthcare <- c("DESA", "HEALTHCARE_SERVICE_NUM", "DISEASE_OUTBREAK_SCORE","MALNOURISHED_POP", "HEALTHCARE_ACCESS_SCORE")
 
@@ -4798,8 +5117,17 @@ communication <- c("DESA","MAIL_ACCESS_SCORE", "TELECOMMUNICATIONS")
 education <- c("DESA", "EDUCATION_INSTITUTION_NUM", "EDUCATION_ACCESS_SCORE")
 ```
 
+```{r}
+load(file = "district_border.Rda")
+load(file = "city_border.Rda")
+```
+
+
+
 ## 6.1 Spatially Constrained Clustering (SKATER) - Profiling Healthcare Sector
+
 Select optimal number of clusters
+
 ```{r}
 healthcare_cluster_df <- prep_cluster_df(ekps.transformed, healthcare)
 ```
@@ -4810,13 +5138,49 @@ ekps.transformed <- sc_clust(ekps.nb, healthcare_cluster_df, 5)
 ```
 
 Lastly, we rename the column and plot the cluster number on a qtm.
+s
 ```{r}
+<<<<<<< HEAD
+#ekps.transformed <- ekps.transformed %>% rename(`HEALTHCARE_SC_CLUSTER` = `as.factor.groups_mat.`)
+
+tmap_mode("plot")
+tm_shape(ekps.transformed) + 
+  tm_fill(col = "HEALTHCARE_SC_CLUSTER") +
+  tm_borders(alpha = 0.5) +
+  tm_scale_bar(width = 0.15)
+  
+
+=======
+tmap_mode("view")
+
 ekps.transformed <- ekps.transformed %>% rename(`HEALTHCARE_SC_CLUSTER` = `as.factor.groups_mat.`)
 qtm(ekps.transformed, "HEALTHCARE_SC_CLUSTER")
+>>>>>>> f6834c6fbb0e0f8a5c5a4dd8849f62591287bdbf
 ```
 
+
+<!-- ```{r , echo=TRUE, eval=TRUE, warning=FALSE, message=TRUE} -->
+<!-- tm_shape(area)+ -->
+<!--   tm_basemap('OpenStreetMap')+ -->
+<!--   tm_polygons("CITY")+ -->
+<!--   tm_text("VILLAGE_ID", size = 0.1)+ -->
+<!--   tm_borders(lwd=0.5)+ -->
+<!--   tm_layout(legend.height = 0.50, -->
+<!--             legend.width = 0.44, -->
+<!--             frame = FALSE) + -->
+<!--   tm_compass(type="8star", size = 2) + -->
+<!--   tm_scale_bar(width = 0.15) -->
+<!-- ``` -->
+
+
+
+
+
+
 ## 6.2 Spatially Constrained Clustering (SKATER) - Profiling Industrial Sector
+
 Select optimal number of clusters
+
 ```{r}
 industrial_cluster_df <- prep_cluster_df(ekps.transformed, industrial)
 ```
@@ -4828,18 +5192,30 @@ ekps.transformed <- sc_clust(ekps.nb, industrial_cluster_df, 4)
 ```
 
 Lastly, we rename the column and plot the cluster number on a qtm.
+
 ```{r}
 ekps.transformed <- ekps.transformed %>% rename(`INDUSTRIAL_SC_CLUSTER` = `as.factor.groups_mat.`)
-qtm(ekps.transformed, "INDUSTRIAL_SC_CLUSTER")
+
+
+tmap_mode("view")
+
+tm_shape(ekps.transformed) + 
+  tm_fill(col = "INDUSTRIAL_SC_CLUSTER") +
+  tm_borders(alpha = 0.5) +
+  tm_scale_bar(width = 0.15)
+
 
 ```
 
 
 ## 6.3 Spatially Constrained Clustering (SKATER) - Profiling Financial Sector
+
 Select optimal number of clusters
+
 ```{r}
 financial_cluster_df <- prep_cluster_df(ekps.transformed, financial)
 ```
+
 From the above, we pick k=8 since the gradient from 7 to 8 is steep while the gradient from 8 to 9 is gentler. 
 
 ```{r}
@@ -4847,14 +5223,24 @@ ekps.transformed <- sc_clust(ekps.nb, financial_cluster_df, 8)
 ```
 
 Lastly, we rename the column and plot the cluster number on a qtm.
+
 ```{r}
-ekps.transformed <- ekps.transformed %>% rename(`FINANCIAL_SC_CLUSTER` = `as.factor.groups_mat.`)
-qtm(ekps.transformed, "FINANCIAL_SC_CLUSTER")
+#ekps.transformed <- ekps.transformed %>% rename(`FINANCIAL_SC_CLUSTER` = `as.factor.groups_mat.`)
+
+tmap_mode("plot")
+
+tm_shape(ekps.transformed) + 
+  tm_fill(col = "FINANCIAL_SC_CLUSTER") +
+  tm_borders(alpha = 0.5) +
+  tm_scale_bar(width = 0.15)
+  
+
 ```
 
 ## 6.4 Spatially Constrained Clustering (SKATER) - Profiling Transport Sector
 
 Select optimal number of clusters
+
 ```{r}
 transport_cluster_df <- prep_cluster_df(ekps.transformed, transport)
 ```
@@ -4866,14 +5252,24 @@ ekps.transformed <- sc_clust(ekps.nb, transport_cluster_df, 6)
 ```
 
 Lastly, we rename the column and plot the cluster number on a qtm.
+
 ```{r}
 ekps.transformed <- ekps.transformed %>% rename(`TRANSPORT_SC_CLUSTER` = `as.factor.groups_mat.`)
-qtm(ekps.transformed, "TRANSPORT_SC_CLUSTER")
+
+
+
+tmap_mode("view")
+
+tm_shape(ekps.transformed) + 
+  tm_fill(col = "TRANSPORT_SC_CLUSTER") +
+  tm_borders(alpha = 0.5) +
+  tm_scale_bar(width = 0.15)
 ```
 
 ## 6.5 Spatially Constrained Clustering (SKATER) - Profiling Food Sector
 
 Select optimal number of clusters
+
 ```{r}
 food_cluster_df <- prep_cluster_df(ekps.transformed, food)
 ```
@@ -4885,14 +5281,25 @@ ekps.transformed <- sc_clust(ekps.nb, food_cluster_df,6 )
 ```
 
 Lastly, we rename the column and plot the cluster number on a qtm.
+
 ```{r}
 ekps.transformed <- ekps.transformed %>% rename(`FOOD_SC_CLUSTER` = `as.factor.groups_mat.`)
-qtm(ekps.transformed, "FOOD_SC_CLUSTER")
+
+
+
+
+tmap_mode("view")
+
+tm_shape(ekps.transformed) + 
+  tm_fill(col = "FOOD_SC_CLUSTER") +
+  tm_borders(alpha = 0.5) +
+  tm_scale_bar(width = 0.15)
 ```
 
 ## 6.6 Spatially Constrained Clustering (SKATER) - Profiling Development
 
 Select optimal number of clusters
+
 ```{r}
 development_cluster_df <- prep_cluster_df(ekps.transformed, development)
 ```
@@ -4904,28 +5311,39 @@ ekps.transformed <- sc_clust(ekps.nb, development_cluster_df, 6)
 ```
 
 Lastly, we rename the column and plot the cluster number on a qtm.
+
 ```{r}
 ekps.transformed <- ekps.transformed %>% rename(`DEVELOPMENT_SC_CLUSTER` = `as.factor.groups_mat.`)
-qtm(ekps.transformed, "DEVELOPMENT_SC_CLUSTER")
+
+tmap_mode("view")
+
+tm_shape(ekps.transformed) + 
+  tm_fill(col = "DEVELOPMENT_SC_CLUSTER") +
+  tm_borders(alpha = 0.5) +
+  tm_scale_bar(width = 0.15)
 ```
 
 
 ## 6.7 Spatially Constrained Clustering (SKATER) - Profiling Disasters
 
 Initial running of clustering algorithm resulted in errors. Diagnose why error occurs.
+
 ```{r}
 diag <- ekps.recoded %>% st_set_geometry(NULL) %>% select(all_of(disasters))
 normalize(diag)
 ```
+
 We cam see that **PRESENCE_EARTHQUAKE**, **PRESENCE_TSUNAMI** and **PRESENCE_VOLCANIC_ERUPTIONS** have NaN values. This means that before scaling, they were probably the same value throughout all 384 desas. Remove these variables. 
 
 ```{r}
 remove <- c("PRESENCE_EARTHQUAKE", "PRESENCE_TSUNAMI", "PRESENCE_VOLCANIC_ERUPTIONS")
 disasters <- setdiff(disasters, remove)
 ```
+
 With that out of the way, let us continue running the algorithm.
 
 Select optimal number of clusters
+
 ```{r}
 disaster_cluster_df <- prep_cluster_df(ekps.recoded, disasters)
 ```
@@ -4937,14 +5355,24 @@ ekps.transformed <- sc_clust(ekps.nb, disaster_cluster_df, 5)
 ```
 
 Lastly, we rename the column and plot the cluster number on a qtm.
+
 ```{r}
 ekps.transformed <- ekps.transformed %>% rename(`DISASTER_SC_CLUSTER` = `as.factor.groups_mat.`)
-qtm(ekps.transformed, "DISASTER_SC_CLUSTER")
+
+
+
+tmap_mode("view")
+
+tm_shape(ekps.transformed) + 
+  tm_fill(col = "DISASTER_SC_CLUSTER") +
+  tm_borders(alpha = 0.5) +
+  tm_scale_bar(width = 0.15)
 ```
 
 ## 6.8 Spatially Constrained Clustering (SKATER) - Profiling Telecommunication Sector
 
 Select optimal number of clusters
+
 ```{r}
 telecomm_cluster_df <- prep_cluster_df(ekps.transformed, communication)
 ```
@@ -4956,14 +5384,22 @@ ekps.transformed <- sc_clust(ekps.nb, telecomm_cluster_df, 3)
 ```
 
 Lastly, we rename the column and plot the cluster number on a qtm.
+
 ```{r}
 ekps.transformed <- ekps.transformed %>% rename(`TELECOMM_SC_CLUSTER` = `as.factor.groups_mat.`)
-qtm(ekps.transformed, "TELECOMM_SC_CLUSTER")
+
+tmap_mode("view")
+
+tm_shape(ekps.transformed) + 
+  tm_fill(col = "TELECOMM_SC_CLUSTER") +
+  tm_borders(alpha = 0.5) +
+  tm_scale_bar(width = 0.15)
 ```
 
 ## 6.9 Spatially Constrained Clustering (SKATER) - Profiling Education Sector
 
 Select optimal number of clusters
+
 ```{r}
 edu_cluster_df <- prep_cluster_df(ekps.transformed, education)
 ```
@@ -4976,15 +5412,23 @@ ekps.transformed <- sc_clust(ekps.nb, edu_cluster_df,2 )
 
 
 Lastly, we rename the column and plot the cluster number on a qtm.
+
 ```{r}
 ekps.transformed <- ekps.transformed %>% rename(`EDUCATION_SC_CLUSTER` = `as.factor.groups_mat.`)
-qtm(ekps.transformed, "EDUCATION_SC_CLUSTER")
+
+tmap_mode("plot")
+
+tm_shape(ekps.transformed) + 
+  tm_fill(col = "EDUCATION_SC_CLUSTER") +
+  tm_borders(alpha = 0.5) +
+  tm_scale_bar(width = 0.15)
 ```
 
 
 # 7 Spatially Constrained Clustering (ClustGeo) - Overall
 
 First, let us derive the inputs required for the ClustGeo functions.
+
 ```{r}
 # Data matrix 
 # dat <- ekps.transformed[6:45] %>% st_set_geometry(NULL)
@@ -5039,6 +5483,7 @@ map <- ekps.transformed.sp
 ```
 
 ## 7.1 Spatially Constrained Clustering (ClustGeo) taking into account input variables only - Overall
+
 ```{r}
 D0 <- dist(dat)
 tree <- hclustgeo(D0)
@@ -5047,7 +5492,9 @@ plot(tree,hang=-1,label=FALSE, xlab="",sub="",
 rect.hclust(tree,k=7,border=c(4,5,3,2,1,6,7))
 legend("topright", legend= paste("cluster",1:7), fill=1:7, cex=0.8,bty="n",border="white")
 ```
+
 ### 7.1.1 Visualise Clusters on Map
+
 ```{r}
 # plot(map, border = "grey")
 P7 <- cutree(tree, 7)
@@ -5055,11 +5502,13 @@ P7 <- cutree(tree, 7)
 ekps.transformed$cgd0 <- P7
 qtm(ekps.transformed, "cgd0")
 ```
+
 The clusters appear geographically very fragmented.We need to introduce the geographical distances between the desas into the clustering.
 
 ## 7.2 Spatially Constrained Clustering (ClustGeo)taking into account geographical distances - Overall
 
 ### 7.2.1 Derive Geographical Distance Matrix
+
 ```{r}
 # Convert map to latlong projection instead of UTM
 map_ll <- spTransform(map, CRS("+proj=longlat +datum=WGS84"))
@@ -5074,6 +5523,7 @@ D1 <- as.dist(D1)
 ```
 
 ### 7.2.2 Choose optimal mixing parameter, α
+
 The alpha value determines the relative importance we assign to the clustering variables vs that of the geographical distances. The higher the alpha, the greater the geographical differences are factored into the clustering algorithm.
 
 ```{r}
@@ -5092,12 +5542,14 @@ We see on the plot the proportion of explained pseudo inertia calculated with D0
 From the plot, it is suggested that we pick α= 0.4, as it results in a loss of  clustering (due to variables) homogenity of 10% while resulting in a gain of geographic homogenity of 20%. 
 
 ### 7.2.3 Modified partiton with alpha = 0.4
+
 ```{r}
 tree_d1 <- hclustgeo(D0,D1, alpha=0.4)
 P7d1 <- cutree(tree,7)
 ```
 
 ### 7.2.4 Visualise new clusters
+
 ```{r}
 tmap_mode("plot")
 ekps.transformed$cgd1 <- P7d1
@@ -5106,6 +5558,7 @@ qtm(ekps.transformed, "cgd1")
 
 
 ## 7.3 Spatially Constrained Clustering (ClustGeo) taking into account neighbours - Overall
+
 ```{r}
 A <- nb2mat(ekps.nb, style = "B")
 diag(A) <- 1
@@ -5124,6 +5577,7 @@ cr <- choicealpha(D0, D1_n, range.alpha, K, graph = TRUE)
 ```{r}
 cr$Q
 ```
+
 We see on the plot the proportion of explained pseudo inertia calculated with D0 (the distances related to the clustering variables) is equal to 0.508 when α=0 and decreases when α increases (black line) On the contrary the proportion of explained pseudo inertia calculated with D1 (the geographical distances) is equal to 0.0916 when α=1 and decreases when α decreases (red line).
 
 ```{r}
@@ -5141,9 +5595,11 @@ qtm(ekps.transformed, "cgdn")
 ```
 
 ## 7,4 Spatially Constrained Clustering (ClustGeo) - By Sector 
+
 Now, we will extend the analysis to the sectors created in the previous section for the SKATER method. Similarly, we will write the ClustGeo clustering functions into appropriate functions to reduce the amount of repeated code written.The cluster numbers used for analysis in tis portion will follow that used for the SKATER method, which is chosen by looking at the GapStatistic. 
 
 This function gives us the D0 matrix, which computes the euclidean distance between the various DESAs based on input
+
 ```{r}
 getD0 <- function(org_df, vector_vars) {
   dat <- org_df %>%
@@ -5163,6 +5619,7 @@ return(D0)
 ```
 
 This function plots the Qnorm for D0 and D1 as alpha varies from 0 to 1. This is used to select the best alpha for the ClustGeo
+
 ```{r}
 alpha_geo <- function(D0,D1,K) {
   range.alpha <- seq(0,1,0.05)
@@ -5173,6 +5630,7 @@ alpha_geo <- function(D0,D1,K) {
 ```
 
 This function performs the clustering required and appends the clusters to the ekps.transformed df
+
 ```{r}
 geoclustering <- function(D0, D1, alpha, K) {
   tree <- hclustgeo(D0, D1, alpha)
@@ -5185,15 +5643,19 @@ geoclustering <- function(D0, D1, alpha, K) {
 
 
 ### 7.4.1 Profiling Healthcare Sector
+
 Get D0 Matrix
+
 ```{r}
 D0_healthcare <- getD0(ekps.transformed, healthcare)
 ```
 
 #### 7.4.1.1 Spatially Constrained Clustering (ClustGeo) taking into account geographical distances
+
 ```{r}
 alpha_geo(D0_healthcare, D1, 5)
 ```
+
 Pick alpha = 0.25 since it results in a loss of  clustering (due to variables) homogenity of 5% while resulting in a gain of geographic homogenity of 24%.
 
 ```{r}
@@ -5201,34 +5663,41 @@ ekps.transformed <- geoclustering(D0_healthcare, D1, 0.25, 5)
 ```
 
 Rename Column holding clustering number 
+
 ```{r}
 ekps.transformed <- ekps.transformed %>% rename(`HEALTHCARE_CG_DIST_CLUSTER` = `as.factor.clust.`)
 qtm(ekps.transformed, "HEALTHCARE_CG_DIST_CLUSTER")
 ```
 
 #### 7.4.1.2 Spatially Constrained Clustering (ClustGeo) taking into account neighbours
+
 ```{r}
 alpha_geo(D0_healthcare, D1_n, 5)
 ```
+
 Pick alpha = 0.2 since it results in a loss of  clustering (due to variables) homogenity of 9% while resulting in a gain of geographic homogenity of 15%.
 
 ```{r}
 ekps.transformed <- geoclustering(D0_healthcare, D1_n, 0.2, 5)
 ```
 
-Rename Column holding clustering number 
+Rename Column holding clustering number
+
 ```{r}
 ekps.transformed <- ekps.transformed %>% rename(`HEALTHCARE_CG_NEIGH_CLUSTER` = `as.factor.clust.`)
 qtm(ekps.transformed, "HEALTHCARE_CG_NEIGH_CLUSTER")
 ```
 
 ### 7.4.2 Profiling Industrial Sector
+
 Get D0 Matrix
+
 ```{r}
 D0_industrial <- getD0(ekps.transformed, industrial)
 ```
 
 #### 7.4.2.1 Spatially Constrained Clustering (ClustGeo) taking into account geographical distances
+
 ```{r}
 alpha_geo(D0_industrial, D1,4)
 ```
@@ -5240,12 +5709,14 @@ ekps.transformed <- geoclustering(D0_industrial, D1, 0.1, 4)
 ```
 
 Rename Column holding clustering number 
+
 ```{r}
 ekps.transformed <- ekps.transformed %>% rename(`INDUSTRIAL_CG_DIST_CLUSTER` = `as.factor.clust.`)
 qtm(ekps.transformed, "INDUSTRIAL_CG_DIST_CLUSTER")
 ```
 
 #### 7.4.2.2 Spatially Constrained Clustering (ClustGeo) taking into account neighbours
+
 ```{r}
 alpha_geo(D0_industrial, D1_n, 4)
 ```
@@ -5257,18 +5728,22 @@ ekps.transformed <- geoclustering(D0_industrial, D1_n, 0.15, 4)
 ```
 
 Rename Column holding clustering number 
+
 ```{r}
 ekps.transformed <- ekps.transformed %>% rename(`INDUSTRIAL_CG_NEIGH_CLUSTER` = `as.factor.clust.`)
 qtm(ekps.transformed, "INDUSTRIAL_CG_NEIGH_CLUSTER")
 ```
 
 ### 7.4.3 Profiling Financial Sector
+
 Get D0 Matrix
+
 ```{r}
 D0_financial <- getD0(ekps.transformed, financial)
 ```
 
 #### 7.4.3.1 Spatially Constrained Clustering (ClustGeo) taking into account geographical distances
+
 ```{r}
 alpha_geo(D0_financial, D1, 8)
 ```
@@ -5280,6 +5755,7 @@ ekps.transformed <- geoclustering(D0_financial, D1, 0.3, 8)
 ```
 
 Rename Column holding clustering number 
+
 ```{r}
 ekps.transformed <- ekps.transformed %>% rename(`FINANCIAL_CG_DIST_CLUSTER` = `as.factor.clust.`)
 qtm(ekps.transformed, "FINANCIAL_CG_DIST_CLUSTER")
@@ -5298,12 +5774,14 @@ ekps.transformed <- geoclustering(D0_financial, D1_n, 0.1, 8)
 ```
 
 Rename Column holding clustering number 
+
 ```{r}
 ekps.transformed <- ekps.transformed %>% rename(`FINANCIAL_CG_NEIGH_CLUSTER` = `as.factor.clust.`)
 qtm(ekps.transformed, "FINANCIAL_CG_NEIGH_CLUSTER")
 ```
 
 ### 7.4.4 Profiling Transport Sector
+
 Get D0 Matrix
 
 ```{r}
@@ -5311,9 +5789,11 @@ D0_transport<- getD0(ekps.transformed, transport)
 ```
 
 #### 7.4.1.1 Spatially Constrained Clustering (ClustGeo) taking into account geographical distances
+
 ```{r}
 alpha_geo(D0_transport, D1, 6)
 ```
+
 Pick alpha = 0.6 since it results in a loss of  clustering (due to variables) homogenity of 9% while resulting in a gain of geographic homogenity of 24%.
 
 ```{r}
@@ -5321,53 +5801,64 @@ ekps.transformed <- geoclustering(D0_transport, D1, 0.6, 6)
 ```
 
 Rename Column holding clustering number 
+
 ```{r}
 ekps.transformed <- ekps.transformed %>% rename(`TRANSPORT_CG_DIST_CLUSTER` = `as.factor.clust.`)
 qtm(ekps.transformed, "TRANSPORT_CG_DIST_CLUSTER")
 ```
 
 #### 7.4.1.2 Spatially Constrained Clustering (ClustGeo) taking into account neighbours
+
 ```{r}
 alpha_geo(D0_transport, D1_n, 6)
 ```
+
 Pick alpha = 0.35 since it results in a loss of  clustering (due to variables) homogenity of 3% while resulting in a gain of geographic homogenity of 6%.
 
 ```{r}
 ekps.transformed <- geoclustering(D0_transport, D1_n, 0.35, 6)
 ```
 
-Rename Column holding clustering number 
+Rename Column holding clustering number
+
 ```{r}
 ekps.transformed <- ekps.transformed %>% rename(`TRANSPORT_CG_NEIGH_CLUSTER` = `as.factor.clust.`)
 qtm(ekps.transformed, "TRANSPORT_CG_NEIGH_CLUSTER")
 ```
 
 ### 7.4.5 Profiling Food Sector
+
 Get D0 Matrix
+
 ```{r}
 D0_food <- getD0(ekps.transformed, food)
 ```
 
 #### 7.4.5.1 Spatially Constrained Clustering (ClustGeo) taking into account geographical distances
+
 ```{r}
 alpha_geo(D0_food, D1, 6)
 ```
+
 Pick alpha = 0.15 since it results in a loss of  clustering (due to variables) homogenity of 8% while resulting in a gain of geographic homogenity of 28%.
 
 ```{r}
 ekps.transformed <- geoclustering(D0_food, D1, 0.15, 6)
 ```
 
-Rename Column holding clustering number 
+Rename Column holding clustering number
+
 ```{r}
 ekps.transformed <- ekps.transformed %>% rename(`FOOD_CG_DIST_CLUSTER` = `as.factor.clust.`)
 qtm(ekps.transformed, "FOOD_CG_DIST_CLUSTER")
 ```
 
 #### 7.4.5.2 Spatially Constrained Clustering (ClustGeo) taking into account neighbours
+
 ```{r}
 alpha_geo(D0_food, D1_n, 6)
 ```
+
 Pick alpha = 0.15 since it results in a loss of  clustering (due to variables) homogenity of 9% while resulting in a gain of geographic homogenity of 14%.
 
 ```{r}
@@ -5375,21 +5866,26 @@ ekps.transformed <- geoclustering(D0_food, D1_n, 0.15, 6)
 ```
 
 Rename Column holding clustering number 
+
 ```{r}
 ekps.transformed <- ekps.transformed %>% rename(`FOOD_CG_NEIGH_CLUSTER` = `as.factor.clust.`)
 qtm(ekps.transformed, "FOOD_CG_NEIGH_CLUSTER")
 ```
 
 ### 7.4.6 Profiling Development Sector
+
 Get D0 Matrix
+
 ```{r}
 D0_development<- getD0(ekps.transformed, development)
 ```
 
 #### 7.4.6.1 Spatially Constrained Clustering (ClustGeo) taking into account geographical distances
+
 ```{r}
 alpha_geo(D0_development, D1, 6)
 ```
+
 Pick alpha = 0.3 since it results in a loss of  clustering (due to variables) homogenity of 6% while resulting in a gain of geographic homogenity of 21%.
 
 ```{r}
@@ -5397,15 +5893,18 @@ ekps.transformed <- geoclustering(D0_development, D1, 0.3, 6)
 ```
 
 Rename Column holding clustering number 
+
 ```{r}
 ekps.transformed <- ekps.transformed %>% rename(`DEVELOPMENT_CG_DIST_CLUSTER` = `as.factor.clust.`)
 qtm(ekps.transformed, "DEVELOPMENT_CG_DIST_CLUSTER")
 ```
 
 #### 7.4.6.2 Spatially Constrained Clustering (ClustGeo) taking into account neighbours
+
 ```{r}
 alpha_geo(D0_development, D1_n, 6)
 ```
+
 Pick alpha = 0.15 since it results in a loss of  clustering (due to variables) homogenity of 3% while resulting in a gain of geographic homogenity of 7%.
 
 ```{r}
@@ -5413,20 +5912,26 @@ ekps.transformed <- geoclustering(D0_development, D1_n, 0.15, 6)
 ```
 
 Rename Column holding clustering number 
+
 ```{r}
 ekps.transformed <- ekps.transformed %>% rename(`DEVELOPMENT_CG_NEIGH_CLUSTER` = `as.factor.clust.`)
 qtm(ekps.transformed, "DEVELOPMENT_CG_NEIGH_CLUSTER")
 ```
+
 ### 7.4.7 Profiling Disasters Sector
+
 Get D0 Matrix
+
 ```{r}
 D0_disasters <- getD0(ekps.recoded, disasters)
 ```
 
 #### 7.4.7.1 Spatially Constrained Clustering (ClustGeo) taking into account geographical distances
+
 ```{r}
 alpha_geo(D0_disasters, D1, 5)
 ```
+
 Pick alpha = 0.5 since it results in a loss of  clustering (due to variables) homogenity of 16% while resulting in a gain of geographic homogenity of 24%.
 
 ```{r}
@@ -5434,15 +5939,18 @@ ekps.transformed <- geoclustering(D0_disasters, D1, 0.5, 5)
 ```
 
 Rename Column holding clustering number 
+
 ```{r}
 ekps.transformed <- ekps.transformed %>% rename(`DISASTER_CG_DIST_CLUSTER` = `as.factor.clust.`)
 qtm(ekps.transformed, "DISASTER_CG_DIST_CLUSTER")
 ```
 
 #### 7.4.7.2 Spatially Constrained Clustering (ClustGeo) taking into account neighbours
+
 ```{r}
 alpha_geo(D0_disasters, D1_n, 5)
 ```
+
 Pick alpha = 0.15 since it results in a loss of  clustering (due to variables) homogenity of 2% while resulting in a gain of geographic homogenity of 5%.
 
 ```{r}
@@ -5450,37 +5958,45 @@ ekps.transformed <- geoclustering(D0_disasters, D1_n, 0.15, 5)
 ```
 
 Rename Column holding clustering number 
+
 ```{r}
 ekps.transformed <- ekps.transformed %>% rename(`DISASTER_CG_NEIGH_CLUSTER` = `as.factor.clust.`)
 qtm(ekps.transformed, "DISASTER_CG_NEIGH_CLUSTER")
 ```
 
 ### 7.4.8 Profiling Telecommunication Sector
+
 Get D0 Matrix
+
 ```{r}
 D0_comm <- getD0(ekps.transformed, communication)
 ```
 
 #### 7.4.8.1 Spatially Constrained Clustering (ClustGeo) taking into account geographical distances
+
 ```{r}
 alpha_geo(D0_comm, D1, 3)
 ```
+
 Pick alpha = 0.35 since it results in a loss of  clustering (due to variables) homogenity of 16% while resulting in a gain of geographic homogenity of 42%.
 
 ```{r}
 ekps.transformed <- geoclustering(D0_comm, D1, 0.35, 3)
 ```
 
-Rename Column holding clustering number 
+Rename Column holding clustering number
+
 ```{r}
 ekps.transformed <- ekps.transformed %>% rename(`TELECOMM_CG_DIST_CLUSTER` = `as.factor.clust.`)
 qtm(ekps.transformed, "TELECOMM_CG_DIST_CLUSTER")
 ```
 
 #### 7.4.8.2 Spatially Constrained Clustering (ClustGeo) taking into account neighbours
+
 ```{r}
 alpha_geo(D0_comm, D1_n, 3)
 ```
+
 Pick alpha = 0.35 since it results in a loss of  clustering (due to variables) homogenity of 16% while resulting in a gain of geographic homogenity of 25%.
 
 ```{r}
@@ -5488,21 +6004,26 @@ ekps.transformed <- geoclustering(D0_comm, D1_n, 0.35, 3)
 ```
 
 Rename Column holding clustering number 
+
 ```{r}
 ekps.transformed <- ekps.transformed %>% rename(`TELECOMM_CG_NEIGH_CLUSTER` = `as.factor.clust.`)
 qtm(ekps.transformed, "TELECOMM_CG_NEIGH_CLUSTER")
 ```
 
 ### 7.4.9 Profiling Education Sector
+
 Get D0 Matrix
+
 ```{r}
 D0_edu <- getD0(ekps.transformed, education)
 ```
 
 #### 7.4.9.1 Spatially Constrained Clustering (ClustGeo) taking into account geographical distances
+
 ```{r}
 alpha_geo(D0_edu, D1, 2)
 ```
+
 Pick alpha = 0.35 since it results in a loss of  clustering (due to variables) homogenity of 41% while resulting in a gain of geographic homogenity of 53%.
 
 ```{r}
@@ -5510,15 +6031,18 @@ ekps.transformed <- geoclustering(D0_edu, D1, 0.35, 2)
 ```
 
 Rename Column holding clustering number 
+
 ```{r}
 ekps.transformed <- ekps.transformed %>% rename(`EDUCATION_CG_DIST_CLUSTER` = `as.factor.clust.`)
 qtm(ekps.transformed, "EDUCATION_CG_DIST_CLUSTER")
 ```
 
 #### 7.4.9.2 Spatially Constrained Clustering (ClustGeo) taking into account neighbours
+
 ```{r}
 alpha_geo(D0_edu, D1_n, 2)
 ```
+
 Pick alpha = 0.05 since it results in a loss of  clustering (due to variables) homogenity of 5% while resulting in a gain of geographic homogenity of 20%.
 
 ```{r}
@@ -5526,7 +6050,10 @@ ekps.transformed <- geoclustering(D0_edu, D1_n, 0.05, 2)
 ```
 
 Rename Column holding clustering number 
+
 ```{r}
 ekps.transformed <- ekps.transformed %>% rename(`EDUCATION_CG_NEIGH_CLUSTER` = `as.factor.clust.`)
 qtm(ekps.transformed, "EDUCATION_CG_NEIGH_CLUSTER")
 ```
+
+
